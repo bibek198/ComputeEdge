@@ -9,7 +9,7 @@
 | Languages | C++20 (core), Objective-C++ (Metal glue only), Metal Shading Language |
 | Libraries | Apple Metal, Accelerate (baseline + reference), GoogleTest |
 | Build | CMake + Ninja |
-| Status | Pre-M1 |
+| Status | M1 complete; M2 next |
 
 ---
 
