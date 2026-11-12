@@ -9,7 +9,7 @@
 | Languages | C++20 (core), Objective-C++ (Metal glue only), Metal Shading Language |
 | Libraries | Apple Metal, Accelerate (baseline + reference), GoogleTest |
 | Build | CMake + Ninja |
-| Status | M1 complete; M2 next |
+| Status | M1–M2 complete; M3 next |
 
 ---
 
@@ -280,7 +280,7 @@ The cost tables come from Track A/B/D measurements, interpolated in log-size. Th
 | C+D | End-to-end | mixed-size op chains (e.g. small MLP layers) | total latency vs static / oracle / MLX |
 
 ### 7.2 Protocol
-- Warm-up ≥ 10 iterations; ≥ 30 measured repetitions; report **median, IQR, and 95% bootstrap CI**.
+- Warm-up ≥ 10 iterations **and** ≥ 200 ms (small ops otherwise run before clocks reach steady state; a 128² SGEMM measured 4–5× slower with a count-only warm-up); ≥ 30 measured repetitions; report **median, IQR, and 95% bootstrap CI**.
 - Shader compilation is excluded from steady-state numbers and reported separately as cold start.
 - GPU end-to-end numbers always include synchronization.
 - Power: always on the adapter, with Low Power Mode off; the battery case is reported separately if at all.
