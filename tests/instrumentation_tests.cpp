@@ -10,7 +10,7 @@
 #include "computeedge/allocator.h"
 #include "computeedge/instrumentation.h"
 #include "computeedge/scoped_timer.h"
-#include "computeedge/tensor.h"
+#include "computeedge/ops.h"
 
 using namespace computeedge;
 

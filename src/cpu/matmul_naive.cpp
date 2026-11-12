@@ -1,34 +1,23 @@
 // Naive CPU matrix multiplication. This is the correctness reference, not a
-// performance baseline: Accelerate's cblas_sgemm takes that role in M2.
+// performance baseline: Accelerate's cblas_sgemm takes that role.
 
-#include "computeedge/instrumentation.h"
-#include "computeedge/scoped_timer.h"
-#include "computeedge/tensor.h"
+#include <cstring>
 
-namespace computeedge {
+#include "kernels.h"
 
-Tensor matmul_naive(const Tensor& a, const Tensor& b) {
-  if (!a.defined() || !b.defined()) throw Error("matmul: undefined input");
-  if (a.ndim() != 2 || b.ndim() != 2) throw Error("matmul: inputs must be 2-D");
+namespace computeedge::detail {
+
+void matmul_naive_kernel(const Tensor& a, const Tensor& b, Tensor& out) {
   const size_t M = a.shape()[0];
   const size_t K = a.shape()[1];
   const size_t N = b.shape()[1];
-  if (b.shape()[0] != K) {
-    throw Error("matmul: inner dimensions differ (" + std::to_string(K) + " vs " + std::to_string(b.shape()[0]) +
-                ")");
-  }
-
-  const uint64_t exec = next_exec_id();
-  emit(EventType::Dispatch, exec, M * N * sizeof(float), Backend::CPU, exec, "matmul_naive");
-  ScopedTimer timer("matmul_naive", nullptr, exec, Backend::CPU);
 
   const Tensor ac = a.contiguous();
   const Tensor bc = b.contiguous();
-  Tensor c({M, N}, a.storage()->allocator());
-
-  const float* A = ac.data();
-  const float* B = bc.data();
-  float* C = c.data();
+  const float* A = ac.numel() ? ac.data() : nullptr;
+  const float* B = bc.numel() ? bc.data() : nullptr;
+  float* C = out.data();
+  if (M * N) std::memset(C, 0, M * N * sizeof(float));
 
   // i-k-j order: streams rows of B and C, which is cache-friendly for row-major data.
   for (size_t i = 0; i < M; ++i) {
@@ -39,7 +28,6 @@ Tensor matmul_naive(const Tensor& a, const Tensor& b) {
       for (size_t j = 0; j < N; ++j) c_row[j] += a_ik * b_row[j];
     }
   }
-  return c;
 }
 
-}  // namespace computeedge
+}  // namespace computeedge::detail

@@ -103,11 +103,4 @@ class Tensor {
   size_t offset_ = 0;
 };
 
-// Naive CPU matrix multiplication (correctness reference): C[M,N] = A[M,K] * B[K,N].
-Tensor matmul_naive(const Tensor& a, const Tensor& b);
-
-// Public entry point. Currently always runs the naive CPU kernel; the
-// dispatcher (M8) will select CPU / Metal here.
-Tensor matmul(const Tensor& a, const Tensor& b);
-
 }  // namespace computeedge

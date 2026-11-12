@@ -1,13 +1,17 @@
 cmake_minimum_required(VERSION 3.24)
-project(ComputeEdge VERSION 0.1.0 LANGUAGES CXX)
+project(ComputeEdge VERSION 0.1.0 LANGUAGES CXX OBJCXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_OBJCXX_STANDARD 20)
+set(CMAKE_OBJCXX_STANDARD_REQUIRED ON)
+set(CMAKE_OBJCXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(CE_BUILD_TESTS "Build unit tests" ON)
 option(CE_BUILD_EXAMPLES "Build examples" ON)
+option(CE_BUILD_BENCHMARKS "Build benchmarks" ON)
 option(CE_SANITIZE "Build with AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -19,19 +23,51 @@ if(CE_SANITIZE)
   add_link_options(-fsanitize=address,undefined)
 endif()
 
+# Git revision recorded in benchmark output (captured at configure time; re-run
+# cmake after committing to refresh it).
+execute_process(
+  COMMAND git describe --always --dirty --abbrev=12
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  OUTPUT_VARIABLE CE_GIT_SHA
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  ERROR_QUIET)
+if(NOT CE_GIT_SHA)
+  set(CE_GIT_SHA "unknown")
+endif()
+
+set(CE_WARNINGS -Wall -Wextra -Wpedantic -Wshadow)
+
 # ---------------------------------------------------------------------------
-# Library
+# Core library (portable C++ core + CPU backend)
 # ---------------------------------------------------------------------------
 add_library(computeedge STATIC
   src/core/allocator.cpp
   src/core/instrumentation.cpp
   src/core/tensor.cpp
+  src/cpu/matmul.cpp
   src/cpu/matmul_naive.cpp
+  src/cpu/matmul_accelerate.cpp
 )
 add_library(computeedge::computeedge ALIAS computeedge)
-
 target_include_directories(computeedge PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_compile_options(computeedge PRIVATE -Wall -Wextra -Wpedantic -Wshadow)
+target_compile_options(computeedge PRIVATE ${CE_WARNINGS})
+target_link_libraries(computeedge PUBLIC "-framework Accelerate")
+
+# ---------------------------------------------------------------------------
+# Benchmark harness library (uses Foundation / IOKit for environment recording)
+# ---------------------------------------------------------------------------
+add_library(computeedge_bench STATIC
+  src/benchmark/benchmark.cpp
+  src/benchmark/stats.cpp
+  src/benchmark/env_recorder.mm
+)
+target_link_libraries(computeedge_bench PUBLIC computeedge "-framework Foundation" "-framework IOKit")
+target_compile_options(computeedge_bench PRIVATE ${CE_WARNINGS})
+set_source_files_properties(src/benchmark/env_recorder.mm PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
+target_compile_definitions(computeedge_bench PRIVATE
+  CE_GIT_SHA="${CE_GIT_SHA}"
+  CE_BUILD_TYPE="${CMAKE_BUILD_TYPE}"
+  CE_SANITIZE_ENABLED=$<BOOL:${CE_SANITIZE}>)
 
 # ---------------------------------------------------------------------------
 # Examples
@@ -40,6 +76,16 @@ if(CE_BUILD_EXAMPLES)
   add_executable(matrix_multiplication examples/matrix_multiplication.cpp)
   target_link_libraries(matrix_multiplication PRIVATE computeedge)
   set_target_properties(matrix_multiplication PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/examples)
+endif()
+
+# ---------------------------------------------------------------------------
+# Benchmarks
+# ---------------------------------------------------------------------------
+if(CE_BUILD_BENCHMARKS)
+  add_executable(cpu_matmul benchmarks/cpu_matmul.cpp)
+  target_link_libraries(cpu_matmul PRIVATE computeedge_bench)
+  target_compile_options(cpu_matmul PRIVATE ${CE_WARNINGS})
+  set_target_properties(cpu_matmul PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/benchmarks)
 endif()
 
 # ---------------------------------------------------------------------------
@@ -62,8 +108,9 @@ if(CE_BUILD_TESTS)
     tests/instrumentation_tests.cpp
     tests/tensor_tests.cpp
     tests/matmul_tests.cpp
+    tests/benchmark_tests.cpp
   )
-  target_link_libraries(computeedge_tests PRIVATE computeedge GTest::gtest_main)
+  target_link_libraries(computeedge_tests PRIVATE computeedge_bench GTest::gtest_main)
   target_compile_options(computeedge_tests PRIVATE -Wall -Wextra)
 
   include(GoogleTest)

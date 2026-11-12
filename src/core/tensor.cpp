@@ -204,6 +204,4 @@ void Tensor::print(std::ostream& out) const {
 
 void Tensor::print() const { print(std::cout); }
 
-Tensor matmul(const Tensor& a, const Tensor& b) { return matmul_naive(a, b); }
-
 }  // namespace computeedge

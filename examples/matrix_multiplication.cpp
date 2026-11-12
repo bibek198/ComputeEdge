@@ -5,9 +5,7 @@
 #include <cstdio>
 #include <iostream>
 
-#include "computeedge/instrumentation.h"
-#include "computeedge/scoped_timer.h"
-#include "computeedge/tensor.h"
+#include "computeedge/computeedge.h"
 
 using namespace computeedge;
 
@@ -29,7 +27,7 @@ int main(int argc, char** argv) {
   C.print();
 
   const AllocStats s = default_allocator().stats();
-  std::cout << "\nBackend: CPU (naive reference)\n"
+  std::cout << "\nBackend: CPU (Accelerate)\n"
             << "Execution Time: " << elapsed_ns / 1000.0 << " us\n"
             << "Allocations: " << s.alloc_count << " (live " << s.live_blocks() << ", peak " << s.peak_bytes / 1024
             << " KiB)\n"
