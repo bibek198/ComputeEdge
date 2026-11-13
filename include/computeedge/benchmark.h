@@ -56,7 +56,10 @@ struct Environment {
   std::string power_source;  // "AC Power", "Battery Power", or "unknown"
   bool low_power_mode = false;
   ThermalState thermal_state = ThermalState::Unknown;
+  std::string gpu_name;                    // MTLDevice.name
+  uint64_t gpu_recommended_working_set = 0;  // MTLDevice.recommendedMaxWorkingSetSize
   std::string compiler;
+  std::string compiler_flags;  // CMAKE_CXX_FLAGS + build-type flags
   std::string build_type;
   std::string git_sha;  // captured at CMake configure time
   bool sanitizers = false;
@@ -97,6 +100,9 @@ struct Result {
   ThermalState thermal_after = ThermalState::Unknown;
   double flops_per_call = 0;  // 0 if not applicable
   Summary summary;
+  // Optional per-sample breakdown (e.g. submit / wait / GPU time), from run_with_metrics.
+  std::map<std::string, std::vector<double>> metrics;
+  std::map<std::string, Summary> metric_summaries;
 
   double gflops_median() const;  // 0 if flops_per_call == 0
 };
@@ -106,11 +112,21 @@ struct Result {
 Result run(const std::string& name, const std::map<std::string, std::string>& params, const Config& config,
            const std::function<void()>& fn, double flops_per_call = 0, const std::function<void()>& setup = {});
 
+// A measured call that also reports named metrics for that call (e.g. phase
+// durations in ns). Each sample is exactly one call (inner_iterations is forced
+// to 1) so metrics and the sample line up.
+using Metrics = std::map<std::string, double>;
+using MetricsFn = std::function<void(Metrics&)>;
+
+Result run_with_metrics(const std::string& name, const std::map<std::string, std::string>& params,
+                        const Config& config, const MetricsFn& fn, double flops_per_call = 0);
+
 // ---------------------------------------------------------------------------
 // Output
 // ---------------------------------------------------------------------------
 
-// Writes <root>/<YYYYmmdd-HHMMSS>_<sha>/{env.json, samples.csv, summary.csv}.
+// Writes <root>/<YYYYmmdd-HHMMSS>_<sha>/{env.json, samples.csv, summary.csv} and,
+// when any result has metrics, metrics.csv (long format) and metrics_summary.csv.
 class ResultWriter {
  public:
   ResultWriter(const std::string& root, const Environment& env);

@@ -189,3 +189,60 @@ TEST(Writer, ParamNamedNDoesNotCollideWithSummaryColumns) {
   EXPECT_EQ(header.rfind("benchmark,n,n_samples,", 0), 0u) << header;
   std::filesystem::remove_all(root);
 }
+
+TEST(Runner, MetricsAlignWithMeasuredSamples) {
+  cb::Config cfg;
+  cfg.warmup = 3;
+  cfg.min_warmup_ns = 0;
+  cfg.repetitions = 5;
+  int call = 0;
+  const cb::Result r = cb::run_with_metrics("m", {}, cfg, [&](cb::Metrics& m) {
+    ++call;
+    m["call"] = call;
+    m["const"] = 7;
+  });
+  EXPECT_EQ(r.inner_iterations, 1);
+  ASSERT_EQ(r.samples_ns.size(), 5u);
+  ASSERT_EQ(r.metrics.at("call").size(), 5u);
+  // Warm-up calls (1..3) are excluded; measured calls are 4..8.
+  EXPECT_EQ(r.metrics.at("call").front(), 4);
+  EXPECT_EQ(r.metrics.at("call").back(), 8);
+  EXPECT_EQ(r.metric_summaries.at("const").median, 7);
+  EXPECT_EQ(r.metric_summaries.at("call").median, 6);
+}
+
+TEST(Runner, MetricsMustBeReportedEveryCall) {
+  cb::Config cfg;
+  cfg.warmup = 0;
+  cfg.min_warmup_ns = 0;
+  cfg.repetitions = 4;
+  int call = 0;
+  EXPECT_THROW(cb::run_with_metrics("m", {}, cfg,
+                                    [&](cb::Metrics& m) {
+                                      if (++call % 2) m["sometimes"] = 1;
+                                    }),
+               computeedge::Error);
+}
+
+TEST(Writer, WritesMetricsFiles) {
+  const auto root = std::filesystem::temp_directory_path() / ("ce_bench_metrics_" + std::to_string(::getpid()));
+  std::filesystem::remove_all(root);
+  cb::Config cfg;
+  cfg.warmup = 0;
+  cfg.min_warmup_ns = 0;
+  cfg.repetitions = 3;
+  cb::ResultWriter w(root.string(), cb::record_environment());
+  w.add(cb::run_with_metrics("op", {{"storage", "nocopy"}}, cfg, [](cb::Metrics& m) {
+    m["wait_ns"] = 10;
+    m["gpu_ns"] = 5;
+  }));
+  w.flush();
+  const std::filesystem::path dir(w.directory());
+  const std::string metrics = read_file(dir / "metrics.csv");
+  const std::string msum = read_file(dir / "metrics_summary.csv");
+  EXPECT_EQ(metrics.rfind("benchmark,storage,rep,metric,value\n", 0), 0u);
+  EXPECT_EQ(count_lines(metrics), 1u + 2u * 3u);
+  EXPECT_EQ(count_lines(msum), 1u + 2u);
+  EXPECT_NE(read_file(dir / "env.json").find("\"compiler_flags\""), std::string::npos);
+  std::filesystem::remove_all(root);
+}

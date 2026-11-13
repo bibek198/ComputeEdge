@@ -49,7 +49,7 @@ std::vector<std::string> split(const std::string& s) {
 }
 
 [[noreturn]] void usage(const char* msg) {
-  std::fprintf(stderr, "error: %s\nsee the header of benchmarks/cpu_matmul.cpp for usage\n", msg);
+  std::fprintf(stderr, "error: %s\nsee the header of benchmarks/baseline/cpu_matmul.cpp for usage\n", msg);
   std::exit(2);
 }
 

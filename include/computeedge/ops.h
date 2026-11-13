@@ -21,6 +21,10 @@ Tensor matmul(const Tensor& a, const Tensor& b, MatmulImpl impl = MatmulImpl::Ac
 // Emits one Dispatch event and a Begin/End span around the kernel.
 void matmul_into(const Tensor& a, const Tensor& b, Tensor& out, MatmulImpl impl = MatmulImpl::Accelerate);
 
+// Shared argument checks for every matmul backend. Throw Error on misuse.
+void validate_matmul(const Tensor& a, const Tensor& b);
+void validate_matmul_out(const Tensor& a, const Tensor& b, const Tensor& out);
+
 inline Tensor matmul_naive(const Tensor& a, const Tensor& b) { return matmul(a, b, MatmulImpl::Naive); }
 inline Tensor matmul_accelerate(const Tensor& a, const Tensor& b) { return matmul(a, b, MatmulImpl::Accelerate); }
 

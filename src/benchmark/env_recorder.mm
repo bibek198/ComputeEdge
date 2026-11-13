@@ -1,6 +1,7 @@
 // Environment recording (Objective-C++): hardware, OS, power and thermal state.
 
 #import <Foundation/Foundation.h>
+#import <Metal/Metal.h>
 #include <IOKit/ps/IOPowerSources.h>
 #include <IOKit/ps/IOPSKeys.h>
 #include <sys/sysctl.h>
@@ -18,6 +19,9 @@
 #endif
 #ifndef CE_BUILD_TYPE
 #define CE_BUILD_TYPE "unknown"
+#endif
+#ifndef CE_CXX_FLAGS
+#define CE_CXX_FLAGS "unknown"
 #endif
 #ifndef CE_SANITIZE_ENABLED
 #define CE_SANITIZE_ENABLED 0
@@ -137,11 +141,18 @@ Environment record_environment() {
                      std::to_string(v.patchVersion);
     env.low_power_mode = [info isLowPowerModeEnabled];
   }
+  @autoreleasepool {
+    if (id<MTLDevice> device = MTLCreateSystemDefaultDevice()) {
+      env.gpu_name = [[device name] UTF8String];
+      env.gpu_recommended_working_set = [device recommendedMaxWorkingSetSize];
+    }
+  }
   env.power_source = power_source();
   env.thermal_state = thermal_state();
 #ifdef __clang_version__
   env.compiler = std::string("clang ") + __clang_version__;
 #endif
+  env.compiler_flags = CE_CXX_FLAGS;
   env.build_type = CE_BUILD_TYPE;
   env.git_sha = CE_GIT_SHA;
   env.sanitizers = CE_SANITIZE_ENABLED != 0;
@@ -166,7 +177,10 @@ std::string to_json(const Environment& env) {
   str("power_source", env.power_source);
   os << "  \"low_power_mode\": " << (env.low_power_mode ? "true" : "false") << ",\n";
   str("thermal_state", to_string(env.thermal_state));
+  str("gpu_name", env.gpu_name);
+  os << "  \"gpu_recommended_working_set\": " << env.gpu_recommended_working_set << ",\n";
   str("compiler", env.compiler);
+  str("compiler_flags", env.compiler_flags);
   str("build_type", env.build_type);
   str("git_sha", env.git_sha);
   os << "  \"sanitizers\": " << (env.sanitizers ? "true" : "false") << ",\n";
