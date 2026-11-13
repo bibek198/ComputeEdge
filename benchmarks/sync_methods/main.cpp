@@ -11,7 +11,7 @@
 // Usage:
 //   sync_methods [--methods wait_until_completed,event_wait,completion_handler,spin_event,spin_status]
 //                [--work empty,4M,256M] [--gaps-ms 0,0.1,1,10,100] [--experiments methods,idle]
-//                + common flags (benchmarks/common/bench_common.h)
+//                + common flags (benchmarks/harness/bench_common.h)
 
 #include <algorithm>
 #include <chrono>
@@ -20,7 +20,7 @@
 #include <thread>
 #include <vector>
 
-#include "../common/bench_common.h"
+#include "harness/bench_common.h"
 
 using namespace ce_bench;
 
@@ -40,7 +40,7 @@ bool wants(const std::vector<std::string>& list, const std::string& name) {
 }  // namespace
 
 int main(int argc, char** argv) {
-  const char* src = "benchmarks/synchronization/sync_methods.cpp";
+  const char* src = "benchmarks/sync_methods/main.cpp";
   std::vector<std::string> methods{"wait_until_completed", "event_wait", "completion_handler", "spin_event",
                                    "spin_status"};
   std::vector<std::string> work{"empty", "4M", "256M"};

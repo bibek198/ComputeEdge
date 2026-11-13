@@ -17,7 +17,7 @@
 // Usage:
 //   storage_modes [--sizes 16K,256K,4M,64M,256M,1G] [--kinds host,shared,private,nocopy,shared_copy]
 //                 [--experiments create,cpu_touch,gpu_first,gpu_bw]
-//                 + common flags (benchmarks/common/bench_common.h)
+//                 + common flags (benchmarks/harness/bench_common.h)
 
 #include <unistd.h>
 
@@ -29,7 +29,7 @@
 #include <string>
 #include <vector>
 
-#include "../common/bench_common.h"
+#include "harness/bench_common.h"
 
 using namespace ce_bench;
 using computeedge::now_ns;
@@ -82,7 +82,7 @@ uint64_t timed_ns(const auto& fn) {
 }  // namespace
 
 int main(int argc, char** argv) {
-  const char* src = "benchmarks/storage_modes/storage_modes.cpp";
+  const char* src = "benchmarks/storage_modes/main.cpp";
   std::vector<size_t> sizes = split_bytes("16K,256K,4M,64M,256M,1G");
   std::vector<std::string> kinds{"host", "shared", "private", "nocopy", "shared_copy"};
   std::vector<std::string> experiments{"create", "cpu_touch", "gpu_first", "gpu_bw"};

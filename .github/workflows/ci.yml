@@ -30,7 +30,7 @@ jobs:
       - name: Baseline manifest (pre-refactor, never regenerated)
         run: python3 tools/verification/verify_baseline_hashes.py docs/verification/baseline/BASELINE.sha256 .
       - name: Current manifest
-        run: sh benchmarks/tools/results_manifest.sh check
+        run: sh scripts/results_manifest.sh check
 
   lint:
     runs-on: macos-15

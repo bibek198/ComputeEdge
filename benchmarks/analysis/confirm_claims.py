@@ -2,7 +2,7 @@
 """Checks every quantitative claim in research/findings.md against every session.
 
 Session "orig" is the original M4-M6 measurement (the committed top-level runs);
-s0, s1, ... are confirmation sessions from benchmarks/run_session.sh
+s0, s1, ... are confirmation sessions from scripts/run_session.sh
 (benchmarks/results/sessions/<id>/). Each claim has an explicit pass criterion that
 is fixed here *before* the confirmation data is looked at, and it is evaluated
 independently per session. A claim is

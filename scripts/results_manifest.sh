@@ -7,7 +7,7 @@
 # Policy (see benchmarks/results/README.md): committed result files are immutable.
 # A wrong run is superseded by a new run, never edited or deleted.
 set -eu
-cd "$(dirname "$0")/../results"
+cd "$(dirname "$0")/../benchmarks/results"
 MANIFEST=MANIFEST.sha256
 
 case "${1:-check}" in

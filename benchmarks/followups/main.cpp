@@ -30,7 +30,7 @@
 #include <string>
 #include <vector>
 
-#include "../common/bench_common.h"
+#include "harness/bench_common.h"
 
 using namespace ce_bench;
 using computeedge::now_ns;
@@ -94,7 +94,7 @@ struct HostMem {
 }  // namespace
 
 int main(int argc, char** argv) {
-  const char* src = "benchmarks/storage_modes/followups.cpp";
+  const char* src = "benchmarks/followups/main.cpp";
   std::vector<std::string> experiments{"wake", "cpu_write", "gpu_write"};
   const CommonOptions opt = parse(argc, argv, src, [&](const std::string& f, const auto& next) {
     if (f == "--experiments")

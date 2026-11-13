@@ -3,7 +3,7 @@
 # (M4 crossover, M5 Tracks A/B, M6 RQ3/RQ4 and follow-ups) into
 # benchmarks/results/sessions/<session>/, then checks the claims.
 #
-#   benchmarks/run_session.sh [--thermal-load mixed|cpu|gpu] [--thermal-minutes 15] [--allow-dirty]
+#   scripts/run_session.sh [--thermal-load mixed|cpu|gpu] [--thermal-minutes 15] [--allow-dirty]
 #
 # Run 3-5 sessions on different days, each starting from a cool machine (lid open,
 # on AC, Low Power Mode off, other apps closed). Takes about an hour; the 15-minute
@@ -61,7 +61,7 @@ methods=$(.venv/bin/python -c "import random; m=['wait_until_completed','event_w
 declare -a names cmds
 names+=(cpu_matmul);   cmds+=("$B/cpu_matmul --cooldown --impls accelerate --modes e2e,kernel --sizes $(ord 128,512,1024,2048,4096) --out $out")
 names+=(metal_matmul); cmds+=("$B/metal_matmul --cooldown --kernels mps --storage $(ord nocopy,shared) --sizes $(ord 128,512,1024,2048,4096) --out $out")
-names+=(mlx_matmul);   cmds+=(".venv/bin/python benchmarks/mlx/mlx_matmul.py --cooldown --sizes $(ord 128,512,1024,2048,4096) --out $out")
+names+=(mlx_matmul);   cmds+=(".venv/bin/python benchmarks/mlx_matmul/mlx_matmul.py --cooldown --sizes $(ord 128,512,1024,2048,4096) --out $out")
 names+=(dispatch);     cmds+=("$B/dispatch_overhead --cooldown --dispatches $(ord 1,4,16,64,256,1024) --encoders $(ord 1,4,16,64,256) --cmdbufs $(ord 1,2,4,8,16,32,64) --out $out")
 names+=(sync);         cmds+=("$B/sync_methods --cooldown --methods $methods --gaps-ms $(ord 0,0.1,1,10,100) --out $out")
 names+=(storage);      cmds+=("$B/storage_modes --cooldown --experiments create,gpu_first,gpu_bw --sizes $(ord 16K,256K,4M,64M,256M,1G) --out $out")

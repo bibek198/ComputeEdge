@@ -9,7 +9,7 @@
 | Languages | C++20 (core), Objective-C++ (Metal glue only), Metal Shading Language |
 | Libraries | Apple Metal, Accelerate (baseline + reference), GoogleTest |
 | Build | CMake + Ninja |
-| Status | M1–M6 complete; confirming claims across sessions (`benchmarks/run_session.sh`, 1 of ≥3 done) and drafting the short paper (`paper/`). Findings: `research/findings.md` |
+| Status | M1–M6 complete; confirming claims across sessions (`scripts/run_session.sh`, 1 of ≥3 done) and drafting the short paper (`paper/`). Findings: `research/findings.md` |
 
 ---
 
@@ -265,7 +265,7 @@ The cost tables come from Track A/B/D measurements, interpolated in log-size. Th
 | `backend` | enum | None, CPU, Metal |
 | `label` | str | short label; must have static storage duration (string literal) |
 
-- Disabled logging costs one relaxed atomic load per call. Overhead is measured by `benchmarks/overhead/event_log.cpp`. First measurement on M4: `emit` ≈ 1 ns disabled and ≈ 15 ns enabled; `ScopedTimer` ≈ 15 ns disabled and ≈ 45 ns enabled. That is negligible next to GPU dispatch (hundreds of µs), but not next to the smallest CPU ops, so timing runs keep logging off.
+- Disabled logging costs one relaxed atomic load per call. Overhead is measured by `benchmarks/event_log_overhead/main.cpp`. First measurement on M4: `emit` ≈ 1 ns disabled and ≈ 15 ns enabled; `ScopedTimer` ≈ 15 ns disabled and ≈ 45 ns enabled. That is negligible next to GPU dispatch (hundreds of µs), but not next to the smallest CPU ops, so timing runs keep logging off.
 - `ScopedTimer` is RAII: it writes into a sink and/or emits Begin/End.
 - **Env Recorder** runs once per benchmark run and records chip, model, macOS build, power source, thermal state, compiler, flags, git SHA and timestamp.
 

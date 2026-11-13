@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # M4: run every baseline in one session, then build the comparison table and figures.
 #
-#   benchmarks/run_baselines.sh [extra args passed to every benchmark, e.g. --sizes 128,1024]
+#   scripts/run_baselines.sh [extra args passed to every benchmark, e.g. --sizes 128,1024]
 #
 # Requirements: AC power, a committed working tree (so results carry a clean git SHA),
 # and the Python environment: python3 -m venv .venv && .venv/bin/pip install -r benchmarks/requirements.txt
@@ -21,5 +21,5 @@ cmake --build --preset release >/dev/null
 
 ./build/release/benchmarks/cpu_matmul --cooldown --impls accelerate "$@"
 ./build/release/benchmarks/metal_matmul --cooldown "$@"
-.venv/bin/python benchmarks/mlx/mlx_matmul.py --cooldown "$@"
+.venv/bin/python benchmarks/mlx_matmul/mlx_matmul.py --cooldown "$@"
 .venv/bin/python benchmarks/analysis/compare_baselines.py

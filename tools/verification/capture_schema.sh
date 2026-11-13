@@ -44,7 +44,7 @@ run followups          "$B/followups" "${quick[@]}" "${o[@]}" --prewarm-ms 0
 run thermal_drift      "$B/thermal_drift" "${o[@]}" --prewarm-ms 0 --minutes 0.05 --no-cooldown
 py="${CE_PYTHON:-.venv/bin/python}"
 if [[ -x "$py" ]]; then
-  run mlx_matmul "$py" benchmarks/mlx/mlx_matmul.py --sizes 64 --reps 3 --warmup 1 --min-warmup-ms 0 \
+  run mlx_matmul "$py" benchmarks/mlx_matmul/mlx_matmul.py --sizes 64 --reps 3 --warmup 1 --min-warmup-ms 0 \
     --prewarm-ms 0 --out "$tmp/runs" --ce-env "$build/benchmarks/ce_env"
 fi
 "$B/ce_env" > "$tmp/ce_env.json"

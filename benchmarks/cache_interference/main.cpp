@@ -26,7 +26,7 @@
 //
 // Usage:
 //   cache_interference [--working-sets 1M,4M,12M,64M] [--gpu-sizes 16M,64M,256M] [--passes read,slc,sgemm]
-//                      + common flags (benchmarks/common/bench_common.h)
+//                      + common flags (benchmarks/harness/bench_common.h)
 
 #include <pthread.h>
 #include <sys/qos.h>
@@ -37,7 +37,7 @@
 #include <string>
 #include <vector>
 
-#include "../common/bench_common.h"
+#include "harness/bench_common.h"
 #include "computeedge/computeedge.h"
 
 using namespace ce_bench;
@@ -87,7 +87,7 @@ uint64_t median_ns(Fn&& fn, int runs = 7) {
 }  // namespace
 
 int main(int argc, char** argv) {
-  const char* src = "benchmarks/cache/cache_interference.cpp";
+  const char* src = "benchmarks/cache_interference/main.cpp";
   std::vector<size_t> working_sets = split_bytes("1M,4M,12M,64M");
   std::vector<size_t> gpu_sizes = split_bytes("16M,64M,256M");
   std::vector<std::string> passes{"read", "slc", "sgemm"};

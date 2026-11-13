@@ -11,7 +11,7 @@ Evidence labels: **solid** (large effect, consistent across repeated runs or con
 
 **Confirmation status.** Each quantitative finding is now a claim (C1–C16) with a pass criterion fixed in
 `benchmarks/analysis/confirm_claims.py`, and is re-checked in every confirmation session
-(`benchmarks/run_session.sh`). The latest table is in `benchmarks/results/reports/confirm-*/claims.md`. As of
+(`scripts/run_session.sh`). The latest table is in `benchmarks/results/reports/confirm-*/claims.md`. As of
 2026-11-13 (original runs plus session s0): 15 claims passed in every session where they could be evaluated; **C9
 (no eviction by GPU traffic) is inconsistent**, because one of 18 cells came out at +10.6% against a 10% bound in s0.
 The thermal claims C12–C13 rest on one valid run, because s0's thermal run is excluded (see

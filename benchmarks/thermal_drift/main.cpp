@@ -37,7 +37,7 @@
 #include <thread>
 #include <vector>
 
-#include "../common/bench_common.h"
+#include "harness/bench_common.h"
 #include "computeedge/computeedge.h"
 
 using namespace ce_bench;
@@ -63,7 +63,7 @@ struct Sample {
 }  // namespace
 
 int main(int argc, char** argv) {
-  const char* src = "benchmarks/thermal/thermal_drift.cpp";
+  const char* src = "benchmarks/thermal_drift/main.cpp";
   double minutes = 15;
   std::string load = "mixed";
   double interval_ms = 1000;

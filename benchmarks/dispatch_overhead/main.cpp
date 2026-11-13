@@ -12,13 +12,13 @@
 // Usage:
 //   dispatch_overhead [--dispatches 1,4,16,64,256,1024] [--encoders 1,4,16,64,256]
 //                     [--cmdbufs 1,2,4,8,16,32,64] [--experiments dispatches,encoders,cmdbufs]
-//                     + common flags (benchmarks/common/bench_common.h)
+//                     + common flags (benchmarks/harness/bench_common.h)
 
 #include <algorithm>
 #include <string>
 #include <vector>
 
-#include "../common/bench_common.h"
+#include "harness/bench_common.h"
 
 using namespace ce_bench;
 
@@ -37,7 +37,7 @@ bool wants(const std::vector<std::string>& list, const std::string& name) {
 }  // namespace
 
 int main(int argc, char** argv) {
-  const char* src = "benchmarks/dispatch/dispatch_overhead.cpp";
+  const char* src = "benchmarks/dispatch_overhead/main.cpp";
   std::vector<uint32_t> dispatches{1, 4, 16, 64, 256, 1024};
   std::vector<uint32_t> encoders{1, 4, 16, 64, 256};
   std::vector<uint32_t> cmdbufs{1, 2, 4, 8, 16, 32, 64};

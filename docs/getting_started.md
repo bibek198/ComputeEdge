@@ -67,7 +67,7 @@ committed. The git SHA is captured at configure time, so this keeps results tagg
 | `build/release/benchmarks/cpu_matmul` | Accelerate vs naive SGEMM, compute-only and including output allocation |
 | `build/release/benchmarks/metal_matmul` | Metal SGEMM per storage mode (NoCopy / Shared / Private), with per-phase breakdown and cold start |
 | `build/release/benchmarks/event_log_overhead` | Cost of `emit()` and `ScopedTimer` with the log disabled and enabled |
-| `benchmarks/mlx/mlx_matmul.py` | MLX matmul on the CPU and GPU streams, using the same protocol and output format |
+| `benchmarks/mlx_matmul/mlx_matmul.py` | MLX matmul on the CPU and GPU streams, using the same protocol and output format |
 | `benchmarks/analysis/compare_baselines.py` | Comparison table and figures from the newest clean results |
 | `build/release/benchmarks/dispatch_overhead` | M5 Track A: empty-kernel round trips vs dispatches, encoders and command buffers per submission, plus cold start |
 | `build/release/benchmarks/sync_methods` | M5 Track A: five ways to wait for the GPU, and the cost of an idle gap before a submission |
@@ -84,7 +84,7 @@ The Metal benchmark's `--kernels tiled16,mps` option runs our kernel and Apple's
 
 ```sh
 python3 -m venv .venv && .venv/bin/pip install -r benchmarks/requirements.txt   # once
-benchmarks/run_baselines.sh
+scripts/run_baselines.sh
 ```
 
 The script rebuilds the release preset (which refreshes the git SHA), runs the CPU, Metal and MLX benchmarks with

@@ -15,7 +15,7 @@ Note this includes Python interpreter overhead (a few µs), which the C++
 benchmarks do not have.
 
 Usage:
-  .venv/bin/python benchmarks/mlx/mlx_matmul.py [--sizes 128,512,1024,2048,4096]
+  .venv/bin/python benchmarks/mlx_matmul/mlx_matmul.py [--sizes 128,512,1024,2048,4096]
       [--streams gpu,cpu] [--warmup 10] [--min-warmup-ms 200] [--prewarm-ms 1000]
       [--reps 30] [--min-sample-us 50] [--out benchmarks/results] [--cooldown]
       [--no-write] [--ce-env build/release/benchmarks/ce_env]
