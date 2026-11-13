@@ -1,0 +1,99 @@
+% Bibliography for the ComputeEdge characterization paper.
+% Status comments come from research/related_work.md. Every entry marked
+% UNVERIFIED or SNIPPET must be checked against the primary source (authors,
+% title, venue, year, and the specific claim we cite) before submission.
+
+@misc{mlx,
+  author       = {Awni Hannun and Jagrit Digani and Angelos Katharopoulos and Ronan Collobert},
+  title        = {{MLX}: Efficient and flexible machine learning on {Apple} silicon},
+  year         = {2023},
+  howpublished = {\url{https://github.com/ml-explore/mlx}},
+  note         = {Software; version 0.32.4 used in this work}
+}
+
+% verified
+@misc{huebner2025apple,
+  author        = {Paul H{\"u}bner and Andong Hu and Ivy Peng and Stefano Markidis},
+  title         = {Apple vs. Oranges: Evaluating the {Apple} Silicon {M}-Series {SoCs} for {HPC} Performance and Efficiency},
+  year          = {2025},
+  eprint        = {2502.05317},
+  archivePrefix = {arXiv},
+  howpublished  = {arXiv:2502.05317}
+}
+
+% verified (HPEC 2022)
+@misc{kenyon2022apple,
+  author        = {Connor Kenyon and Collin Capano},
+  title         = {{Apple} Silicon Performance in Scientific Computing},
+  year          = {2022},
+  eprint        = {2211.00720},
+  archivePrefix = {arXiv},
+  howpublished  = {arXiv:2211.00720}
+}
+
+% verified
+@misc{feng2025profiling,
+  author        = {Dahua Feng and Zhiming Xu and Rongxiang Wang and Felix Xiaozhu Lin},
+  title         = {Profiling {Apple} Silicon Performance for {ML} Training},
+  year          = {2025},
+  eprint        = {2501.14925},
+  archivePrefix = {arXiv},
+  howpublished  = {arXiv:2501.14925}
+}
+
+% SNIPPET ONLY -- verify authors, title, pages and the overhead claim
+@inproceedings{beischl2026damon,
+  author    = {Beischl and Morozov and Jungmair and Haussmann and Neumann},
+  title     = {Evaluating {Apple} Silicon for Data Processing},
+  booktitle = {Proceedings of the International Workshop on Data Management on New Hardware (DaMoN)},
+  year      = {2026},
+  doi       = {10.1145/3789237.3809127}
+}
+
+% UNVERIFIED -- closest prior work; read in full
+@misc{fusionml,
+  author        = {Mohite},
+  title         = {{FusionML}},
+  year          = {2026},
+  eprint        = {2607.22785},
+  archivePrefix = {arXiv},
+  howpublished  = {arXiv:2607.22785}
+}
+
+% UNVERIFIED -- authors unknown; must read before contrasting with our RQ3 result
+@misc{residualcache,
+  title         = {Residual {GPU} Cache State on {Apple} {M4} {Pro}},
+  year          = {2026},
+  eprint        = {2606.27098},
+  archivePrefix = {arXiv},
+  howpublished  = {arXiv:2606.27098}
+}
+
+% verify title
+@inproceedings{otterness2017jetson,
+  author    = {Nathan Otterness and Ming Yang and Sarah Rust and Eunbyung Park and James H. Anderson and Frank Donelson Smith and Alexander C. Berg and Shige Wang},
+  title     = {An Evaluation of the {NVIDIA} {TX1} for Supporting Real-Time Computer-Vision Workloads},
+  booktitle = {IEEE Real-Time and Embedded Technology and Applications Symposium (RTAS)},
+  year      = {2017}
+}
+
+@inproceedings{qilin,
+  author    = {Chi-Keung Luk and Sunpyo Hong and Hyesoon Kim},
+  title     = {Qilin: Exploiting Parallelism on Heterogeneous Multiprocessors with Adaptive Mapping},
+  booktitle = {IEEE/ACM International Symposium on Microarchitecture (MICRO)},
+  year      = {2009}
+}
+
+@inproceedings{mnn,
+  author    = {Xiaotang Jiang and others},
+  title     = {{MNN}: A Universal and Efficient Inference Engine},
+  booktitle = {Proceedings of Machine Learning and Systems (MLSys)},
+  year      = {2020}
+}
+
+@inproceedings{codl,
+  author    = {Fucheng Jia and others},
+  title     = {{CoDL}: Efficient {CPU}-{GPU} Co-execution for Deep Learning Inference on Mobile Devices},
+  booktitle = {ACM International Conference on Mobile Systems, Applications, and Services (MobiSys)},
+  year      = {2022}
+}

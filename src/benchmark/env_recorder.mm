@@ -125,6 +125,8 @@ bool wait_for_thermal(ThermalState target, double timeout_s, double poll_s) {
   }
 }
 
+std::string current_power_source() { return power_source(); }
+
 Environment record_environment() {
   Environment env;
   env.timestamp_utc = utc_timestamp();

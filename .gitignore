@@ -6,3 +6,11 @@ compile_commands.json
 !benchmarks/results/**/*.csv
 .venv/
 __pycache__/
+
+# Paper build outputs (regenerate with paper/build.sh)
+paper/*.pdf
+paper/*.log
+paper/main-final.tex
+paper/*.blg
+paper/*.bbl
+paper/*.aux

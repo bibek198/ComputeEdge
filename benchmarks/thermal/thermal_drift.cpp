@@ -14,7 +14,9 @@
 //
 // Output: one Result per (workload, minute window) through ResultWriter (so
 // summary.csv has per-window medians and CIs, samples.csv has every sample with
-// its thermal state), plus timeseries.csv (t_s, cycle, workload, ns, thermal).
+// its thermal state), plus timeseries.csv (t_s, cycle, workload, ns, thermal, on_ac).
+// The power source is checked every cycle; if it changes, the run stops, results
+// are tagged valid=no_power_changed and the exit status is 3.
 //
 // Optional power/frequency trace (needs your password, run in a second terminal):
 //   sudo powermetrics --samplers cpu_power,gpu_power,thermal -i 1000 -o <run dir>/powermetrics.txt
@@ -55,6 +57,7 @@ struct Sample {
   size_t workload;
   uint64_t ns;
   cb::ThermalState thermal;
+  bool on_ac;
 };
 
 }  // namespace
@@ -112,15 +115,27 @@ int main(int argc, char** argv) {
   std::vector<uint64_t> last_ns(workloads.size(), 0);
   cb::ThermalState last_state = cb::thermal_state();
   std::cout << "running " << minutes << " min, load=" << load << ", interval " << interval_ms << " ms\n";
+  const std::string start_power = cb::current_power_source();
+  bool power_changed = false;
 
   while (now_ns() < end) {
     const uint64_t cycle_start = now_ns();
+    // A thermal run is only valid on one power source: unplugging the adapter
+    // (or Low Power Mode) changes the power budget mid-run.
+    const std::string power = cb::current_power_source();
+    const bool on_ac = power == "AC Power";
+    if (power != start_power) {
+      std::printf("  t=%6.1f s  POWER SOURCE CHANGED (%s -> %s): stopping; this run is invalid\n",
+                  double(now_ns() - start) / 1e9, start_power.c_str(), power.c_str());
+      power_changed = true;
+      break;
+    }
     for (size_t k = 0; k < workloads.size(); ++k) {
       const size_t i = (k + cycle) % workloads.size();
       const uint64_t t0 = now_ns();
       workloads[i].run();
       const uint64_t t1 = now_ns();
-      samples.push_back({double(t0 - start) / 1e9, cycle, i, t1 - t0, cb::thermal_state()});
+      samples.push_back({double(t0 - start) / 1e9, cycle, i, t1 - t0, cb::thermal_state(), on_ac});
       last_ns[i] = t1 - t0;
     }
 
@@ -154,6 +169,11 @@ int main(int argc, char** argv) {
   }
   std::cout << "done: " << cycle << " cycles\n";
 
+  if (samples.empty()) {
+    std::cout << "no samples recorded\n";
+    return power_changed ? 3 : 1;
+  }
+
   // Per-minute windows as Results.
   std::vector<cb::Result> results;
   const size_t windows = static_cast<size_t>(samples.back().t_s / 60.0) + 1;
@@ -161,7 +181,8 @@ int main(int argc, char** argv) {
     for (size_t i = 0; i < workloads.size(); ++i) {
       cb::Result r;
       r.name = "thermal_drift";
-      r.params = {{"workload", workloads[i].name}, {"window_min", std::to_string(w)}, {"load", load}};
+      r.params = {{"workload", workloads[i].name}, {"window_min", std::to_string(w)}, {"load", load},
+                  {"valid", power_changed ? "no_power_changed" : "yes"}};
       r.flops_per_call = workloads[i].flops;
       for (const Sample& s : samples) {
         if (s.workload != i || static_cast<size_t>(s.t_s / 60.0) != w) continue;
@@ -184,11 +205,11 @@ int main(int argc, char** argv) {
     for (const auto& r : results) writer.add(r);
     writer.flush();
     std::ofstream ts(writer.directory() + "/timeseries.csv");
-    ts << "t_s,cycle,workload,ns,thermal\n";
+    ts << "t_s,cycle,workload,ns,thermal,on_ac\n";
     for (const Sample& s : samples)
       ts << s.t_s << ',' << s.cycle << ',' << workloads[s.workload].name << ',' << s.ns << ','
-         << cb::to_string(s.thermal) << '\n';
+         << cb::to_string(s.thermal) << ',' << (s.on_ac ? 1 : 0) << '\n';
     std::cout << "\nResults written to " << writer.directory() << '\n';
   }
-  return 0;
+  return power_changed ? 3 : 0;
 }

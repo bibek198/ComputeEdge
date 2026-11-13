@@ -67,6 +67,10 @@ struct Environment {
 };
 
 Environment record_environment();
+
+// "AC Power", "Battery Power" or "unknown" right now (cheap; for per-cycle checks
+// in long runs, which are invalid if the source changes mid-run).
+std::string current_power_source();
 std::string to_json(const Environment& env);
 
 // ---------------------------------------------------------------------------

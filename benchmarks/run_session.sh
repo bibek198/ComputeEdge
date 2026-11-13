@@ -9,6 +9,11 @@
 # on AC, Low Power Mode off, other apps closed). Takes about an hour; the 15-minute
 # thermal run is always last because it heats the machine.
 #
+# Guards: the session stops if AC power is lost before a benchmark; thermal_drift
+# stops itself if the power source changes mid-run. conditions.csv records power
+# and total CPU use of other processes around every benchmark. Avoid video calls
+# and heavy apps during a session: they are not detectable here.
+#
 # Confounds this controls for, session to session:
 #   - benchmark order is shuffled (seeded by the session index, recorded in session.json)
 #   - sweep orders (sizes, counts, methods) are reversed on odd-numbered sessions
@@ -68,14 +73,41 @@ run_order=()
 for i in $order; do run_order+=("${names[$i]}"); done
 run_order+=(thermal_drift)
 
+# Conditions before/after every benchmark: power source and total CPU use of all
+# other processes (no process names are recorded). A session that loses AC power
+# stops; its results stay on disk but are marked in session.json.
+echo "benchmark,phase,time_local,power,other_cpu_pct" > "$out/conditions.csv"
+power() { pmset -g batt | head -1 | sed -E "s/.*'(.*)'.*/\1/"; }
+other_cpu() { ps -A -o %cpu= | awk '{s += $1} END {printf "%.0f", s}'; }
+note() { echo "$1,$2,$(date +%H:%M:%S),$(power),$(other_cpu)" >> "$out/conditions.csv"; }
+status="complete"
+check_ac() {
+  if [[ "$(power)" != "AC Power" ]]; then
+    echo "error: not on AC power before $1; stopping the session" >&2
+    status="aborted: lost AC power before $1"
+    return 1
+  fi
+}
+
 started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 echo "session $session: order ${run_order[*]}; reversed sweeps=$reverse; thermal load=$thermal_load"
 for i in $order; do
+  check_ac "${names[$i]}" || break
+  note "${names[$i]}" start
   echo "[$(date +%H:%M:%S)] ${names[$i]}"
   eval "${cmds[$i]}" > "$out/logs/${names[$i]}.log" 2>&1
+  note "${names[$i]}" end
 done
-echo "[$(date +%H:%M:%S)] thermal_drift ($thermal_minutes min, $thermal_load)"
-$B/thermal_drift --minutes "$thermal_minutes" --load "$thermal_load" --out "$out" > "$out/logs/thermal_drift.log" 2>&1
+if [[ "$status" == "complete" ]] && check_ac thermal_drift; then
+  note thermal_drift start
+  echo "[$(date +%H:%M:%S)] thermal_drift ($thermal_minutes min, $thermal_load)"
+  if ! $B/thermal_drift --minutes "$thermal_minutes" --load "$thermal_load" --out "$out" \
+      > "$out/logs/thermal_drift.log" 2>&1; then
+    status="thermal_drift invalid: power source changed during the run"
+    echo "warning: $status" >&2
+  fi
+  note thermal_drift end
+fi
 
 cat > "$out/session.json" <<JSON
 {
@@ -89,6 +121,7 @@ cat > "$out/session.json" <<JSON
   "sync_method_order": "$methods",
   "thermal_load": "$thermal_load",
   "thermal_minutes": $thermal_minutes,
+  "status": "$status",
   "uptime": "$(uptime | sed 's/.*up \([^,]*\),.*/\1/')",
   "process_count": $(ps -A | wc -l | tr -d ' ')
 }
