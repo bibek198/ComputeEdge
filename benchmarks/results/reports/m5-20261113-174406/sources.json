@@ -11,7 +11,25 @@
     "thermal_state": "nominal",
     "power_source": "AC Power"
   },
-  "storage": {
+  "storage_create": {
+    "run": "benchmarks/results/20261113-173943_9458c648c5e1",
+    "git_sha": "9458c648c5e1",
+    "thermal_state": "nominal",
+    "power_source": "AC Power"
+  },
+  "storage_cpu_touch": {
+    "run": "benchmarks/results/20261113-173943_9458c648c5e1",
+    "git_sha": "9458c648c5e1",
+    "thermal_state": "nominal",
+    "power_source": "AC Power"
+  },
+  "storage_gpu_first": {
+    "run": "benchmarks/results/20261113-174233_6c38cc65595c",
+    "git_sha": "6c38cc65595c",
+    "thermal_state": "nominal",
+    "power_source": "AC Power"
+  },
+  "storage_gpu_bw": {
     "run": "benchmarks/results/20261113-173943_9458c648c5e1",
     "git_sha": "9458c648c5e1",
     "thermal_state": "nominal",

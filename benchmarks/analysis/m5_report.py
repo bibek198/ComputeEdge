@@ -57,12 +57,14 @@ def dispatch_section(run: Path, out: Path) -> list[str]:
     fig, (ax,) = P.new_axes()
     ax.set_xscale("log", base=2)
     ax.set_yscale("log")
-    fits = []
+    fits, all_x, all_y = [], [], []
     for i, (exp, param, desc) in enumerate(exps):
         pts = sorted((int(r[param]), r) for r in rows if r["experiment"] == exp and r["metric"] == "total_ns")
         if not pts:
             continue
         xs = [n for n, _ in pts]
+        all_x += xs
+        all_y += [r["ci95_lo"] / 1e3 for _, r in pts] + [r["ci95_hi"] / 1e3 for _, r in pts]
         P.series(ax, xs, [r["median"] / 1e3 for _, r in pts], i, desc.split(" (")[0],
                  [r["ci95_lo"] / 1e3 for _, r in pts], [r["ci95_hi"] / 1e3 for _, r in pts])
         fit = {"experiment": exp, "unit": desc}
@@ -71,6 +73,10 @@ def dispatch_section(run: Path, out: Path) -> list[str]:
             slope, intercept = np.polyfit(list(m), list(m.values()), 1)
             fit[metric] = (slope, intercept)
         fits.append(fit)
+    P.fit_log_limits(ax, all_x, all_y)
+    ticks = sorted(set(all_x))
+    ax.set_xticks(ticks, [str(t) for t in ticks], fontsize=8)
+    ax.minorticks_off()
     P.labels(ax, "Count per submission (log scale)", "Latency per submission (µs, log scale)")
     P.title(ax, "Empty-kernel submission cost — lower is better",
             "Median of 30 synchronous submissions (waitUntilCompleted); whiskers = 95% CI.")
@@ -155,7 +161,7 @@ def sync_section(runs: list[Path], idle_run: Path | None, out: Path) -> list[str
         P.labels(ax, "Median time per phase (µs)", "GPU idle before the call")
         P.title(ax, "An idle GPU makes the next empty round trip slower",
                 "Empty kernel, waitUntilCompleted. Bars stack phase medians (approximately the median total).")
-        P.legend(ax, loc="lower right")
+        P.legend(ax, loc="upper right")
         P.save(fig, out / "idle_gap.png")
 
         md += ["## Track A4: idle gap before a submission", "",
@@ -186,12 +192,16 @@ def storage_section(runs: dict[str, Path], out: Path) -> list[str]:
     fig, (ax,) = P.new_axes()
     ax.set_xscale("log", base=2)
     ax.set_yscale("log")
+    all_y = []
     for i, k in enumerate(KINDS_CREATE):
         pts = [P.pick(rows, "create_ns", kind=k, size=s) for s in sizes]
         if all(pts):
+            all_y += [p["ci95_lo"] / 1e3 for p in pts] + [p["ci95_hi"] / 1e3 for p in pts]
             P.series(ax, xs, [p["median"] / 1e3 for p in pts], i, k, [p["ci95_lo"] / 1e3 for p in pts],
                      [p["ci95_hi"] / 1e3 for p in pts])
     ax.set_xticks(xs, sizes)
+    ax.minorticks_off()
+    P.fit_log_limits(ax, xs, all_y)
     P.labels(ax, "Buffer size (log scale)", "Create time (µs, log scale)")
     P.title(ax, "MTLBuffer creation cost by storage kind — lower is better",
             "nocopy wraps resident host memory; shared_copy copies it. Median of 30; whiskers = 95% CI.")
@@ -230,17 +240,20 @@ def storage_section(runs: dict[str, Path], out: Path) -> list[str]:
         fig, (ax,) = P.new_axes()
         ax.set_xscale("log", base=2)
         ax.set_yscale("log")
+        all_y = []
         for i, k in enumerate(KINDS_GPU):
             for buf, ls in (("fresh", "-"), ("rewrap", ":"), ("reused", "--")):
                 pts = [P.pick(rows, "total_ns", kind=k, size=s, buffer=buf) for s in sizes_g]
                 if all(pts):
+                    all_y += [p["ci95_lo"] / 1e3 for p in pts] + [p["ci95_hi"] / 1e3 for p in pts]
                     P.series(ax, xs, [p["median"] / 1e3 for p in pts], i, f"{k} · {buf}",
                              [p["ci95_lo"] / 1e3 for p in pts], [p["ci95_hi"] / 1e3 for p in pts], linestyle=ls)
         ax.set_xticks(xs, sizes_g)
+        ax.minorticks_off()
+        P.fit_log_limits(ax, xs, all_y)
         P.labels(ax, "Size of the bound (untouched) buffer (log scale)", "Round trip (µs, log scale)")
         P.title(ax, "First GPU use of a buffer: fresh vs reused — lower is better",
-                "Kernel never touches the buffer. Solid = fresh buffer, dotted = new NoCopy wrapper over the same "
-                "memory, dashed = reused.")
+                "Solid: new buffer · dotted: new NoCopy wrapper, same memory · dashed: reused")
         P.legend(ax)
         P.save(fig, out / "gpu_first_use.png")
         md += ["", "### B3: first GPU use (residency) vs reuse", "", "![First use](gpu_first_use.png)", "",
@@ -274,10 +287,13 @@ def storage_section(runs: dict[str, Path], out: Path) -> list[str]:
                 gbs = [m / p["median"] for m, p in zip(moved, pts)]
                 bw[(st, k)] = dict(zip(sizes_b, gbs))
                 P.series(ax, xs, gbs, i, k)
-            ax.set_xticks(xs[::2], sizes_b[::2])
-            ax.set_ylim(bottom=0)
+            ax.set_xticks(xs, sizes_b, fontsize=7.5)
+            ax.minorticks_off()
             ax.set_title(st, loc="left", color=P.TEXT, fontsize=10)
             P.labels(ax, "Buffer size", "GB/s (bytes moved / GPU time)" if j == 0 else "")
+        top = max(v for d in bw.values() for v in d.values())
+        for ax in axes:
+            ax.set_ylim(0, top * 1.08)
         P.legend(axes[0], loc="lower right")
         fig.suptitle("GPU streaming bandwidth by storage kind — higher is better", x=0.01, ha="left",
                      color=P.TEXT, fontsize=12)

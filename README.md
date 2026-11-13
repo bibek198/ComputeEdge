@@ -5,7 +5,7 @@ Apple Silicon's unified memory.
 
 - **Platform:** Apple Silicon (MacBook Air M4)
 - **Stack:** C++20, Objective-C++, Apple Metal, Accelerate
-- **Status:** Phase 1 (M1–M4) done: tensor core, instrumentation, Accelerate and Metal backends, benchmark harness, baselines vs MPS and MLX. Phase 2 (M5: dispatch/sync/storage-mode characterization) next
+- **Status:** Phase 1 (M1–M4) done: tensor core, instrumentation, Accelerate and Metal backends, benchmark harness, baselines vs MPS and MLX. M5 done: dispatch, synchronization and storage-mode characterization ([findings](research/findings.md)). M6 (cache interference, thermal drift) next
 
 ## Quick start
 

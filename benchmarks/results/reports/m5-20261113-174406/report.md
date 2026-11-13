@@ -24,7 +24,7 @@ Breakdown of a single empty round trip (1 command buffer, 1 encoder, 1 dispatch)
 | encoders | 103.5 | 2.4 | 1.5 | 49.6 | 1.4 | 48.4 |
 | cmdbufs | 85.9 | 2.5 | 1.5 | 41.5 | 1.3 | 38.9 |
 
-Cold start (first empty dispatch in the process, one sample): total 1,497.1 µs, of which library + pipeline compile 1,335.2 µs (OS shader cache state not controlled) and queue 1,222.2 µs.
+Cold start (first empty dispatch in the process, one sample): compiling the probe library and pipeline took 1,335.2 µs (OS shader cache state not controlled), then the first round trip took 1,497.1 µs, of which 1,222.2 µs was queueing.
 
 ## Track A3: synchronization methods
 
@@ -139,14 +139,14 @@ GB/s (bytes / median time). First write = memset of freshly created memory (page
 
 Median total / queue in µs:
 
-| size | shared fresh | shared reused | private fresh | private reused | nocopy fresh | nocopy reused |
-|---:|---:|---:|---:|---:|---:|---:|
-| 16K | 143.0 / 81.6 | 157.1 / 87.7 | 161.8 / 91.7 | 101.5 / 46.6 | 148.3 / 85.2 | 134.0 / 69.2 |
-| 256K | 129.0 / 65.8 | 102.8 / 46.5 | 115.8 / 58.8 | 98.0 / 46.6 | 124.9 / 64.5 | 110.7 / 52.7 |
-| 4M | 210.7 / 151.1 | 158.3 / 87.9 | 215.8 / 151.3 | 134.1 / 67.8 | 166.3 / 103.0 | 104.9 / 49.1 |
-| 64M | 1,320.0 / 1,244.0 | 134.8 / 71.5 | 1,412.1 / 1,331.3 | 104.5 / 48.8 | 578.2 / 502.2 | 158.6 / 87.3 |
-| 256M | 7,656.1 / 7,496.5 | 112.5 / 53.3 | 7,198.4 / 7,109.9 | 119.4 / 59.5 | 1,855.8 / 1,769.9 | 119.6 / 60.2 |
-| 1G | 28.0 ms / 27.8 ms | 155.5 / 85.3 | 27.5 ms / 27.4 ms | 157.2 / 88.7 | 8,576.1 / 8,351.0 | 116.4 / 60.3 |
+| size | shared fresh | shared reused | private fresh | private reused | nocopy fresh | nocopy rewrap | nocopy reused |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 16K | 149.1 / 80.3 | 143.8 / 82.8 | 128.0 / 69.0 | 117.8 / 60.0 | 152.6 / 83.2 | 145.5 / 84.4 | 147.5 / 79.8 |
+| 256K | 132.5 / 77.2 | 144.4 / 82.1 | 151.5 / 82.3 | 111.0 / 57.1 | 153.5 / 83.9 | 133.1 / 76.6 | 99.1 / 48.0 |
+| 4M | 229.9 / 164.3 | 91.0 / 44.3 | 227.7 / 164.1 | 151.2 / 82.0 | 167.0 / 103.9 | 174.8 / 107.0 | 108.2 / 53.2 |
+| 64M | 1,273.0 / 1,196.8 | 135.9 / 69.6 | 1,208.3 / 1,131.2 | 94.6 / 44.1 | 537.0 / 465.0 | 559.3 / 480.9 | 109.3 / 54.0 |
+| 256M | 7,008.5 / 6,869.1 | 159.6 / 91.3 | 7,145.0 / 7,061.2 | 108.0 / 50.5 | 1,825.3 / 1,744.0 | 2,306.5 / 2,216.4 | 120.6 / 63.7 |
+| 1G | 28.6 ms / 28.4 ms | 116.0 / 58.3 | 27.2 ms / 27.1 ms | 120.6 / 57.7 | 8,234.8 / 8,125.9 | 8,209.1 / 8,101.5 | 101.7 / 47.9 |
 
 ### B4: GPU streaming bandwidth
 

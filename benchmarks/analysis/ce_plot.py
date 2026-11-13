@@ -99,6 +99,13 @@ def series(ax, xs, ys, i: int, label: str, lo=None, hi=None, linestyle="-") -> N
         ax.vlines(xs, lo, hi, color=colour, linewidth=1, zorder=2)
 
 
+def fit_log_limits(ax, xs, ys, pad=1.6) -> None:
+    """Tight limits for log-log axes (autoscaling leaves large empty margins)."""
+    ys = [y for y in ys if y > 0]
+    ax.set_xlim(min(xs) / pad, max(xs) * pad)
+    ax.set_ylim(min(ys) / pad, max(ys) * pad)
+
+
 def legend(ax, loc="upper left") -> None:
     ax.legend(loc=loc, frameon=False, fontsize=8.5, labelcolor=TEXT, handlelength=3)
 
