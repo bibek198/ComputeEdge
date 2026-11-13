@@ -1,0 +1,38 @@
+{
+  "dispatch": {
+    "run": "benchmarks/results/20261113-173412_e3a09f38b798",
+    "git_sha": "e3a09f38b798",
+    "thermal_state": "nominal",
+    "power_source": "AC Power"
+  },
+  "idle": {
+    "run": "benchmarks/results/20261113-173428_e3a09f38b798",
+    "git_sha": "e3a09f38b798",
+    "thermal_state": "nominal",
+    "power_source": "AC Power"
+  },
+  "storage": {
+    "run": "benchmarks/results/20261113-173943_9458c648c5e1",
+    "git_sha": "9458c648c5e1",
+    "thermal_state": "nominal",
+    "power_source": "AC Power"
+  },
+  "sync_1": {
+    "run": "benchmarks/results/20261113-173428_e3a09f38b798",
+    "git_sha": "e3a09f38b798",
+    "thermal_state": "nominal",
+    "power_source": "AC Power"
+  },
+  "sync_2": {
+    "run": "benchmarks/results/20261113-174019_9458c648c5e1",
+    "git_sha": "9458c648c5e1",
+    "thermal_state": "nominal",
+    "power_source": "AC Power"
+  },
+  "sync_3": {
+    "run": "benchmarks/results/20261113-174024_9458c648c5e1",
+    "git_sha": "9458c648c5e1",
+    "thermal_state": "nominal",
+    "power_source": "AC Power"
+  }
+}

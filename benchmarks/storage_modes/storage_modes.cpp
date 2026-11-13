@@ -7,7 +7,8 @@
 //               a second write and a read (warm), for host (posix_memalign), shared,
 //               nocopy. Each call gets fresh memory (created in untimed setup).
 //   gpu_first   empty kernel with one buffer bound but untouched, on a fresh buffer
-//               (created in untimed setup) vs the same buffer reused: isolates
+//               (created in untimed setup), a fresh NoCopy wrapper over the same
+//               resident memory (rewrap), or the same buffer reused: isolates
 //               residency / mapping cost, and tests whether it explains the growth
 //               of matmul queue time with size seen in M3/M4
 //   gpu_bw      GPU read / write / copy streams over shared, private, nocopy buffers
@@ -174,20 +175,29 @@ int main(int argc, char** argv) {
     for (size_t bytes : sizes) {
       for (const std::string& k : kinds_for({"shared", "private", "nocopy"})) {
         const probe::BufferKind kind = kind_from(k, src);
-        for (const char* reuse : {"fresh", "reused"}) {
-          const bool fresh = std::string(reuse) == "fresh";
+        // fresh:  new buffer (new memory) every call
+        // rewrap: (nocopy only) new MTLBuffer wrapper every call over the same
+        //         resident host memory -- exactly what metal::matmul_into does
+        // reused: one buffer for every call
+        std::vector<std::string> modes{"fresh", "reused"};
+        if (kind == probe::BufferKind::NoCopy) modes.insert(modes.begin() + 1, "rewrap");
+        for (const std::string& mode : modes) {
+          std::optional<HostPages> host;
+          if (mode == "rewrap") {
+            host.emplace(bytes);
+            std::memset(host->ptr, 1, bytes);
+          }
           std::optional<probe::Buffer> buf;
-          if (!fresh) buf = probe::Buffer::create(kind, bytes);
+          if (mode == "reused") buf = probe::Buffer::create(kind, bytes);
           auto params = base("gpu_first", k, bytes);
-          params["buffer"] = reuse;
+          params["buffer"] = mode;
           keep(cb::run_with_metrics(
               "storage_gpu_first", params, cfg, [&](cb::Metrics& m) { record_timing(m, probe::bind_dispatch(*buf)); },
               0,
               [&] {
-                if (fresh) {
-                  buf.reset();
-                  buf = probe::Buffer::create(kind, bytes);
-                }
+                if (mode == "reused") return;
+                buf.reset();
+                buf = probe::Buffer::create(kind, bytes, host ? host->ptr : nullptr);
               }));
         }
       }

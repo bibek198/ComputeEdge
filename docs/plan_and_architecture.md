@@ -295,7 +295,8 @@ The cost tables come from Track A/B/D measurements, interpolated in log-size. Th
 - GPU end-to-end numbers always include synchronization.
 - Power: always on the adapter, with Low Power Mode off; the battery case is reported separately if at all.
 - Thermal: cool down to `nominal` between runs (fanless). Every sample is tagged with thermal state.
-- Fixed random seeds and identical inputs across backends. Results validated against Accelerate (FP32, rel. tol 1e-4).
+- Fixed random seeds and identical inputs across backends. Every benchmark gates on correctness before timing, with max |Δ| / (|ref| + 1) ≤ 1e-5·√K: Metal against Accelerate at every size, Accelerate against the naive reference for n ≤ 512, MLX against a float64 NumPy reference for n ≤ 2048.
+- Like-for-like caveat in the M4 comparison: the CPU series (`e2e` mode) allocates its output on every call, while the Metal series writes into a pre-allocated output. This favours the GPU, so the reported CPU wins below ~1024² are conservative. The M8 crossover tables must use the same allocation policy on both sides.
 - MLX comparison: same shapes and dtype; one measured call = `mx.eval(mx.matmul(a, b, stream=…))` from Python (graph build, output allocation, dispatch, sync and interpreter overhead), on both CPU and GPU streams. MLX's version is pinned in `benchmarks/requirements.txt`. Inputs come from the same distribution (U[−1, 1], fixed seeds) but are not bit-identical to the C++ inputs; FP32 GEMM timing does not depend on the values. MLX results are validated against a float64 NumPy reference.
 - Tuned-kernel reference: MPS `MPSMatrixMultiplication` runs through the same ComputeEdge call path as our tiled kernel, so overhead claims do not depend on the quality of our own kernel.
 - "Fastest" comparisons treat overlapping 95% CIs as ties.
