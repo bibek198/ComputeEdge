@@ -182,6 +182,8 @@ if(CE_BUILD_TESTS)
   add_executable(core_only_check tests/core_only_check.cpp)
   target_link_libraries(core_only_check PRIVATE computeedge_core)
   add_test(NAME layering.core_links_without_frameworks COMMAND core_only_check)
+  add_test(NAME data.results_unchanged
+    COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/tools/results_manifest.sh" check)
   add_test(NAME layering.no_objc_in_public_headers
     COMMAND sh -c "! grep -rnE '#import|@interface|@protocol|id<|NSObject' '${CMAKE_CURRENT_SOURCE_DIR}/include'")
 endif()
