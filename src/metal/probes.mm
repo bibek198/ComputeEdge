@@ -322,7 +322,11 @@ void Buffer::reset() {
 
 void* Buffer::contents() const {
   if (!handle_ || kind_ == BufferKind::Private) return nullptr;
-  return [mtl(*this) contents];
+  void* p = nullptr;
+  @autoreleasepool {  // a C++ caller has no pool; anything Metal autoreleases must not outlive the call
+    p = [mtl(*this) contents];
+  }
+  return p;
 }
 
 Timing bind_dispatch(const Buffer& buffer, Sync sync) {

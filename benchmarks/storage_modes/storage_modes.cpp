@@ -14,7 +14,7 @@
 //               (reused; bandwidth = bytes moved / gpu_ns)
 //
 // Usage:
-//   storage_modes [--sizes 16K,256K,4M,64M,256M,1G] [--kinds shared,private,nocopy,shared_copy]
+//   storage_modes [--sizes 16K,256K,4M,64M,256M,1G] [--kinds host,shared,private,nocopy,shared_copy]
 //                 [--experiments create,cpu_touch,gpu_first,gpu_bw]
 //                 + common flags (benchmarks/common/bench_common.h)
 
@@ -83,7 +83,7 @@ uint64_t timed_ns(const auto& fn) {
 int main(int argc, char** argv) {
   const char* src = "benchmarks/storage_modes/storage_modes.cpp";
   std::vector<size_t> sizes = split_bytes("16K,256K,4M,64M,256M,1G");
-  std::vector<std::string> kinds{"shared", "private", "nocopy", "shared_copy"};
+  std::vector<std::string> kinds{"host", "shared", "private", "nocopy", "shared_copy"};
   std::vector<std::string> experiments{"create", "cpu_touch", "gpu_first", "gpu_bw"};
   const CommonOptions opt = parse(argc, argv, src, [&](const std::string& f, const auto& next) {
     if (f == "--sizes") sizes = split_bytes(next());
@@ -92,7 +92,15 @@ int main(int argc, char** argv) {
     else return false;
     return true;
   });
-  for (const auto& k : kinds) kind_from(k, src);
+  for (const auto& k : kinds)
+    if (k != "host") kind_from(k, src);
+  // Each experiment runs the requested kinds it supports, in this fixed order.
+  auto kinds_for = [&](std::initializer_list<const char*> supported) {
+    std::vector<std::string> out;
+    for (const char* k : supported)
+      if (wants(kinds, k)) out.push_back(k);
+    return out;
+  };
   for (size_t s : sizes)
     if (s == 0 || s % page_size() != 0) usage(src, "sizes must be non-zero multiples of the page size (16K)");
 
@@ -114,7 +122,7 @@ int main(int argc, char** argv) {
     for (size_t bytes : sizes) {
       HostPages host(bytes);
       std::memset(host.ptr, 1, bytes);  // resident, so wrap/copy costs exclude host page faults
-      for (const std::string& k : kinds) {
+      for (const std::string& k : kinds_for({"shared", "private", "nocopy", "shared_copy"})) {
         const probe::BufferKind kind = kind_from(k, src);
         keep(cb::run_with_metrics("storage_create", base("create", k, bytes), cfg, [&](cb::Metrics& m) {
           const uint64_t t0 = now_ns();
@@ -132,18 +140,18 @@ int main(int argc, char** argv) {
   // ---- cpu_touch -------------------------------------------------------------
   if (wants(experiments, "cpu_touch")) {
     for (size_t bytes : sizes) {
-      for (const std::string& k : {"host", "shared", "nocopy"}) {
+      for (const std::string& k : kinds_for({"host", "shared", "nocopy"})) {
         std::optional<HostPages> host;
         std::optional<probe::Buffer> buf;
         void* mem = nullptr;
         auto fresh = [&] {  // untimed: new memory for every call
           buf.reset();
           host.reset();
-          if (k == std::string("host")) {
+          if (k == "host") {
             host.emplace(bytes);
             mem = host->ptr;
           } else {
-            buf = probe::Buffer::create(k == std::string("shared") ? probe::BufferKind::Shared
+            buf = probe::Buffer::create(k == "shared" ? probe::BufferKind::Shared
                                                                    : probe::BufferKind::NoCopy,
                                         bytes);
             mem = buf->contents();
@@ -164,7 +172,7 @@ int main(int argc, char** argv) {
   // ---- gpu_first -------------------------------------------------------------
   if (wants(experiments, "gpu_first")) {
     for (size_t bytes : sizes) {
-      for (const std::string& k : {"shared", "private", "nocopy"}) {
+      for (const std::string& k : kinds_for({"shared", "private", "nocopy"})) {
         const probe::BufferKind kind = kind_from(k, src);
         for (const char* reuse : {"fresh", "reused"}) {
           const bool fresh = std::string(reuse) == "fresh";
@@ -189,7 +197,7 @@ int main(int argc, char** argv) {
   // ---- gpu_bw ----------------------------------------------------------------
   if (wants(experiments, "gpu_bw")) {
     for (size_t bytes : sizes) {
-      for (const std::string& k : {"shared", "private", "nocopy"}) {
+      for (const std::string& k : kinds_for({"shared", "private", "nocopy"})) {
         const probe::BufferKind kind = kind_from(k, src);
         probe::Buffer a = probe::Buffer::create(kind, bytes);
         probe::Buffer b = probe::Buffer::create(kind, bytes);

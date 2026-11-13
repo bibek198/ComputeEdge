@@ -4,9 +4,11 @@
 
 #include <gtest/gtest.h>
 
+#include <mach/mach.h>
+#include <unistd.h>
+
 #include <cstdlib>
 #include <cstring>
-#include <unistd.h>
 #include <vector>
 
 #include "computeedge/error.h"
@@ -41,6 +43,13 @@ void expect_ordered(const mtl::Timing& t, uint64_t before, uint64_t after) {
   EXPECT_GE(t.wait_end_ns, t.commit_end_ns);
   EXPECT_LE(t.wait_end_ns, after);
   EXPECT_LE(t.encode_ns + t.commit_ns + t.wait_ns, t.total_ns);
+}
+
+uint64_t phys_footprint() {
+  task_vm_info_data_t info{};
+  mach_msg_type_number_t count = TASK_VM_INFO_COUNT;
+  if (task_info(mach_task_self(), TASK_VM_INFO, reinterpret_cast<task_info_t>(&info), &count) != KERN_SUCCESS) return 0;
+  return info.phys_footprint;
 }
 
 struct HostPages {
@@ -140,6 +149,20 @@ TEST_F(ProbeTest, BufferMoveAndReset) {
   EXPECT_FALSE(b);
   EXPECT_EQ(b.bytes(), 0u);
   b.reset();  // idempotent
+}
+
+TEST_F(ProbeTest, ReleasedBuffersFreeTheirMemory) {
+  // Regression: contents() once ran outside an autorelease pool, so every
+  // touched buffer stayed alive after reset() (C++ callers have no pool).
+  constexpr size_t kBytes = size_t{64} << 20;
+  for (probe::BufferKind kind : {probe::BufferKind::Shared, probe::BufferKind::NoCopy}) {
+    const uint64_t before = phys_footprint();
+    for (int i = 0; i < 16; ++i) {  // 1 GiB in total if nothing were freed
+      probe::Buffer buf = probe::Buffer::create(kind, kBytes);
+      std::memset(buf.contents(), 1, kBytes);
+    }
+    EXPECT_LT(phys_footprint(), before + 4 * kBytes) << probe::to_string(kind);
+  }
 }
 
 TEST_F(ProbeTest, WriteStreamFillsCpuVisibleBuffers) {
