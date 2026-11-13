@@ -38,13 +38,13 @@ The planned Phase-2 mechanisms are **not novel on their own**:
 |---|---|---|---|
 | Hübner, Hu, Peng, Markidis — *Apple vs. Oranges: Evaluating the Apple Silicon M-Series SoCs for HPC* | arXiv 2502.05317, 2025 | M1–M4 bandwidth (~100 GB/s base chips), FP32 GEMM via Accelerate/MPS/Metal; M4 GPU ~2.9 TFLOPS; powermetrics energy | verified |
 | Kenyon, Capano — *Apple Silicon Performance in Scientific Computing* | arXiv 2211.00720 (HPEC) | SHOC/OpenCL on M1, M1 Ultra vs V100/A100 | verified |
-| Beischl, Morozov, Jungmair, Haussmann, Neumann — *Evaluating Apple Silicon for Data Processing* | DaMoN '26, doi:10.1145/3789237.3809127 | Significant default overhead for CPU–GPU shared allocation; coherence costs; CPU+GPU co-processing up to 5× | snippet |
+| Beischl, Morozov, Jungmair, Haussmann, Neumann — *Evaluating Apple Silicon for Data Processing* | DaMoN '26 (Bengaluru), doi:10.1145/3789237.3809127 | On M4 Pro (macOS 26.4.1) and M3 Ultra: each **newly allocated** Metal shared buffer is wired (10–60 GB/s) then made coherent (70–120 GB/s) at its first kernel launch; allocating once and managing memory in the DBMS cuts it to <0.06 ms/run. Co-processing up to 5× vs CPU-only on OLAP queries. **Overlaps our C7 mechanism; we add per-object (rewrap) recurrence.** | **verified (full text, 2026-11-14)** |
 | Remke, Breuer — *Hello SME! Generating Fast Matrix Multiplication Kernels Using the Scalable Matrix Extension* | SC-W 2024, arXiv 2409.18779 | M4 SME > 2.3 FP32 TFLOPS. The CPU path is a strong baseline. | abstract |
 | Corrochano López, García Sánchez — *Evaluation of Domain-Specific Architectures … in Apple Silicon* | arXiv 2511.13450 | ANE GEMM 3.8 TFLOPS vs GPU 4.7 on M4 Pro at ~5 W vs ~24 W | verified |
 | Kumaresan — *Rigel: Reverse-Engineering the Metal 4.1 Tensor Compute Path on M4 Max* | arXiv 2606.12765 | Metal 4.1 `matmul2d` runs on shader cores; FP8 emulated | verified |
 | Bergach — *Beating vDSP: 138 GFLOPS FFT on Apple Silicon* | arXiv 2603.27569 | Threadgroup-memory access patterns are the bottleneck | verified |
 | Gallego — *Metal-Sci* | arXiv 2605.09708 (DL4C @ ICML '26) | Metal scientific-kernel benchmark with roofline scoring | verified |
-| *Residual GPU Cache State on Apple M4 Pro* | arXiv 2606.27098 | First CPU pass 31–63% slower after a 64–512 MiB GPU footprint. **Must-cite for zero-copy cost.** | unverified |
+| Alpay, Başaran — *Residual GPU Cache State on Apple M4 Pro* | arXiv 2606.27098 (Jun 2026, no venue) | 16 MiB CPU probe on **unrelated** memory, 8 KiB stride (SLC-resident by design): first pass +31% after a 64 MiB and +63% after a 512 MiB completed GPU pass; second pass recovers. Contiguous-line control shows ~no effect. Idle control blocks in waitUntilCompleted (clocks not held). **Consistent with our C9 once scoped to L2-resident sequential passes.** | **verified (full text, 2026-11-14)** |
 | *Characterizing WebGPU Dispatch Overhead* | arXiv 2604.02344 | ~71 µs Metal dispatch via wgpu on M2 | snippet |
 | *When Quantization Is Free…* | arXiv 2605.05699 | Accelerate sends sgemm to AMX only above tile size | snippet |
 
@@ -96,7 +96,7 @@ Open MLX issues relevant to Track C **(unverified details)**:
 | Li, Paolieri, Golubchik — *Partition-Aware Scheduling* | arXiv 2609.14213 | Joint partition/assignment on shared-memory mobile SoCs |
 | Khadem et al. — *Vector-Processing for Mobile Devices* | IISWC '23 | CPU vector units win on low-op-count kernels |
 | Chen et al. — *HeteroInfer* | SOSP '25 | GPU–NPU sync ~400 µs, comparable to a kernel; fast UMA sync |
-| Mohite — *FusionML* | arXiv 2607.22785, 2026 | **Closest prior work.** Apple CPU+GPU matmul split; MLX lazy graph serializes cross-stream work; decode bandwidth-bound |
+| Mohite — *FusionML: Prefill, Not Decode* | arXiv 2607.22785 (Jul 2026, no venue) | Row-split prefill matmuls across MLX CPU/GPU streams, 1.15–1.38× on M1–M4 Pro; MLX lazy graph serializes cross-stream work unless inputs are materialized; ~1.17× GPU-side slowdown under co-execution (M1); fanless M1 speedups fade under sustained load. No dispatch/sync, buffer-mapping or crossover measurements. **Verified (HTML full text, 2026-11-14).** |
 
 **Zero-copy is not free (other platforms):**
 - Otterness et al. (RTAS '17): Jetson TX1 zero-copy gives no performance benefit.

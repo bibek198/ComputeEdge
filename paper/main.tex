@@ -199,7 +199,13 @@ buffer. Wrapping already-resident host memory in a new no-copy buffer costs
 \RewrapSixtyFourMUsMin{}--\RewrapSixtyFourMUsMax{}\,\textmu s at 64\,MiB and \RewrapOneGMsMin{}--\RewrapOneGMsMax{}\,ms at
 1\,GiB, against \ReusedOneGUsMin{}--\ReusedOneGUsMax{}\,\textmu s when the same buffer object is reused
 (Fig.~\ref{fig:firstuse}) \claim{C7}. A runtime that wraps tensors per call, as our own matmul did, pays this every
-call. It accounts for roughly half of the queueing growth we saw in GEMM at $2048^2$--$4096^2$.
+call. It accounts for roughly half of the queueing growth we saw in GEMM at $2048^2$--$4096^2$. Beischl et
+al.~\cite{beischl2026damon} found the underlying mechanism on an M4 Pro: at the first kernel launch, each
+\emph{newly allocated} shared buffer is wired (10--60\,GB/s) and then made coherent (70--120\,GB/s), and allocating
+memory once avoids both. Our fresh-buffer and rewrap rates (${\approx}$38 and ${\approx}$120--130\,GB/s at 1\,GiB)
+match those two passes. What we add is that the coherence pass recurs for every new buffer \emph{object}, even
+over memory that is already resident and was never reallocated, so a runtime must cache the object, not only
+the memory.
 \todo{replace ``roughly half'' with the measured fraction once M7 caches wrappers}
 
 \textbf{Large GPU-written buffers are slower to write.} Writing 1\,GiB as one buffer reaches \WriteOneBufferGBs{}\,GB/s;
@@ -215,14 +221,18 @@ Shared memory is slow.
 \section{Interaction and heat}\label{sec:interaction}
 
 \textbf{No cross-device eviction, but costly handoff.} After the GPU streams 16--256\,MiB of \emph{other} memory, a
-CPU pass over its own 1--12\,MiB working set changes little relative to the tiny-GPU control: the worst of 18
-cells per session is \NoEvictMaxAbsPctMin{}--\NoEvictMaxAbsPctMax{}\% \claim{C9}. Our pre-registered bound was 10\%,
+sequential CPU pass over its own 1--12\,MiB working set, which fits in the performance cluster's L2, changes little
+relative to the tiny-GPU control: the worst of 18 cells per session is \NoEvictMaxAbsPctMin{}--\NoEvictMaxAbsPctMax{}\% \claim{C9}. Our pre-registered bound was 10\%,
 and one cell exceeded it in one session, so we report this claim as \emph{\verdictof{C9}} rather than established.
 \todo{update wording once more sessions are in} When the GPU has written the CPU's own data, the next CPU pass is
 \HandoffMinPctMin{}--\HandoffMaxPctMax{}\% slower \claim{C10}: the cost of a GPU$\rightarrow$CPU handoff, not of GPU
-traffic as such. A recent study reports a 31--63\% slower first CPU pass after a 64--512\,MiB GPU footprint on an
-M4 Pro~\cite{residualcache}; \verify{check whether their CPU pass reads GPU-written data -- if so, it matches our
-handoff result rather than contradicting the no-eviction result}. Running both at once is expensive: while the
+traffic as such. This is consistent with Alpay and Ba\c{s}aran~\cite{residualcache}, who find a 31--63\% slower first
+CPU pass after a 64--512\,MiB GPU footprint on an M4 Pro. Their probe touches unrelated memory with an 8\,KiB stride
+chosen to reside in the system-level cache shared with the GPU, and their contiguous-line control shows almost no
+effect. GPU traffic therefore displaces SLC-resident CPU data, not a sequential working set held in the CPU's L2.
+Their idle control waits with \texttt{waitUntilCompleted}, so it does not hold CPU clocks constant across GPU passes
+of different length, as our spinning controls do. \todo{add their strided SLC probe to cache\_interference to
+reproduce it on M4 under our controls} Running both at once is expensive: while the
 GPU streams writes, CPU work slows by a median of \ConcurrentMedianPctMin{}--\ConcurrentMedianPctMax{}\% \claim{C11}, which argues against offloading
 to the GPU merely to ``free'' the CPU.
 
@@ -265,13 +275,18 @@ sessions cover all three}
 
 Hübner et al.~\cite{huebner2025apple} and Kenyon and Capano~\cite{kenyon2022apple} characterize M-series throughput,
 bandwidth and energy for HPC kernels. Feng et al.~\cite{feng2025profiling} attribute part of the training gap to kernel
-launch time and page faults; we measure those costs directly. Beischl et al.~\cite{beischl2026damon} report overheads of
-CPU--GPU shared allocation for data processing \verify{DaMoN '26 details from snippet only}. FusionML~\cite{fusionml}
-splits matmul across Apple CPU and GPU \verify{arXiv 2607.22785 unverified}. On other integrated and unified-memory
+launch time and page faults; we measure those costs directly. Beischl et al.~\cite{beischl2026damon} identify wiring and
+coherence passes on newly allocated Metal shared buffers and amortize them in a database system
+(\S\ref{sec:memory}). Alpay and Ba\c{s}aran~\cite{residualcache} measure residual SLC displacement after completed
+GPU work (\S\ref{sec:interaction}). FusionML~\cite{fusionml} splits prefill matmuls across MLX's CPU and GPU streams
+and shows that MLX's lazy graph serializes cross-stream work unless inputs are materialized. On a fanless M1 its
+speedups shrink under sustained load, and it reports a ${\sim}1.17\times$ GPU-side slowdown under co-execution;
+we quantify the CPU side (\S\ref{sec:interaction}). None of these break down per-call fixed costs (queue, wake,
+idle penalty) or track the CPU/GPU crossover over time. On other integrated and unified-memory
 platforms, zero-copy has been shown not to be free~\cite{otterness2017jetson}, and CPU/GPU placement has been driven by
-input size~\cite{qilin} and by online cost estimates~\cite{mnn,codl}. Our contribution is the per-phase fixed-cost
-breakdown, the per-buffer-object setup costs, and their behaviour under heat on a fanless device.
-\todo{read in full: 2606.27098, FusionML, DaMoN '26; adjust novelty claims}
+input size~\cite{qilin} and by online cost estimates~\cite{mnn,codl}. Our contribution is the per-phase fixed-cost breakdown and the idle penalty; the finding that the coherence pass
+is per buffer \emph{object} rather than per allocation; the scoping of cross-device interference to handoff, SLC
+residency and concurrency; and the crossover's drift under heat on a fanless device.
 
 % ---------------------------------------------------------------------------
 \section{Threats to validity}
