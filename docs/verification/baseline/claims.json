@@ -1,0 +1,374 @@
+{
+  "C1": {
+    "finding": "1",
+    "text": "CPU (Accelerate) beats the GPU (MPS) below ~1024\u00b2, the GPU wins above",
+    "criterion": "Like-for-like (both into pre-allocated outputs): CPU/GPU time < 1 at 128\u00b2 and 512\u00b2, > 1 at 2048\u00b2 and 4096\u00b2",
+    "verdict": "confirmed (2/2)",
+    "sessions": {
+      "orig": {
+        "values": {
+          "ratio_128": 0.015174761169269491,
+          "ratio_512": 0.3748955071797079,
+          "ratio_1024": 0.857098620908418,
+          "ratio_2048": 1.200584204051678,
+          "ratio_4096": 1.286303598874506
+        },
+        "passed": true
+      },
+      "20261113-192541_s0_47a6278756c0": {
+        "values": {
+          "ratio_128": 0.07108710944369541,
+          "ratio_512": 0.41618632680034323,
+          "ratio_1024": 0.7930302457069592,
+          "ratio_2048": 1.2057815344326517,
+          "ratio_4096": 1.3248529868024383
+        },
+        "passed": true
+      }
+    }
+  },
+  "C2": {
+    "finding": "2",
+    "text": "ComputeEdge's MPS path costs the same as MLX's GPU stream at large sizes",
+    "criterion": "|ComputeEdge MPS / MLX GPU - 1| < 10% at 4096\u00b2",
+    "verdict": "confirmed (2/2)",
+    "sessions": {
+      "orig": {
+        "values": {
+          "ratio": 1.0015312121667475
+        },
+        "passed": true
+      },
+      "20261113-192541_s0_47a6278756c0": {
+        "values": {
+          "ratio": 0.9997424188990892
+        },
+        "passed": true
+      }
+    }
+  },
+  "C3": {
+    "finding": "4",
+    "text": "An empty GPU round trip costs ~85-120 \u00b5s; CPU-side encode + commit is a small share",
+    "criterion": "Empty round trip (1 CB, 1 encoder, 1 dispatch) median in [50, 250] \u00b5s and encode+commit < 10% of it",
+    "verdict": "confirmed (2/2)",
+    "sessions": {
+      "orig": {
+        "values": {
+          "total_us": 85.9165,
+          "cpu_share_pct": 4.6073804216885,
+          "queue_us": 41.4795,
+          "wake_us": 38.8955
+        },
+        "passed": true
+      },
+      "20261113-192541_s0_47a6278756c0": {
+        "values": {
+          "total_us": 159.02,
+          "cpu_share_pct": 2.3324110174820776,
+          "queue_us": 88.792,
+          "wake_us": 65.4785
+        },
+        "passed": true
+      }
+    }
+  },
+  "C4": {
+    "finding": "5",
+    "text": "An extra command buffer costs far more than an extra dispatch",
+    "criterion": "Marginal total cost per command buffer > 20x the marginal cost per dispatch",
+    "verdict": "confirmed (2/2)",
+    "sessions": {
+      "orig": {
+        "values": {
+          "per_cb_us": 35.182022354964246,
+          "per_dispatch_us": 0.577623174764077,
+          "ratio": 60.908259730634775
+        },
+        "passed": true
+      },
+      "20261113-192541_s0_47a6278756c0": {
+        "values": {
+          "per_cb_us": 21.914312924246538,
+          "per_dispatch_us": 0.5602035445547864,
+          "ratio": 39.118483160727976
+        },
+        "passed": true
+      }
+    }
+  },
+  "C5": {
+    "finding": "6",
+    "text": "Even busy-polling, the CPU sees GPU completion no sooner than ~39 \u00b5s after GPUEndTime",
+    "criterion": "Median wake with spin-on-event, empty kernel >= 25 \u00b5s",
+    "verdict": "confirmed (2/2)",
+    "sessions": {
+      "orig": {
+        "values": {
+          "wake_us": 38.979
+        },
+        "passed": true
+      },
+      "20261113-192541_s0_47a6278756c0": {
+        "values": {
+          "wake_us": 38.687
+        },
+        "passed": true
+      }
+    }
+  },
+  "C6": {
+    "finding": "8",
+    "text": "An idle GPU makes the next round trip several times slower",
+    "criterion": "Round trip after 100 ms idle >= 3x back-to-back (waitUntilCompleted) and after 10 ms > after 0 ms",
+    "verdict": "confirmed (2/2)",
+    "sessions": {
+      "orig": {
+        "values": {
+          "ratio_100ms": 6.968034068244299,
+          "back_to_back_us": 83.4795,
+          "after_100ms_us": 581.688,
+          "ratio_10ms": 5.758156194035662
+        },
+        "passed": true
+      },
+      "20261113-192541_s0_47a6278756c0": {
+        "values": {
+          "ratio_100ms": 7.772738266071169,
+          "back_to_back_us": 124.042,
+          "after_100ms_us": 964.146,
+          "ratio_10ms": 6.446235952338724
+        },
+        "passed": true
+      }
+    }
+  },
+  "C7": {
+    "finding": "11",
+    "text": "A new MTLBuffer over already-resident memory pays a size-proportional cost on first GPU use",
+    "criterion": "NoCopy rewrap / reused round trip >= 3x at 64 MiB and >= 20x at 1 GiB",
+    "verdict": "confirmed (2/2)",
+    "sessions": {
+      "orig": {
+        "values": {
+          "rewrap_64m_us": 559.333,
+          "rewrap_1g_ms": 8.20912,
+          "reused_1g_us": 101.729,
+          "ratio_64m": 5.115866206909168,
+          "ratio_1g": 80.69596673514927
+        },
+        "passed": true
+      },
+      "20261113-192541_s0_47a6278756c0": {
+        "values": {
+          "rewrap_64m_us": 721.458,
+          "rewrap_1g_ms": 8.95877,
+          "reused_1g_us": 157.5,
+          "ratio_64m": 4.466679049034175,
+          "ratio_1g": 56.881079365079366
+        },
+        "passed": true
+      }
+    }
+  },
+  "C8": {
+    "finding": "10",
+    "text": "Storage mode does not change GPU streaming bandwidth",
+    "criterion": "At 64 MiB and 256 MiB, read and write GB/s of shared/private/nocopy all within \u00b110% of their mean",
+    "verdict": "confirmed (2/2)",
+    "sessions": {
+      "orig": {
+        "values": {
+          "max_dev_pct": 5.224181038608
+        },
+        "passed": true
+      },
+      "20261113-192541_s0_47a6278756c0": {
+        "values": {
+          "max_dev_pct": 8.290519440383093
+        },
+        "passed": true
+      }
+    }
+  },
+  "C9": {
+    "finding": "16",
+    "text": "GPU traffic on other buffers does not evict the CPU's cached working set",
+    "criterion": "|slowdown| of the read pass after GPU writes/reads G (vs tiny-GPU control) < 10% for every W <= 12 MiB and G",
+    "verdict": "inconsistent (1/2)",
+    "sessions": {
+      "orig": {
+        "values": {
+          "max_abs_pct": 5.998871396819183
+        },
+        "passed": "True"
+      },
+      "20261113-192541_s0_47a6278756c0": {
+        "values": {
+          "max_abs_pct": 10.613650467873503
+        },
+        "passed": "False"
+      }
+    }
+  },
+  "C10": {
+    "finding": "17",
+    "text": "GPU-to-CPU handoff of cache-resident data costs ~45% of a cached pass",
+    "criterion": "Read-pass slowdown after the GPU wrote the CPU's own W (vs tiny control) >= 25% for W in 1-12 MiB",
+    "verdict": "confirmed (2/2)",
+    "sessions": {
+      "orig": {
+        "values": {
+          "min_pct": 41.71606257895248,
+          "max_pct": 48.253600601229564
+        },
+        "passed": "True"
+      },
+      "20261113-192541_s0_47a6278756c0": {
+        "values": {
+          "min_pct": 39.53506914959355,
+          "max_pct": 58.965016501650155
+        },
+        "passed": "True"
+      }
+    }
+  },
+  "C11": {
+    "finding": "18",
+    "text": "Concurrent GPU streaming slows CPU work",
+    "criterion": "Median over valid cells (GPU overlapped >= 90% of samples) of concurrent-vs-short slowdown > +10%",
+    "verdict": "confirmed (2/2)",
+    "sessions": {
+      "orig": {
+        "values": {
+          "median_pct": 137.8015480684549,
+          "sgemm_median_pct": 64.0155758077879,
+          "valid_cells": 13
+        },
+        "passed": true
+      },
+      "20261113-192541_s0_47a6278756c0": {
+        "values": {
+          "median_pct": 125.49455615190246,
+          "sgemm_median_pct": 87.77017691659645,
+          "valid_cells": 14
+        },
+        "passed": true
+      }
+    }
+  },
+  "C12": {
+    "finding": "20",
+    "text": "Sustained load costs throughput on the heated unit(s)",
+    "criterion": "Throughput in the last 5 minutes vs minute 0 drops >= 10% for the unit(s) the heater loads (mixed: both)",
+    "verdict": "confirmed (1/1)",
+    "sessions": {
+      "orig": {
+        "values": {
+          "cpu_loss_pct": 32.33238342201016,
+          "gpu_loss_pct": 14.209976968207593,
+          "load": "mixed"
+        },
+        "passed": true
+      },
+      "20261113-192541_s0_47a6278756c0": null
+    }
+  },
+  "C13": {
+    "finding": "21",
+    "text": "The CPU/GPU crossover drifts under sustained load, invisibly to macOS thermal state",
+    "criterion": "CPU/GPU time ratio at 1024\u00b2 changes by >= 10% between minute 0 and the last 5 minutes",
+    "verdict": "confirmed (1/1)",
+    "sessions": {
+      "orig": {
+        "values": {
+          "ratio_start": 1.0350092398716373,
+          "ratio_end": 1.2100077503569244,
+          "change_pct": 16.907917701970533,
+          "load": "mixed",
+          "thermal_states_seen": 2
+        },
+        "passed": true
+      },
+      "20261113-192541_s0_47a6278756c0": null
+    }
+  },
+  "C14": {
+    "finding": "23",
+    "text": "A just-created Shared buffer is slow to write for its first two passes, then matches host memory",
+    "criterion": "Shared write 2 < 0.8x write 4, and Shared write 4 within 10% of posix_memalign write 4",
+    "verdict": "confirmed (2/2)",
+    "sessions": {
+      "orig": {
+        "values": {
+          "w1": 20.150028524588194,
+          "w2": 47.01541565665765,
+          "w4": 73.45846696775916,
+          "host_w4": 73.38151598652846
+        },
+        "passed": true
+      },
+      "20261113-192541_s0_47a6278756c0": {
+        "values": {
+          "w1": 19.735695422276333,
+          "w2": 49.746381817912265,
+          "w4": 73.39483832301275,
+          "host_w4": 73.26967101786627
+        },
+        "passed": true
+      }
+    }
+  },
+  "C15": {
+    "finding": "24",
+    "text": "GPU write bandwidth falls with the size of one buffer, not with total bytes",
+    "criterion": "1 GiB as one buffer < 0.6x the bandwidth of the same bytes as 256 MiB buffers",
+    "verdict": "confirmed (2/2)",
+    "sessions": {
+      "orig": {
+        "values": {
+          "one_gbs": 36.32623743584712,
+          "chunks_gbs": 90.17508788726244
+        },
+        "passed": true
+      },
+      "20261113-192541_s0_47a6278756c0": {
+        "values": {
+          "one_gbs": 37.01077582759999,
+          "chunks_gbs": 85.62261363273899
+        },
+        "passed": true
+      }
+    }
+  },
+  "C16": {
+    "finding": "22",
+    "text": "Wake latency after long GPU work does not depend on whether it wrote or read",
+    "criterion": "|wake(write) / wake(read) - 1| < 20% at 64 MiB and 256 MiB",
+    "verdict": "confirmed (2/2)",
+    "sessions": {
+      "orig": {
+        "values": {
+          "max_diff_pct": 8.94140914709518
+        },
+        "passed": true
+      },
+      "20261113-192541_s0_47a6278756c0": {
+        "values": {
+          "max_diff_pct": 10.773626572631567
+        },
+        "passed": true
+      }
+    }
+  },
+  "C17": {
+    "finding": "16 (scope)",
+    "text": "GPU traffic displaces SLC-resident CPU data (reproduces arXiv 2606.27098 on M4, with clock controls)",
+    "criterion": "Registered 2026-11-14 before any data: SLC-probe pass after the GPU writes 256 MiB is >= 15% slower than after the tiny-GPU control",
+    "verdict": "no data",
+    "sessions": {
+      "orig": null,
+      "20261113-192541_s0_47a6278756c0": null
+    }
+  }
+}

@@ -1,0 +1,1872 @@
+{
+  "(env.json)": {
+    "files": {
+      "env.json": [
+        "build_type",
+        "chip",
+        "compiler",
+        "compiler_flags",
+        "efficiency_cores",
+        "git_sha",
+        "gpu_name",
+        "gpu_recommended_working_set",
+        "low_power_mode",
+        "memory_bytes",
+        "model",
+        "os_build",
+        "os_version",
+        "performance_cores",
+        "power_source",
+        "sanitizers",
+        "thermal_state",
+        "timestamp_utc",
+        "veclib_maximum_threads"
+      ]
+    },
+    "metrics": [],
+    "params": {}
+  },
+  "(timeseries)": {
+    "files": {
+      "timeseries.csv": [
+        "t_s",
+        "cycle",
+        "workload",
+        "ns",
+        "thermal",
+        "on_ac"
+      ]
+    },
+    "metrics": [],
+    "params": {
+      "workload": [
+        "cpu_1024",
+        "cpu_2048",
+        "gpu_1024",
+        "gpu_2048",
+        "gpu_empty"
+      ]
+    }
+  },
+  "cache_interference": {
+    "files": {
+      "metrics.csv": [
+        "benchmark",
+        "g",
+        "pass",
+        "phase",
+        "ws",
+        "rep",
+        "metric",
+        "value"
+      ],
+      "metrics_summary.csv": [
+        "benchmark",
+        "g",
+        "pass",
+        "phase",
+        "ws",
+        "metric",
+        "n_samples",
+        "median",
+        "p25",
+        "p75",
+        "iqr",
+        "ci95_lo",
+        "ci95_hi",
+        "mean",
+        "min",
+        "max"
+      ],
+      "samples.csv": [
+        "benchmark",
+        "g",
+        "pass",
+        "phase",
+        "ws",
+        "rep",
+        "inner_iterations",
+        "ns_per_call",
+        "thermal"
+      ],
+      "summary.csv": [
+        "benchmark",
+        "g",
+        "pass",
+        "phase",
+        "ws",
+        "n_samples",
+        "inner_iterations",
+        "median_ns",
+        "p25_ns",
+        "p75_ns",
+        "iqr_ns",
+        "ci95_lo_ns",
+        "ci95_hi_ns",
+        "mean_ns",
+        "stddev_ns",
+        "min_ns",
+        "max_ns",
+        "gflops_median",
+        "thermal_before",
+        "thermal_after"
+      ]
+    },
+    "metrics": [
+      "cpu_ns",
+      "overlap"
+    ],
+    "params": {
+      "g": [
+        "-",
+        "16M",
+        "1M"
+      ],
+      "pass": [
+        "read",
+        "sgemm",
+        "slc"
+      ],
+      "phase": [
+        "cpu_read",
+        "gpu_concurrent",
+        "gpu_read",
+        "gpu_same",
+        "gpu_tiny",
+        "gpu_tiny_same",
+        "gpu_write",
+        "idle_same",
+        "idle_short",
+        "idle_spin"
+      ],
+      "ws": [
+        "16M@8K",
+        "1M",
+        "3M"
+      ]
+    }
+  },
+  "dispatch_cold": {
+    "files": {
+      "metrics.csv": [
+        "benchmark",
+        "command_buffers",
+        "dispatches",
+        "encoders",
+        "experiment",
+        "sync",
+        "rep",
+        "metric",
+        "value"
+      ],
+      "metrics_summary.csv": [
+        "benchmark",
+        "command_buffers",
+        "dispatches",
+        "encoders",
+        "experiment",
+        "sync",
+        "metric",
+        "n_samples",
+        "median",
+        "p25",
+        "p75",
+        "iqr",
+        "ci95_lo",
+        "ci95_hi",
+        "mean",
+        "min",
+        "max"
+      ],
+      "samples.csv": [
+        "benchmark",
+        "command_buffers",
+        "dispatches",
+        "encoders",
+        "experiment",
+        "sync",
+        "rep",
+        "inner_iterations",
+        "ns_per_call",
+        "thermal"
+      ],
+      "summary.csv": [
+        "benchmark",
+        "command_buffers",
+        "dispatches",
+        "encoders",
+        "experiment",
+        "sync",
+        "n_samples",
+        "inner_iterations",
+        "median_ns",
+        "p25_ns",
+        "p75_ns",
+        "iqr_ns",
+        "ci95_lo_ns",
+        "ci95_hi_ns",
+        "mean_ns",
+        "stddev_ns",
+        "min_ns",
+        "max_ns",
+        "gflops_median",
+        "thermal_before",
+        "thermal_after"
+      ]
+    },
+    "metrics": [
+      "commit_ns",
+      "compile_ns",
+      "encode_ns",
+      "gpu_ns",
+      "queue_ns",
+      "total_ns",
+      "wait_ns",
+      "wake_ns"
+    ],
+    "params": {
+      "experiment": [
+        "cold"
+      ]
+    }
+  },
+  "dispatch_empty": {
+    "files": {
+      "metrics.csv": [
+        "benchmark",
+        "command_buffers",
+        "dispatches",
+        "encoders",
+        "experiment",
+        "sync",
+        "rep",
+        "metric",
+        "value"
+      ],
+      "metrics_summary.csv": [
+        "benchmark",
+        "command_buffers",
+        "dispatches",
+        "encoders",
+        "experiment",
+        "sync",
+        "metric",
+        "n_samples",
+        "median",
+        "p25",
+        "p75",
+        "iqr",
+        "ci95_lo",
+        "ci95_hi",
+        "mean",
+        "min",
+        "max"
+      ],
+      "samples.csv": [
+        "benchmark",
+        "command_buffers",
+        "dispatches",
+        "encoders",
+        "experiment",
+        "sync",
+        "rep",
+        "inner_iterations",
+        "ns_per_call",
+        "thermal"
+      ],
+      "summary.csv": [
+        "benchmark",
+        "command_buffers",
+        "dispatches",
+        "encoders",
+        "experiment",
+        "sync",
+        "n_samples",
+        "inner_iterations",
+        "median_ns",
+        "p25_ns",
+        "p75_ns",
+        "iqr_ns",
+        "ci95_lo_ns",
+        "ci95_hi_ns",
+        "mean_ns",
+        "stddev_ns",
+        "min_ns",
+        "max_ns",
+        "gflops_median",
+        "thermal_before",
+        "thermal_after"
+      ]
+    },
+    "metrics": [
+      "commit_ns",
+      "encode_ns",
+      "gpu_ns",
+      "queue_ns",
+      "total_ns",
+      "wait_ns",
+      "wake_ns"
+    ],
+    "params": {
+      "command_buffers": [
+        "1",
+        "2"
+      ],
+      "dispatches": [
+        "1",
+        "4"
+      ],
+      "encoders": [
+        "1",
+        "4"
+      ],
+      "experiment": [
+        "cmdbufs",
+        "dispatches",
+        "encoders"
+      ],
+      "sync": [
+        "wait_until_completed"
+      ]
+    }
+  },
+  "emit": {
+    "files": {
+      "samples.csv": [
+        "benchmark",
+        "log",
+        "rep",
+        "inner_iterations",
+        "ns_per_call",
+        "thermal"
+      ],
+      "summary.csv": [
+        "benchmark",
+        "log",
+        "n_samples",
+        "inner_iterations",
+        "median_ns",
+        "p25_ns",
+        "p75_ns",
+        "iqr_ns",
+        "ci95_lo_ns",
+        "ci95_hi_ns",
+        "mean_ns",
+        "stddev_ns",
+        "min_ns",
+        "max_ns",
+        "gflops_median",
+        "thermal_before",
+        "thermal_after"
+      ]
+    },
+    "metrics": [],
+    "params": {
+      "log": [
+        "disabled",
+        "enabled"
+      ]
+    }
+  },
+  "followup_cpu_write": {
+    "files": {
+      "metrics.csv": [
+        "benchmark",
+        "bytes",
+        "experiment",
+        "layout",
+        "size",
+        "source",
+        "stream",
+        "sync",
+        "rep",
+        "metric",
+        "value"
+      ],
+      "metrics_summary.csv": [
+        "benchmark",
+        "bytes",
+        "experiment",
+        "layout",
+        "size",
+        "source",
+        "stream",
+        "sync",
+        "metric",
+        "n_samples",
+        "median",
+        "p25",
+        "p75",
+        "iqr",
+        "ci95_lo",
+        "ci95_hi",
+        "mean",
+        "min",
+        "max"
+      ],
+      "samples.csv": [
+        "benchmark",
+        "bytes",
+        "experiment",
+        "layout",
+        "size",
+        "source",
+        "stream",
+        "sync",
+        "rep",
+        "inner_iterations",
+        "ns_per_call",
+        "thermal"
+      ],
+      "summary.csv": [
+        "benchmark",
+        "bytes",
+        "experiment",
+        "layout",
+        "size",
+        "source",
+        "stream",
+        "sync",
+        "n_samples",
+        "inner_iterations",
+        "median_ns",
+        "p25_ns",
+        "p75_ns",
+        "iqr_ns",
+        "ci95_lo_ns",
+        "ci95_hi_ns",
+        "mean_ns",
+        "stddev_ns",
+        "min_ns",
+        "max_ns",
+        "gflops_median",
+        "thermal_before",
+        "thermal_after"
+      ]
+    },
+    "metrics": [
+      "memset_ns",
+      "read_ns",
+      "store_loop_ns"
+    ],
+    "params": {
+      "bytes": [
+        "67108864"
+      ],
+      "experiment": [
+        "cpu_write"
+      ],
+      "size": [
+        "64M"
+      ],
+      "source": [
+        "memalign",
+        "mmap",
+        "nocopy_mmap",
+        "shared",
+        "shared_wc"
+      ]
+    }
+  },
+  "followup_cpu_write_fresh": {
+    "files": {
+      "metrics.csv": [
+        "benchmark",
+        "bytes",
+        "experiment",
+        "layout",
+        "size",
+        "source",
+        "stream",
+        "sync",
+        "rep",
+        "metric",
+        "value"
+      ],
+      "metrics_summary.csv": [
+        "benchmark",
+        "bytes",
+        "experiment",
+        "layout",
+        "size",
+        "source",
+        "stream",
+        "sync",
+        "metric",
+        "n_samples",
+        "median",
+        "p25",
+        "p75",
+        "iqr",
+        "ci95_lo",
+        "ci95_hi",
+        "mean",
+        "min",
+        "max"
+      ],
+      "samples.csv": [
+        "benchmark",
+        "bytes",
+        "experiment",
+        "layout",
+        "size",
+        "source",
+        "stream",
+        "sync",
+        "rep",
+        "inner_iterations",
+        "ns_per_call",
+        "thermal"
+      ],
+      "summary.csv": [
+        "benchmark",
+        "bytes",
+        "experiment",
+        "layout",
+        "size",
+        "source",
+        "stream",
+        "sync",
+        "n_samples",
+        "inner_iterations",
+        "median_ns",
+        "p25_ns",
+        "p75_ns",
+        "iqr_ns",
+        "ci95_lo_ns",
+        "ci95_hi_ns",
+        "mean_ns",
+        "stddev_ns",
+        "min_ns",
+        "max_ns",
+        "gflops_median",
+        "thermal_before",
+        "thermal_after"
+      ]
+    },
+    "metrics": [
+      "write1_ns",
+      "write2_ns",
+      "write3_ns",
+      "write4_ns"
+    ],
+    "params": {
+      "bytes": [
+        "67108864"
+      ],
+      "experiment": [
+        "cpu_write_fresh"
+      ],
+      "size": [
+        "64M"
+      ],
+      "source": [
+        "memalign",
+        "nocopy",
+        "shared"
+      ]
+    }
+  },
+  "followup_gpu_write": {
+    "files": {
+      "metrics.csv": [
+        "benchmark",
+        "bytes",
+        "experiment",
+        "layout",
+        "size",
+        "source",
+        "stream",
+        "sync",
+        "rep",
+        "metric",
+        "value"
+      ],
+      "metrics_summary.csv": [
+        "benchmark",
+        "bytes",
+        "experiment",
+        "layout",
+        "size",
+        "source",
+        "stream",
+        "sync",
+        "metric",
+        "n_samples",
+        "median",
+        "p25",
+        "p75",
+        "iqr",
+        "ci95_lo",
+        "ci95_hi",
+        "mean",
+        "min",
+        "max"
+      ],
+      "samples.csv": [
+        "benchmark",
+        "bytes",
+        "experiment",
+        "layout",
+        "size",
+        "source",
+        "stream",
+        "sync",
+        "rep",
+        "inner_iterations",
+        "ns_per_call",
+        "thermal"
+      ],
+      "summary.csv": [
+        "benchmark",
+        "bytes",
+        "experiment",
+        "layout",
+        "size",
+        "source",
+        "stream",
+        "sync",
+        "n_samples",
+        "inner_iterations",
+        "median_ns",
+        "p25_ns",
+        "p75_ns",
+        "iqr_ns",
+        "ci95_lo_ns",
+        "ci95_hi_ns",
+        "mean_ns",
+        "stddev_ns",
+        "min_ns",
+        "max_ns",
+        "gflops_median",
+        "thermal_before",
+        "thermal_after"
+      ]
+    },
+    "metrics": [
+      "commit_ns",
+      "encode_ns",
+      "gpu_ns",
+      "queue_ns",
+      "total_ns",
+      "two_pass_gpu_ns",
+      "wait_ns",
+      "wake_ns"
+    ],
+    "params": {
+      "bytes": [
+        "1073741824",
+        "134217728",
+        "201326592",
+        "268435456",
+        "335544320",
+        "402653184",
+        "536870912",
+        "805306368"
+      ],
+      "experiment": [
+        "gpu_write"
+      ],
+      "layout": [
+        "256M_chunks",
+        "one_buffer"
+      ],
+      "size": [
+        "128M",
+        "192M",
+        "1G",
+        "256M",
+        "320M",
+        "384M",
+        "512M",
+        "768M"
+      ]
+    }
+  },
+  "followup_wake": {
+    "files": {
+      "metrics.csv": [
+        "benchmark",
+        "bytes",
+        "experiment",
+        "layout",
+        "size",
+        "source",
+        "stream",
+        "sync",
+        "rep",
+        "metric",
+        "value"
+      ],
+      "metrics_summary.csv": [
+        "benchmark",
+        "bytes",
+        "experiment",
+        "layout",
+        "size",
+        "source",
+        "stream",
+        "sync",
+        "metric",
+        "n_samples",
+        "median",
+        "p25",
+        "p75",
+        "iqr",
+        "ci95_lo",
+        "ci95_hi",
+        "mean",
+        "min",
+        "max"
+      ],
+      "samples.csv": [
+        "benchmark",
+        "bytes",
+        "experiment",
+        "layout",
+        "size",
+        "source",
+        "stream",
+        "sync",
+        "rep",
+        "inner_iterations",
+        "ns_per_call",
+        "thermal"
+      ],
+      "summary.csv": [
+        "benchmark",
+        "bytes",
+        "experiment",
+        "layout",
+        "size",
+        "source",
+        "stream",
+        "sync",
+        "n_samples",
+        "inner_iterations",
+        "median_ns",
+        "p25_ns",
+        "p75_ns",
+        "iqr_ns",
+        "ci95_lo_ns",
+        "ci95_hi_ns",
+        "mean_ns",
+        "stddev_ns",
+        "min_ns",
+        "max_ns",
+        "gflops_median",
+        "thermal_before",
+        "thermal_after"
+      ]
+    },
+    "metrics": [
+      "commit_ns",
+      "encode_ns",
+      "gpu_ns",
+      "queue_ns",
+      "total_ns",
+      "wait_ns",
+      "wake_ns"
+    ],
+    "params": {
+      "bytes": [
+        "1048576",
+        "16777216",
+        "268435456",
+        "4194304",
+        "67108864"
+      ],
+      "experiment": [
+        "wake"
+      ],
+      "size": [
+        "16M",
+        "1M",
+        "256M",
+        "4M",
+        "64M"
+      ],
+      "stream": [
+        "read",
+        "write"
+      ],
+      "sync": [
+        "spin_event"
+      ]
+    }
+  },
+  "matmul": {
+    "files": {
+      "samples.csv": [
+        "benchmark",
+        "dtype",
+        "impl",
+        "k",
+        "m",
+        "mode",
+        "n",
+        "rep",
+        "inner_iterations",
+        "ns_per_call",
+        "thermal"
+      ],
+      "summary.csv": [
+        "benchmark",
+        "dtype",
+        "impl",
+        "k",
+        "m",
+        "mode",
+        "n",
+        "n_samples",
+        "inner_iterations",
+        "median_ns",
+        "p25_ns",
+        "p75_ns",
+        "iqr_ns",
+        "ci95_lo_ns",
+        "ci95_hi_ns",
+        "mean_ns",
+        "stddev_ns",
+        "min_ns",
+        "max_ns",
+        "gflops_median",
+        "thermal_before",
+        "thermal_after"
+      ]
+    },
+    "metrics": [],
+    "params": {
+      "dtype": [
+        "f32"
+      ],
+      "impl": [
+        "accelerate",
+        "naive"
+      ],
+      "k": [
+        "64"
+      ],
+      "m": [
+        "64"
+      ],
+      "mode": [
+        "e2e",
+        "kernel"
+      ],
+      "n": [
+        "64"
+      ]
+    }
+  },
+  "matmul_metal": {
+    "files": {
+      "metrics.csv": [
+        "benchmark",
+        "backend",
+        "dtype",
+        "k",
+        "kernel",
+        "m",
+        "n",
+        "storage",
+        "rep",
+        "metric",
+        "value"
+      ],
+      "metrics_summary.csv": [
+        "benchmark",
+        "backend",
+        "dtype",
+        "k",
+        "kernel",
+        "m",
+        "n",
+        "storage",
+        "metric",
+        "n_samples",
+        "median",
+        "p25",
+        "p75",
+        "iqr",
+        "ci95_lo",
+        "ci95_hi",
+        "mean",
+        "min",
+        "max"
+      ],
+      "samples.csv": [
+        "benchmark",
+        "backend",
+        "dtype",
+        "k",
+        "kernel",
+        "m",
+        "n",
+        "storage",
+        "rep",
+        "inner_iterations",
+        "ns_per_call",
+        "thermal"
+      ],
+      "summary.csv": [
+        "benchmark",
+        "backend",
+        "dtype",
+        "k",
+        "kernel",
+        "m",
+        "n",
+        "storage",
+        "n_samples",
+        "inner_iterations",
+        "median_ns",
+        "p25_ns",
+        "p75_ns",
+        "iqr_ns",
+        "ci95_lo_ns",
+        "ci95_hi_ns",
+        "mean_ns",
+        "stddev_ns",
+        "min_ns",
+        "max_ns",
+        "gflops_median",
+        "thermal_before",
+        "thermal_after"
+      ]
+    },
+    "metrics": [
+      "buffer_ns",
+      "commit_ns",
+      "copy_in_ns",
+      "copy_out_ns",
+      "encode_ns",
+      "gpu_ns",
+      "queue_ns",
+      "sched_ns",
+      "wait_ns",
+      "wake_ns"
+    ],
+    "params": {
+      "backend": [
+        "metal"
+      ],
+      "dtype": [
+        "f32"
+      ],
+      "k": [
+        "64"
+      ],
+      "kernel": [
+        "mps",
+        "tiled16"
+      ],
+      "m": [
+        "64"
+      ],
+      "n": [
+        "64"
+      ],
+      "storage": [
+        "nocopy",
+        "private",
+        "shared"
+      ]
+    }
+  },
+  "matmul_metal_cold": {
+    "files": {
+      "metrics.csv": [
+        "benchmark",
+        "backend",
+        "dtype",
+        "k",
+        "kernel",
+        "m",
+        "n",
+        "storage",
+        "rep",
+        "metric",
+        "value"
+      ],
+      "metrics_summary.csv": [
+        "benchmark",
+        "backend",
+        "dtype",
+        "k",
+        "kernel",
+        "m",
+        "n",
+        "storage",
+        "metric",
+        "n_samples",
+        "median",
+        "p25",
+        "p75",
+        "iqr",
+        "ci95_lo",
+        "ci95_hi",
+        "mean",
+        "min",
+        "max"
+      ],
+      "samples.csv": [
+        "benchmark",
+        "backend",
+        "dtype",
+        "k",
+        "kernel",
+        "m",
+        "n",
+        "storage",
+        "rep",
+        "inner_iterations",
+        "ns_per_call",
+        "thermal"
+      ],
+      "summary.csv": [
+        "benchmark",
+        "backend",
+        "dtype",
+        "k",
+        "kernel",
+        "m",
+        "n",
+        "storage",
+        "n_samples",
+        "inner_iterations",
+        "median_ns",
+        "p25_ns",
+        "p75_ns",
+        "iqr_ns",
+        "ci95_lo_ns",
+        "ci95_hi_ns",
+        "mean_ns",
+        "stddev_ns",
+        "min_ns",
+        "max_ns",
+        "gflops_median",
+        "thermal_before",
+        "thermal_after"
+      ]
+    },
+    "metrics": [
+      "buffer_ns",
+      "commit_ns",
+      "compile_ns",
+      "copy_in_ns",
+      "copy_out_ns",
+      "encode_ns",
+      "gpu_ns",
+      "queue_ns",
+      "sched_ns",
+      "wait_ns",
+      "wake_ns"
+    ],
+    "params": {
+      "k": [
+        "64"
+      ],
+      "m": [
+        "64"
+      ],
+      "n": [
+        "64"
+      ],
+      "storage": [
+        "nocopy"
+      ]
+    }
+  },
+  "matmul_mlx": {
+    "files": {
+      "samples.csv": [
+        "benchmark",
+        "dtype",
+        "framework",
+        "k",
+        "m",
+        "n",
+        "stream",
+        "rep",
+        "inner_iterations",
+        "ns_per_call",
+        "thermal"
+      ],
+      "summary.csv": [
+        "benchmark",
+        "dtype",
+        "framework",
+        "k",
+        "m",
+        "n",
+        "stream",
+        "n_samples",
+        "inner_iterations",
+        "median_ns",
+        "p25_ns",
+        "p75_ns",
+        "iqr_ns",
+        "ci95_lo_ns",
+        "ci95_hi_ns",
+        "mean_ns",
+        "stddev_ns",
+        "min_ns",
+        "max_ns",
+        "gflops_median",
+        "thermal_before",
+        "thermal_after"
+      ]
+    },
+    "metrics": [],
+    "params": {
+      "dtype": [
+        "f32"
+      ],
+      "framework": [
+        "mlx"
+      ],
+      "k": [
+        "64"
+      ],
+      "m": [
+        "64"
+      ],
+      "n": [
+        "64"
+      ],
+      "stream": [
+        "cpu",
+        "gpu"
+      ]
+    }
+  },
+  "now_ns": {
+    "files": {
+      "samples.csv": [
+        "benchmark",
+        "log",
+        "rep",
+        "inner_iterations",
+        "ns_per_call",
+        "thermal"
+      ],
+      "summary.csv": [
+        "benchmark",
+        "log",
+        "n_samples",
+        "inner_iterations",
+        "median_ns",
+        "p25_ns",
+        "p75_ns",
+        "iqr_ns",
+        "ci95_lo_ns",
+        "ci95_hi_ns",
+        "mean_ns",
+        "stddev_ns",
+        "min_ns",
+        "max_ns",
+        "gflops_median",
+        "thermal_before",
+        "thermal_after"
+      ]
+    },
+    "metrics": [],
+    "params": {}
+  },
+  "scoped_timer": {
+    "files": {
+      "samples.csv": [
+        "benchmark",
+        "log",
+        "rep",
+        "inner_iterations",
+        "ns_per_call",
+        "thermal"
+      ],
+      "summary.csv": [
+        "benchmark",
+        "log",
+        "n_samples",
+        "inner_iterations",
+        "median_ns",
+        "p25_ns",
+        "p75_ns",
+        "iqr_ns",
+        "ci95_lo_ns",
+        "ci95_hi_ns",
+        "mean_ns",
+        "stddev_ns",
+        "min_ns",
+        "max_ns",
+        "gflops_median",
+        "thermal_before",
+        "thermal_after"
+      ]
+    },
+    "metrics": [],
+    "params": {
+      "log": [
+        "disabled",
+        "enabled"
+      ]
+    }
+  },
+  "storage_cpu_touch": {
+    "files": {
+      "metrics.csv": [
+        "benchmark",
+        "buffer",
+        "bytes",
+        "bytes_moved",
+        "experiment",
+        "kind",
+        "size",
+        "stream",
+        "rep",
+        "metric",
+        "value"
+      ],
+      "metrics_summary.csv": [
+        "benchmark",
+        "buffer",
+        "bytes",
+        "bytes_moved",
+        "experiment",
+        "kind",
+        "size",
+        "stream",
+        "metric",
+        "n_samples",
+        "median",
+        "p25",
+        "p75",
+        "iqr",
+        "ci95_lo",
+        "ci95_hi",
+        "mean",
+        "min",
+        "max"
+      ],
+      "samples.csv": [
+        "benchmark",
+        "buffer",
+        "bytes",
+        "bytes_moved",
+        "experiment",
+        "kind",
+        "size",
+        "stream",
+        "rep",
+        "inner_iterations",
+        "ns_per_call",
+        "thermal"
+      ],
+      "summary.csv": [
+        "benchmark",
+        "buffer",
+        "bytes",
+        "bytes_moved",
+        "experiment",
+        "kind",
+        "size",
+        "stream",
+        "n_samples",
+        "inner_iterations",
+        "median_ns",
+        "p25_ns",
+        "p75_ns",
+        "iqr_ns",
+        "ci95_lo_ns",
+        "ci95_hi_ns",
+        "mean_ns",
+        "stddev_ns",
+        "min_ns",
+        "max_ns",
+        "gflops_median",
+        "thermal_before",
+        "thermal_after"
+      ]
+    },
+    "metrics": [
+      "first_write_ns",
+      "warm_read_ns",
+      "warm_write_ns"
+    ],
+    "params": {
+      "bytes": [
+        "16384",
+        "262144"
+      ],
+      "experiment": [
+        "cpu_touch"
+      ],
+      "kind": [
+        "host",
+        "nocopy",
+        "shared"
+      ],
+      "size": [
+        "16K",
+        "256K"
+      ]
+    }
+  },
+  "storage_create": {
+    "files": {
+      "metrics.csv": [
+        "benchmark",
+        "buffer",
+        "bytes",
+        "bytes_moved",
+        "experiment",
+        "kind",
+        "size",
+        "stream",
+        "rep",
+        "metric",
+        "value"
+      ],
+      "metrics_summary.csv": [
+        "benchmark",
+        "buffer",
+        "bytes",
+        "bytes_moved",
+        "experiment",
+        "kind",
+        "size",
+        "stream",
+        "metric",
+        "n_samples",
+        "median",
+        "p25",
+        "p75",
+        "iqr",
+        "ci95_lo",
+        "ci95_hi",
+        "mean",
+        "min",
+        "max"
+      ],
+      "samples.csv": [
+        "benchmark",
+        "buffer",
+        "bytes",
+        "bytes_moved",
+        "experiment",
+        "kind",
+        "size",
+        "stream",
+        "rep",
+        "inner_iterations",
+        "ns_per_call",
+        "thermal"
+      ],
+      "summary.csv": [
+        "benchmark",
+        "buffer",
+        "bytes",
+        "bytes_moved",
+        "experiment",
+        "kind",
+        "size",
+        "stream",
+        "n_samples",
+        "inner_iterations",
+        "median_ns",
+        "p25_ns",
+        "p75_ns",
+        "iqr_ns",
+        "ci95_lo_ns",
+        "ci95_hi_ns",
+        "mean_ns",
+        "stddev_ns",
+        "min_ns",
+        "max_ns",
+        "gflops_median",
+        "thermal_before",
+        "thermal_after"
+      ]
+    },
+    "metrics": [
+      "create_ns",
+      "release_ns"
+    ],
+    "params": {
+      "bytes": [
+        "16384",
+        "262144"
+      ],
+      "experiment": [
+        "create"
+      ],
+      "kind": [
+        "nocopy",
+        "private",
+        "shared",
+        "shared_copy"
+      ],
+      "size": [
+        "16K",
+        "256K"
+      ]
+    }
+  },
+  "storage_gpu_bw": {
+    "files": {
+      "metrics.csv": [
+        "benchmark",
+        "buffer",
+        "bytes",
+        "bytes_moved",
+        "experiment",
+        "kind",
+        "size",
+        "stream",
+        "rep",
+        "metric",
+        "value"
+      ],
+      "metrics_summary.csv": [
+        "benchmark",
+        "buffer",
+        "bytes",
+        "bytes_moved",
+        "experiment",
+        "kind",
+        "size",
+        "stream",
+        "metric",
+        "n_samples",
+        "median",
+        "p25",
+        "p75",
+        "iqr",
+        "ci95_lo",
+        "ci95_hi",
+        "mean",
+        "min",
+        "max"
+      ],
+      "samples.csv": [
+        "benchmark",
+        "buffer",
+        "bytes",
+        "bytes_moved",
+        "experiment",
+        "kind",
+        "size",
+        "stream",
+        "rep",
+        "inner_iterations",
+        "ns_per_call",
+        "thermal"
+      ],
+      "summary.csv": [
+        "benchmark",
+        "buffer",
+        "bytes",
+        "bytes_moved",
+        "experiment",
+        "kind",
+        "size",
+        "stream",
+        "n_samples",
+        "inner_iterations",
+        "median_ns",
+        "p25_ns",
+        "p75_ns",
+        "iqr_ns",
+        "ci95_lo_ns",
+        "ci95_hi_ns",
+        "mean_ns",
+        "stddev_ns",
+        "min_ns",
+        "max_ns",
+        "gflops_median",
+        "thermal_before",
+        "thermal_after"
+      ]
+    },
+    "metrics": [
+      "commit_ns",
+      "encode_ns",
+      "gpu_ns",
+      "queue_ns",
+      "total_ns",
+      "wait_ns",
+      "wake_ns"
+    ],
+    "params": {
+      "bytes": [
+        "16384",
+        "262144"
+      ],
+      "bytes_moved": [
+        "16384",
+        "262144",
+        "32768",
+        "524288"
+      ],
+      "experiment": [
+        "gpu_bw"
+      ],
+      "kind": [
+        "nocopy",
+        "private",
+        "shared"
+      ],
+      "size": [
+        "16K",
+        "256K"
+      ],
+      "stream": [
+        "copy",
+        "read",
+        "write"
+      ]
+    }
+  },
+  "storage_gpu_first": {
+    "files": {
+      "metrics.csv": [
+        "benchmark",
+        "buffer",
+        "bytes",
+        "bytes_moved",
+        "experiment",
+        "kind",
+        "size",
+        "stream",
+        "rep",
+        "metric",
+        "value"
+      ],
+      "metrics_summary.csv": [
+        "benchmark",
+        "buffer",
+        "bytes",
+        "bytes_moved",
+        "experiment",
+        "kind",
+        "size",
+        "stream",
+        "metric",
+        "n_samples",
+        "median",
+        "p25",
+        "p75",
+        "iqr",
+        "ci95_lo",
+        "ci95_hi",
+        "mean",
+        "min",
+        "max"
+      ],
+      "samples.csv": [
+        "benchmark",
+        "buffer",
+        "bytes",
+        "bytes_moved",
+        "experiment",
+        "kind",
+        "size",
+        "stream",
+        "rep",
+        "inner_iterations",
+        "ns_per_call",
+        "thermal"
+      ],
+      "summary.csv": [
+        "benchmark",
+        "buffer",
+        "bytes",
+        "bytes_moved",
+        "experiment",
+        "kind",
+        "size",
+        "stream",
+        "n_samples",
+        "inner_iterations",
+        "median_ns",
+        "p25_ns",
+        "p75_ns",
+        "iqr_ns",
+        "ci95_lo_ns",
+        "ci95_hi_ns",
+        "mean_ns",
+        "stddev_ns",
+        "min_ns",
+        "max_ns",
+        "gflops_median",
+        "thermal_before",
+        "thermal_after"
+      ]
+    },
+    "metrics": [
+      "commit_ns",
+      "encode_ns",
+      "gpu_ns",
+      "queue_ns",
+      "total_ns",
+      "wait_ns",
+      "wake_ns"
+    ],
+    "params": {
+      "buffer": [
+        "fresh",
+        "reused",
+        "rewrap"
+      ],
+      "bytes": [
+        "16384",
+        "262144"
+      ],
+      "experiment": [
+        "gpu_first"
+      ],
+      "kind": [
+        "nocopy",
+        "private",
+        "shared"
+      ],
+      "size": [
+        "16K",
+        "256K"
+      ]
+    }
+  },
+  "sync_idle": {
+    "files": {
+      "metrics.csv": [
+        "benchmark",
+        "experiment",
+        "gap_ms",
+        "sync",
+        "work",
+        "rep",
+        "metric",
+        "value"
+      ],
+      "metrics_summary.csv": [
+        "benchmark",
+        "experiment",
+        "gap_ms",
+        "sync",
+        "work",
+        "metric",
+        "n_samples",
+        "median",
+        "p25",
+        "p75",
+        "iqr",
+        "ci95_lo",
+        "ci95_hi",
+        "mean",
+        "min",
+        "max"
+      ],
+      "samples.csv": [
+        "benchmark",
+        "experiment",
+        "gap_ms",
+        "sync",
+        "work",
+        "rep",
+        "inner_iterations",
+        "ns_per_call",
+        "thermal"
+      ],
+      "summary.csv": [
+        "benchmark",
+        "experiment",
+        "gap_ms",
+        "sync",
+        "work",
+        "n_samples",
+        "inner_iterations",
+        "median_ns",
+        "p25_ns",
+        "p75_ns",
+        "iqr_ns",
+        "ci95_lo_ns",
+        "ci95_hi_ns",
+        "mean_ns",
+        "stddev_ns",
+        "min_ns",
+        "max_ns",
+        "gflops_median",
+        "thermal_before",
+        "thermal_after"
+      ]
+    },
+    "metrics": [
+      "commit_ns",
+      "encode_ns",
+      "gpu_ns",
+      "queue_ns",
+      "total_ns",
+      "wait_ns",
+      "wake_ns"
+    ],
+    "params": {
+      "experiment": [
+        "idle"
+      ],
+      "gap_ms": [
+        "0",
+        "1"
+      ],
+      "sync": [
+        "spin_event",
+        "wait_until_completed"
+      ]
+    }
+  },
+  "sync_method": {
+    "files": {
+      "metrics.csv": [
+        "benchmark",
+        "experiment",
+        "gap_ms",
+        "sync",
+        "work",
+        "rep",
+        "metric",
+        "value"
+      ],
+      "metrics_summary.csv": [
+        "benchmark",
+        "experiment",
+        "gap_ms",
+        "sync",
+        "work",
+        "metric",
+        "n_samples",
+        "median",
+        "p25",
+        "p75",
+        "iqr",
+        "ci95_lo",
+        "ci95_hi",
+        "mean",
+        "min",
+        "max"
+      ],
+      "samples.csv": [
+        "benchmark",
+        "experiment",
+        "gap_ms",
+        "sync",
+        "work",
+        "rep",
+        "inner_iterations",
+        "ns_per_call",
+        "thermal"
+      ],
+      "summary.csv": [
+        "benchmark",
+        "experiment",
+        "gap_ms",
+        "sync",
+        "work",
+        "n_samples",
+        "inner_iterations",
+        "median_ns",
+        "p25_ns",
+        "p75_ns",
+        "iqr_ns",
+        "ci95_lo_ns",
+        "ci95_hi_ns",
+        "mean_ns",
+        "stddev_ns",
+        "min_ns",
+        "max_ns",
+        "gflops_median",
+        "thermal_before",
+        "thermal_after"
+      ]
+    },
+    "metrics": [
+      "commit_ns",
+      "encode_ns",
+      "gpu_ns",
+      "queue_ns",
+      "total_ns",
+      "wait_ns",
+      "wake_ns"
+    ],
+    "params": {
+      "experiment": [
+        "methods"
+      ],
+      "sync": [
+        "completion_handler",
+        "event_wait",
+        "spin_event",
+        "spin_status",
+        "wait_until_completed"
+      ],
+      "work": [
+        "4M",
+        "empty"
+      ]
+    }
+  },
+  "thermal_drift": {
+    "files": {
+      "samples.csv": [
+        "benchmark",
+        "load",
+        "valid",
+        "window_min",
+        "workload",
+        "rep",
+        "inner_iterations",
+        "ns_per_call",
+        "thermal"
+      ],
+      "summary.csv": [
+        "benchmark",
+        "load",
+        "valid",
+        "window_min",
+        "workload",
+        "n_samples",
+        "inner_iterations",
+        "median_ns",
+        "p25_ns",
+        "p75_ns",
+        "iqr_ns",
+        "ci95_lo_ns",
+        "ci95_hi_ns",
+        "mean_ns",
+        "stddev_ns",
+        "min_ns",
+        "max_ns",
+        "gflops_median",
+        "thermal_before",
+        "thermal_after"
+      ]
+    },
+    "metrics": [],
+    "params": {
+      "load": [
+        "mixed"
+      ],
+      "valid": [
+        "yes"
+      ],
+      "window_min": [
+        "0"
+      ],
+      "workload": [
+        "cpu_1024",
+        "cpu_2048",
+        "gpu_1024",
+        "gpu_2048",
+        "gpu_empty"
+      ]
+    }
+  }
+}
