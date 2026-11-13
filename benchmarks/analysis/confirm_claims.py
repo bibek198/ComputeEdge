@@ -357,6 +357,16 @@ def c16(s: Session):
     return {"max_diff_pct": worst}, worst < 20, ""
 
 
+@claim("C17", "16 (scope)", "GPU traffic displaces SLC-resident CPU data (reproduces arXiv 2606.27098 on M4, with clock controls)",
+       "Registered 2026-11-14 before any data: SLC-probe pass after the GPU writes 256 MiB is >= 15% slower than "
+       "after the tiny-GPU control", {"slowdown_256m_pct": "SlcSlowdownPct"})
+def c17(s: Session):
+    v = {f"slowdown_{g.lower()}_pct": slowdown(s, "gpu_write", "gpu_tiny", **{"pass": "slc", "ws": "16M@8K", "g": g})
+         for g in ("16M", "64M", "256M")}
+    v["tiny_vs_spin_256m_pct"] = slowdown(s, "gpu_tiny", "idle_spin", **{"pass": "slc", "ws": "16M@8K", "g": "256M"})
+    return v, v["slowdown_256m_pct"] >= 15, ""
+
+
 # ---------------------------------------------------------------------------
 # Sessions, evaluation, output
 # ---------------------------------------------------------------------------

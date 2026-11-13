@@ -3,6 +3,8 @@
 // Every sample: warm CPU pass (untimed) -> interference phase (untimed) -> timed
 // CPU pass. The CPU passes are
 //   read  integer read-sum over W bytes (NoCopy buffer, behaves like host memory)
+//   slc   16 MiB touched as one 128 B line per 8 KiB over 1 GiB, alternating direction:
+//         the system-level-cache probe of Alpay & Basaran (arXiv 2606.27098)
 //   sgemm Accelerate SGEMM 512^2 into a pre-allocated output (3 MiB of operands)
 // Interference phases, each paired with a control of equal duration so clock /
 // power-state effects (M5 finding 8: idling makes the next call slower) are not
@@ -23,7 +25,7 @@
 //   gpu_same       GPU writes the CPU's own W buffer, then the CPU reads it
 //
 // Usage:
-//   cache_interference [--working-sets 1M,4M,12M,64M] [--gpu-sizes 16M,64M,256M] [--passes read,sgemm]
+//   cache_interference [--working-sets 1M,4M,12M,64M] [--gpu-sizes 16M,64M,256M] [--passes read,slc,sgemm]
 //                      + common flags (benchmarks/common/bench_common.h)
 
 #include <pthread.h>
@@ -88,7 +90,7 @@ int main(int argc, char** argv) {
   const char* src = "benchmarks/cache/cache_interference.cpp";
   std::vector<size_t> working_sets = split_bytes("1M,4M,12M,64M");
   std::vector<size_t> gpu_sizes = split_bytes("16M,64M,256M");
-  std::vector<std::string> passes{"read", "sgemm"};
+  std::vector<std::string> passes{"read", "slc", "sgemm"};
   const CommonOptions opt = parse(argc, argv, src, [&](const std::string& f, const auto& next) {
     if (f == "--working-sets") working_sets = split_bytes(next());
     else if (f == "--gpu-sizes") gpu_sizes = split_bytes(next());
@@ -220,6 +222,30 @@ int main(int argc, char** argv) {
       Pass pass{"read", bytes_label(ws), [&] { g_sink = read_all(w.contents(), ws); }, &w};
       measure_pass(pass);
     }
+  }
+  if (wants(passes, "slc")) {
+    // Alpay & Basaran (arXiv 2606.27098) probe: 131,072 lines of 128 B, one every
+    // 8 KiB across 1 GiB (16 MiB touched), direction alternating between passes.
+    // The stride defeats prefetch and L2 set capacity, so the data lives in the
+    // system-level cache shared with the GPU. Same controls as every other pass.
+    constexpr size_t kStride = 8192, kLines = 131072, kSpan = kStride * kLines;
+    probe::Buffer w = probe::Buffer::create(probe::BufferKind::NoCopy, kSpan);
+    std::memset(w.contents(), 1, kSpan);
+    const auto* base = static_cast<const unsigned char*>(w.contents());
+    bool forward = true;
+    Pass pass{"slc", "16M@8K",
+              [&] {
+                uint64_t acc = 0;
+                if (forward) {
+                  for (size_t i = 0; i < kLines; ++i) acc += *reinterpret_cast<const uint64_t*>(base + i * kStride);
+                } else {
+                  for (size_t i = kLines; i-- > 0;) acc += *reinterpret_cast<const uint64_t*>(base + i * kStride);
+                }
+                forward = !forward;
+                g_sink = acc;
+              },
+              nullptr};
+    measure_pass(pass);
   }
   if (wants(passes, "sgemm")) {
     using namespace computeedge;

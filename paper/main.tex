@@ -231,8 +231,8 @@ CPU pass after a 64--512\,MiB GPU footprint on an M4 Pro. Their probe touches un
 chosen to reside in the system-level cache shared with the GPU, and their contiguous-line control shows almost no
 effect. GPU traffic therefore displaces SLC-resident CPU data, not a sequential working set held in the CPU's L2.
 Their idle control waits with \texttt{waitUntilCompleted}, so it does not hold CPU clocks constant across GPU passes
-of different length, as our spinning controls do. \todo{add their strided SLC probe to cache\_interference to
-reproduce it on M4 under our controls} Running both at once is expensive: while the
+of different length, as our spinning controls do. \todo{their SLC probe is now in cache\_interference
+(pre-registered as C17: ${\geq}$15\% after a 256\,MiB GPU write vs.\ the tiny control); report once sessions include it} Running both at once is expensive: while the
 GPU streams writes, CPU work slows by a median of \ConcurrentMedianPctMin{}--\ConcurrentMedianPctMax{}\% \claim{C11}, which argues against offloading
 to the GPU merely to ``free'' the CPU.
 
