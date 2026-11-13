@@ -114,3 +114,26 @@ def save(fig, path: Path) -> None:
     fig.tight_layout()
     fig.savefig(path, facecolor=SURFACE)
     plt.close(fig)
+
+
+def metric_samples(run: Path, benchmark: str, metric: str, **params) -> list[float]:
+    """Raw per-sample values of one metric for the result matching `params` (metrics.csv)."""
+    out = []
+    for r in read_csv(run / "metrics.csv"):
+        if r["benchmark"] == benchmark and r["metric"] == metric and all(r.get(k) == str(v) for k, v in params.items()):
+            out.append(float(r["value"]))
+    return out
+
+
+def slowdown_ci(x: list[float], base: list[float], resamples: int = 2000, seed: int = 0xCE) -> tuple[float, float, float]:
+    """median(x)/median(base) - 1 as a percentage, with a percentile-bootstrap 95% CI
+    (independent resampling of both samples)."""
+    import numpy as np
+
+    rng = np.random.default_rng(seed)
+    xa, ba = np.asarray(x), np.asarray(base)
+    point = (np.median(xa) / np.median(ba) - 1) * 100
+    boots = [(np.median(rng.choice(xa, xa.size)) / np.median(rng.choice(ba, ba.size)) - 1) * 100
+             for _ in range(resamples)]
+    lo, hi = np.percentile(boots, [2.5, 97.5])
+    return float(point), float(lo), float(hi)

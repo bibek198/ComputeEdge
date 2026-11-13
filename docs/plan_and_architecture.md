@@ -9,7 +9,7 @@
 | Languages | C++20 (core), Objective-C++ (Metal glue only), Metal Shading Language |
 | Libraries | Apple Metal, Accelerate (baseline + reference), GoogleTest |
 | Build | CMake + Ninja |
-| Status | M1–M5 complete; M6 (cache interference and thermal drift) next. Findings so far: `research/findings.md` |
+| Status | M1–M6 complete (decision gate reached); next: repeat key runs across sessions, then short paper and/or M7. Findings: `research/findings.md` |
 
 ---
 

@@ -73,6 +73,10 @@ committed. The git SHA is captured at configure time, so this keeps results tagg
 | `build/release/benchmarks/sync_methods` | M5 Track A: five ways to wait for the GPU, and the cost of an idle gap before a submission |
 | `build/release/benchmarks/storage_modes` | M5 Track B: buffer creation, CPU first touch, first GPU use (fresh / rewrap / reused), GPU bandwidth per storage kind |
 | `benchmarks/analysis/m5_report.py` | M5 report (tables and figures) from the newest clean runs; findings are in `research/findings.md` |
+| `build/release/benchmarks/cache_interference` | M6 RQ3: CPU pass slowdown after/during GPU work, against equal-duration controls |
+| `build/release/benchmarks/thermal_drift` | M6 RQ4: 15 min sustained load; CPU and GPU SGEMM over time, crossover drift (`--minutes`, `--load`) |
+| `build/release/benchmarks/followups` | M6: experiments testing the open M5 findings (wake latency, CPU writes, GPU write size) |
+| `benchmarks/analysis/m6_report.py` | M6 report from the newest clean runs |
 
 The Metal benchmark's `--kernels tiled16,mps` option runs our kernel and Apple's MPS GEMM through the same code path.
 
@@ -95,6 +99,10 @@ build/release/benchmarks/sync_methods --cooldown
 build/release/benchmarks/storage_modes --cooldown        # ~5 min; up to ~3.6 GB of memory at 1 GiB
 .venv/bin/python benchmarks/analysis/m5_report.py         # -> benchmarks/results/reports/m5-<timestamp>/
 ```
+
+M6: `cache_interference --cooldown`, `followups --cooldown`, `thermal_drift --minutes 15` (starts by waiting for
+thermal state nominal), then `.venv/bin/python benchmarks/analysis/m6_report.py`. For power and frequency during the
+thermal run, start `sudo powermetrics --samplers cpu_power,gpu_power,thermal -i 1000` in another terminal.
 
 The low-level probes behind these benchmarks (`include/computeedge/metal_probes.h`) can also be called directly.
 

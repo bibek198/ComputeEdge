@@ -1,0 +1,20 @@
+{
+  "cache_interference": {
+    "run": "benchmarks/results/20261113-185716_7cf5c55733f2",
+    "git_sha": "7cf5c55733f2",
+    "thermal_state": "nominal",
+    "power_source": "AC Power"
+  },
+  "thermal_drift": {
+    "run": "benchmarks/results/20261113-191237_7cf5c55733f2",
+    "git_sha": "7cf5c55733f2",
+    "thermal_state": "nominal",
+    "power_source": "AC Power"
+  },
+  "followup_wake": {
+    "run": "benchmarks/results/20261113-185735_7cf5c55733f2",
+    "git_sha": "7cf5c55733f2",
+    "thermal_state": "nominal",
+    "power_source": "AC Power"
+  }
+}
