@@ -51,12 +51,12 @@ struct Environment {
   int performance_cores = 0;
   int efficiency_cores = 0;
   uint64_t memory_bytes = 0;
-  std::string os_version;  // e.g. 26.4.1
-  std::string os_build;    // kern.osversion
+  std::string os_version;    // e.g. 26.4.1
+  std::string os_build;      // kern.osversion
   std::string power_source;  // "AC Power", "Battery Power", or "unknown"
   bool low_power_mode = false;
   ThermalState thermal_state = ThermalState::Unknown;
-  std::string gpu_name;                    // MTLDevice.name
+  std::string gpu_name;                      // MTLDevice.name
   uint64_t gpu_recommended_working_set = 0;  // MTLDevice.recommendedMaxWorkingSetSize
   std::string compiler;
   std::string compiler_flags;  // CMAKE_CXX_FLAGS + build-type flags
@@ -98,8 +98,8 @@ struct Result {
   std::string name;
   std::map<std::string, std::string> params;
   int inner_iterations = 1;
-  std::vector<double> samples_ns;               // per call
-  std::vector<ThermalState> sample_thermal;     // state read after each sample
+  std::vector<double> samples_ns;            // per call
+  std::vector<ThermalState> sample_thermal;  // state read after each sample
   ThermalState thermal_before = ThermalState::Unknown;
   ThermalState thermal_after = ThermalState::Unknown;
   double flops_per_call = 0;  // 0 if not applicable
@@ -124,9 +124,8 @@ using MetricsFn = std::function<void(Metrics&)>;
 
 // `setup` (optional) runs before every call, outside the timed region (e.g. an
 // idle gap, or creating a fresh buffer for a first-use measurement).
-Result run_with_metrics(const std::string& name, const std::map<std::string, std::string>& params,
-                        const Config& config, const MetricsFn& fn, double flops_per_call = 0,
-                        const std::function<void()>& setup = {});
+Result run_with_metrics(const std::string& name, const std::map<std::string, std::string>& params, const Config& config,
+                        const MetricsFn& fn, double flops_per_call = 0, const std::function<void()>& setup = {});
 
 // ---------------------------------------------------------------------------
 // Output

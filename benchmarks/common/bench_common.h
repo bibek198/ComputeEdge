@@ -125,8 +125,8 @@ inline cb::Environment banner(const char* title) {
   }
   const cb::Environment env = cb::record_environment();
   std::cout << title << "\n"
-            << "  " << env.chip << " / " << env.gpu_name << " (" << env.model << "), macOS " << env.os_version
-            << " (" << env.os_build << ")\n"
+            << "  " << env.chip << " / " << env.gpu_name << " (" << env.model << "), macOS " << env.os_version << " ("
+            << env.os_build << ")\n"
             << "  power: " << env.power_source << (env.low_power_mode ? ", LOW POWER MODE" : "")
             << ", thermal: " << cb::to_string(env.thermal_state) << ", build: " << env.build_type
             << (env.sanitizers ? " +sanitizers" : "") << ", git " << env.git_sha << "\n";

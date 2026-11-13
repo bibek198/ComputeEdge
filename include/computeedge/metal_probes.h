@@ -47,10 +47,10 @@ Timing empty_dispatch(const DispatchConfig& config);
 
 // How a buffer's memory is obtained (Track B).
 enum class BufferKind : uint8_t {
-  Shared,      // newBufferWithLength, MTLResourceStorageModeShared
-  Private,     // newBufferWithLength, MTLResourceStorageModePrivate (no CPU access)
-  NoCopy,      // newBufferWithBytesNoCopy over page-aligned host memory
-  SharedCopy,  // newBufferWithBytes: Shared buffer initialised by copying host memory
+  Shared,               // newBufferWithLength, MTLResourceStorageModeShared
+  Private,              // newBufferWithLength, MTLResourceStorageModePrivate (no CPU access)
+  NoCopy,               // newBufferWithBytesNoCopy over page-aligned host memory
+  SharedCopy,           // newBufferWithBytes: Shared buffer initialised by copying host memory
   SharedWriteCombined,  // Shared + MTLResourceCPUCacheModeWriteCombined (CPU writes bypass caches)
 };
 

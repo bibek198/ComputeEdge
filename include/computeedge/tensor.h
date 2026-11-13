@@ -16,8 +16,7 @@ enum class DType : uint8_t { Float32 };
 
 constexpr size_t dtype_size(DType dtype) {
   switch (dtype) {
-    case DType::Float32:
-      return 4;
+    case DType::Float32: return 4;
   }
   return 0;
 }

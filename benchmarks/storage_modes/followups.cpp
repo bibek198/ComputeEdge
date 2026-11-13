@@ -81,8 +81,10 @@ struct HostMem {
   HostMem(const HostMem&) = delete;
   HostMem& operator=(const HostMem&) = delete;
   ~HostMem() {
-    if (source == Source::Memalign) std::free(ptr);
-    else munmap(ptr, bytes);
+    if (source == Source::Memalign)
+      std::free(ptr);
+    else
+      munmap(ptr, bytes);
   }
   Source source;
   size_t bytes;
@@ -95,8 +97,10 @@ int main(int argc, char** argv) {
   const char* src = "benchmarks/storage_modes/followups.cpp";
   std::vector<std::string> experiments{"wake", "cpu_write", "gpu_write"};
   const CommonOptions opt = parse(argc, argv, src, [&](const std::string& f, const auto& next) {
-    if (f == "--experiments") experiments = split(next());
-    else return false;
+    if (f == "--experiments")
+      experiments = split(next());
+    else
+      return false;
     return true;
   });
 
@@ -116,8 +120,11 @@ int main(int argc, char** argv) {
       probe::gpu_stream(probe::Stream::Write, buf);
       for (probe::Stream s : {probe::Stream::Read, probe::Stream::Write}) {
         keep(cb::run_with_metrics("followup_wake",
-                                  {{"experiment", "wake"}, {"stream", probe::to_string(s)}, {"size", bytes_label(bytes)},
-                                   {"bytes", std::to_string(bytes)}, {"sync", "spin_event"}},
+                                  {{"experiment", "wake"},
+                                   {"stream", probe::to_string(s)},
+                                   {"size", bytes_label(bytes)},
+                                   {"bytes", std::to_string(bytes)},
+                                   {"sync", "spin_event"}},
                                   cfg, [&](cb::Metrics& m) {
                                     record_timing(m, probe::gpu_stream(s, buf, nullptr, probe::Sync::SpinEvent));
                                   }));
@@ -147,7 +154,9 @@ int main(int argc, char** argv) {
       store_loop(s.ptr, bytes, 3);
       uint64_t seed = 0;
       keep(cb::run_with_metrics("followup_cpu_write",
-                                {{"experiment", "cpu_write"}, {"source", s.name}, {"size", bytes_label(bytes)},
+                                {{"experiment", "cpu_write"},
+                                 {"source", s.name},
+                                 {"size", bytes_label(bytes)},
                                  {"bytes", std::to_string(bytes)}},
                                 cfg, [&](cb::Metrics& m) {
                                   ++seed;
@@ -169,7 +178,9 @@ int main(int argc, char** argv) {
       void* ptr = nullptr;
       keep(cb::run_with_metrics(
           "followup_cpu_write_fresh",
-          {{"experiment", "cpu_write_fresh"}, {"source", kind}, {"size", bytes_label(bytes)},
+          {{"experiment", "cpu_write_fresh"},
+           {"source", kind},
+           {"size", bytes_label(bytes)},
            {"bytes", std::to_string(bytes)}},
           cfg,
           [&](cb::Metrics& m) {
@@ -184,9 +195,8 @@ int main(int argc, char** argv) {
               host.emplace(HostMem::Source::Memalign, bytes);
               ptr = host->ptr;
             } else {
-              buf = probe::Buffer::create(std::string(kind) == "shared" ? probe::BufferKind::Shared
-                                                                         : probe::BufferKind::NoCopy,
-                                          bytes);
+              buf = probe::Buffer::create(
+                  std::string(kind) == "shared" ? probe::BufferKind::Shared : probe::BufferKind::NoCopy, bytes);
               ptr = buf->contents();
             }
           }));
@@ -202,12 +212,14 @@ int main(int argc, char** argv) {
         probe::Buffer buf = probe::Buffer::create(probe::BufferKind::Private, bytes);
         probe::gpu_stream(probe::Stream::Write, buf);
         keep(cb::run_with_metrics("followup_gpu_write",
-                                  {{"experiment", "gpu_write"}, {"layout", "one_buffer"}, {"size", bytes_label(bytes)},
+                                  {{"experiment", "gpu_write"},
+                                   {"layout", "one_buffer"},
+                                   {"size", bytes_label(bytes)},
                                    {"bytes", std::to_string(bytes)}},
                                   cfg, [&](cb::Metrics& m) {
                                     record_timing(m, probe::gpu_stream(probe::Stream::Write, buf));
-                                    m["two_pass_gpu_ns"] =
-                                        double(probe::gpu_stream_async(probe::Stream::Write, buf, nullptr, 2).wait().gpu_ns());
+                                    m["two_pass_gpu_ns"] = double(
+                                        probe::gpu_stream_async(probe::Stream::Write, buf, nullptr, 2).wait().gpu_ns());
                                   }));
       }
       // (b) the same bytes as 256 MiB buffers, committed back to back.
@@ -218,7 +230,9 @@ int main(int argc, char** argv) {
           probe::gpu_stream(probe::Stream::Write, parts.back());
         }
         keep(cb::run_with_metrics("followup_gpu_write",
-                                  {{"experiment", "gpu_write"}, {"layout", "256M_chunks"}, {"size", bytes_label(bytes)},
+                                  {{"experiment", "gpu_write"},
+                                   {"layout", "256M_chunks"},
+                                   {"size", bytes_label(bytes)},
                                    {"bytes", std::to_string(bytes)}},
                                   cfg, [&](cb::Metrics& m) {
                                     std::vector<probe::Submission> subs;

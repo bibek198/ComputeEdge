@@ -1,0 +1,27 @@
+# ComputeEdge C++ / Objective-C++ formatting (docs/style_guide.md).
+# Google base style with a 120-column limit, matching the existing code.
+BasedOnStyle: Google
+ColumnLimit: 120
+DerivePointerAlignment: false
+PointerAlignment: Left
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLoopsOnASingleLine: true
+BreakStringLiterals: false
+IncludeBlocks: Preserve
+SortIncludes: Never
+---
+Language: ObjC
+BasedOnStyle: Google
+ColumnLimit: 120
+DerivePointerAlignment: false
+PointerAlignment: Left
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLoopsOnASingleLine: true
+BreakStringLiterals: false
+IncludeBlocks: Preserve
+SortIncludes: Never
+ObjCBlockIndentWidth: 2

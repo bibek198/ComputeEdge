@@ -69,11 +69,16 @@ int main(int argc, char** argv) {
   double interval_ms = 1000;
   bool cooldown = true;
   CommonOptions opt = parse(argc, argv, src, [&](const std::string& f, const auto& next) {
-    if (f == "--minutes") minutes = std::stod(next());
-    else if (f == "--load") load = next();
-    else if (f == "--interval-ms") interval_ms = std::stod(next());
-    else if (f == "--no-cooldown") cooldown = false;
-    else return false;
+    if (f == "--minutes")
+      minutes = std::stod(next());
+    else if (f == "--load")
+      load = next();
+    else if (f == "--interval-ms")
+      interval_ms = std::stod(next());
+    else if (f == "--no-cooldown")
+      cooldown = false;
+    else
+      return false;
     return true;
   });
   if (load != "mixed" && load != "cpu" && load != "gpu" && load != "none") usage(src, "unknown --load " + load);
@@ -153,7 +158,8 @@ int main(int argc, char** argv) {
       const uint64_t remaining = heat_until - now;
       std::optional<probe::Submission> gpu_heat;
       if (load == "mixed" || load == "gpu") {
-        const uint32_t reps = static_cast<uint32_t>(std::max<uint64_t>(1, remaining / std::max<uint64_t>(heat_write_ns, 1)));
+        const uint32_t reps =
+            static_cast<uint32_t>(std::max<uint64_t>(1, remaining / std::max<uint64_t>(heat_write_ns, 1)));
         gpu_heat.emplace(probe::gpu_stream_async(probe::Stream::Write, heat_buf, nullptr, reps));
       }
       if (load == "mixed" || load == "cpu") {
@@ -188,7 +194,9 @@ int main(int argc, char** argv) {
     for (size_t i = 0; i < workloads.size(); ++i) {
       cb::Result r;
       r.name = "thermal_drift";
-      r.params = {{"workload", workloads[i].name}, {"window_min", std::to_string(w)}, {"load", load},
+      r.params = {{"workload", workloads[i].name},
+                  {"window_min", std::to_string(w)},
+                  {"load", load},
                   {"valid", power_changed ? "no_power_changed" : "yes"}};
       r.flops_per_call = workloads[i].flops;
       for (const Sample& s : samples) {

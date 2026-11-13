@@ -157,9 +157,9 @@ int main(int argc, char** argv) {
       const MatmulImpl impl = impl_from(impl_name);
       if (impl == MatmulImpl::Naive && n > opt.naive_max) continue;
       for (const std::string& mode : opt.modes) {
-        const std::map<std::string, std::string> params{
-            {"impl", impl_name}, {"mode", mode}, {"m", std::to_string(n)}, {"n", std::to_string(n)},
-            {"k", std::to_string(n)}, {"dtype", "f32"}};
+        const std::map<std::string, std::string> params{{"impl", impl_name},      {"mode", mode},
+                                                        {"m", std::to_string(n)}, {"n", std::to_string(n)},
+                                                        {"k", std::to_string(n)}, {"dtype", "f32"}};
         cb::Result r;
         if (mode == "kernel") {
           Tensor C({n, n});

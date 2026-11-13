@@ -44,8 +44,8 @@ size_t page_size() { return static_cast<size_t>(getpagesize()); }
 // before it is committed.
 struct SyncState {
   Sync sync = Sync::WaitUntilCompleted;
-  uint64_t value = 0;               // event methods
-  dispatch_semaphore_t sem = nil;   // completion handler
+  uint64_t value = 0;              // event methods
+  dispatch_semaphore_t sem = nil;  // completion handler
 };
 
 SyncState prepare_sync(id<MTLCommandBuffer> last, Sync sync) {
@@ -71,8 +71,7 @@ SyncState prepare_sync(id<MTLCommandBuffer> last, Sync sync) {
       break;
     }
     case Sync::WaitUntilCompleted:
-    case Sync::SpinStatus:
-      break;
+    case Sync::SpinStatus: break;
   }
   return s;
 }
@@ -93,15 +92,11 @@ std::string submit_and_sync(const std::vector<id<MTLCommandBuffer>>& cbs, const 
 
   const uint64_t w0 = now_ns();
   switch (s.sync) {
-    case Sync::WaitUntilCompleted:
-      [last waitUntilCompleted];
-      break;
+    case Sync::WaitUntilCompleted: [last waitUntilCompleted]; break;
     case Sync::EventWait:
       if (![ctx.event waitUntilSignaledValue:s.value timeoutMS:10000]) failure = "probe: event wait timed out";
       break;
-    case Sync::CompletionHandler:
-      dispatch_semaphore_wait(s.sem, DISPATCH_TIME_FOREVER);
-      break;
+    case Sync::CompletionHandler: dispatch_semaphore_wait(s.sem, DISPATCH_TIME_FOREVER); break;
     case Sync::SpinEvent:
       while (ctx.event.signaledValue < s.value) {
         if (now_ns() - w0 > kSpinTimeoutNs) {
@@ -244,12 +239,8 @@ Buffer Buffer::create(BufferKind kind, size_t bytes, void* host) {
     id<MTLDevice> device = context().device;
     id<MTLBuffer> buf = nil;
     switch (kind) {
-      case BufferKind::Shared:
-        buf = [device newBufferWithLength:bytes options:MTLResourceStorageModeShared];
-        break;
-      case BufferKind::Private:
-        buf = [device newBufferWithLength:bytes options:MTLResourceStorageModePrivate];
-        break;
+      case BufferKind::Shared: buf = [device newBufferWithLength:bytes options:MTLResourceStorageModeShared]; break;
+      case BufferKind::Private: buf = [device newBufferWithLength:bytes options:MTLResourceStorageModePrivate]; break;
       case BufferKind::SharedWriteCombined:
         buf = [device newBufferWithLength:bytes
                                   options:MTLResourceStorageModeShared | MTLResourceCPUCacheModeWriteCombined];
@@ -260,7 +251,9 @@ Buffer Buffer::create(BufferKind kind, size_t bytes, void* host) {
             failure = "probe::Buffer: NoCopy host memory must be page-aligned with a page-multiple size";
             break;
           }
-          buf = [device newBufferWithBytesNoCopy:host length:bytes options:MTLResourceStorageModeShared
+          buf = [device newBufferWithBytesNoCopy:host
+                                          length:bytes
+                                         options:MTLResourceStorageModeShared
                                      deallocator:nil];
         } else {
           const size_t rounded = (bytes + page - 1) / page * page;
@@ -269,7 +262,9 @@ Buffer Buffer::create(BufferKind kind, size_t bytes, void* host) {
             failure = "probe::Buffer: host allocation failed";
             break;
           }
-          buf = [device newBufferWithBytesNoCopy:mem length:rounded options:MTLResourceStorageModeShared
+          buf = [device newBufferWithBytesNoCopy:mem
+                                          length:rounded
+                                         options:MTLResourceStorageModeShared
                                      deallocator:^(void* p, NSUInteger) {
                                        std::free(p);
                                      }];
@@ -354,7 +349,7 @@ namespace {
 // Validates a stream request and returns a function that encodes `repeats`
 // stream dispatches into an encoder.
 std::function<void(id<MTLComputeCommandEncoder>)> stream_encoder(Stream stream, const Buffer& a, const Buffer* b,
-                                                                  uint32_t repeats) {
+                                                                 uint32_t repeats) {
   require_available();
   if (!a) throw Error("probe::gpu_stream: empty buffer");
   if (a.bytes() % 16 != 0) throw Error("probe::gpu_stream: size must be a multiple of 16 bytes");

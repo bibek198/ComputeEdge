@@ -145,8 +145,8 @@ int main(int argc, char** argv) {
   }
   const cb::Environment env = cb::record_environment();
   std::cout << "ComputeEdge Metal matmul benchmark\n"
-            << "  " << env.chip << " / " << env.gpu_name << " (" << env.model << "), macOS " << env.os_version
-            << " (" << env.os_build << ")\n"
+            << "  " << env.chip << " / " << env.gpu_name << " (" << env.model << "), macOS " << env.os_version << " ("
+            << env.os_build << ")\n"
             << "  power: " << env.power_source << (env.low_power_mode ? ", LOW POWER MODE" : "")
             << ", thermal: " << cb::to_string(env.thermal_state) << ", build: " << env.build_type
             << (env.sanitizers ? " +sanitizers" : "") << ", git " << env.git_sha << "\n";
@@ -167,8 +167,7 @@ int main(int argc, char** argv) {
     cold.min_warmup_ns = 0;
     cold.repetitions = 1;
     cb::Result r = cb::run_with_metrics(
-        "matmul_metal_cold", {{"m", "64"}, {"n", "64"}, {"k", "64"}, {"storage", "nocopy"}}, cold,
-        [&](cb::Metrics& m) {
+        "matmul_metal_cold", {{"m", "64"}, {"n", "64"}, {"k", "64"}, {"storage", "nocopy"}}, cold, [&](cb::Metrics& m) {
           const uint64_t before = mtl::compile_ns();
           mtl::Timing t;
           mtl::matmul_into(A, B, C, {mtl::StorageMode::NoCopy}, &t);
@@ -220,13 +219,9 @@ int main(int argc, char** argv) {
           return 1;
         }
 
-        const std::map<std::string, std::string> params{{"backend", "metal"},
-                                                        {"kernel", kernel_name},
-                                                        {"storage", storage_name},
-                                                        {"m", std::to_string(n)},
-                                                        {"n", std::to_string(n)},
-                                                        {"k", std::to_string(n)},
-                                                        {"dtype", "f32"}};
+        const std::map<std::string, std::string> params{
+            {"backend", "metal"},     {"kernel", kernel_name},  {"storage", storage_name}, {"m", std::to_string(n)},
+            {"n", std::to_string(n)}, {"k", std::to_string(n)}, {"dtype", "f32"}};
         cb::Result r = cb::run_with_metrics(
             "matmul_metal", params, cfg,
             [&](cb::Metrics& m) {

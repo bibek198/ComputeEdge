@@ -225,7 +225,8 @@ TEST(Runner, MetricsSetupRunsBeforeEveryCallUntimed) {
         ++calls;
         m["x"] = 1;
       },
-      0, [&] {
+      0,
+      [&] {
         ++setups;
         const uint64_t until = computeedge::now_ns() + 2'000'000;  // 2 ms, must not be timed
         while (computeedge::now_ns() < until) {

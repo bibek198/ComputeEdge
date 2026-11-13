@@ -40,9 +40,7 @@ TEST(Tensor, FullAndVectorCtor) {
   EXPECT_EQ(t.to_vector(), vals);
 }
 
-TEST(Tensor, WrongValueCountThrows) {
-  EXPECT_THROW(Tensor({2, 2}, {1, 2, 3}), Error);
-}
+TEST(Tensor, WrongValueCountThrows) { EXPECT_THROW(Tensor({2, 2}, {1, 2, 3}), Error); }
 
 TEST(Tensor, BadIndexThrows) {
   Tensor t({2, 2});

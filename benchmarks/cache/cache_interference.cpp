@@ -92,10 +92,14 @@ int main(int argc, char** argv) {
   std::vector<size_t> gpu_sizes = split_bytes("16M,64M,256M");
   std::vector<std::string> passes{"read", "slc", "sgemm"};
   const CommonOptions opt = parse(argc, argv, src, [&](const std::string& f, const auto& next) {
-    if (f == "--working-sets") working_sets = split_bytes(next());
-    else if (f == "--gpu-sizes") gpu_sizes = split_bytes(next());
-    else if (f == "--passes") passes = split(next());
-    else return false;
+    if (f == "--working-sets")
+      working_sets = split_bytes(next());
+    else if (f == "--gpu-sizes")
+      gpu_sizes = split_bytes(next());
+    else if (f == "--passes")
+      passes = split(next());
+    else
+      return false;
     return true;
   });
 
@@ -107,14 +111,15 @@ int main(int argc, char** argv) {
   const cb::Config cfg = config(opt);
   std::vector<cb::Result> results;
   probe::Buffer tiny = probe::Buffer::create(probe::BufferKind::Private, 16 << 10);
-  const uint64_t tiny_ns = median_ns([&] { gpu_spin(probe::gpu_stream_async(probe::Stream::Write, tiny, nullptr, 64)); });
+  const uint64_t tiny_ns =
+      median_ns([&] { gpu_spin(probe::gpu_stream_async(probe::Stream::Write, tiny, nullptr, 64)); });
   // Repeats of the tiny write lasting about target_ns (time is not linear in
   // repeats at first, so refine a few times against the measurement).
   auto tiny_repeats = [&](uint64_t target_ns) {
     double reps = std::max(1.0, double(target_ns) * 64.0 / double(std::max<uint64_t>(tiny_ns, 1)));
     for (int i = 0; i < 4; ++i) {
-      const uint64_t got = median_ns(
-          [&] { gpu_spin(probe::gpu_stream_async(probe::Stream::Write, tiny, nullptr, uint32_t(reps))); }, 5);
+      const uint64_t got =
+          median_ns([&] { gpu_spin(probe::gpu_stream_async(probe::Stream::Write, tiny, nullptr, uint32_t(reps))); }, 5);
       reps = std::max(1.0, reps * double(target_ns) / double(std::max<uint64_t>(got, 1)));
     }
     return static_cast<uint32_t>(reps);
@@ -137,9 +142,8 @@ int main(int argc, char** argv) {
     cb::trace("calibrate gpu_write g=" + std::to_string(g) + " runs=7 tiny_refinements=4 tiny_bytes=16384");
     it.gpu_write_ns = median_ns([&] { gpu_spin(probe::gpu_stream_async(probe::Stream::Write, it.gpu)); });
     it.tiny_reps = tiny_repeats(it.gpu_write_ns);
-    const uint64_t tiny_check = median_ns([&] {
-      gpu_spin(probe::gpu_stream_async(probe::Stream::Write, tiny, nullptr, it.tiny_reps));
-    });
+    const uint64_t tiny_check =
+        median_ns([&] { gpu_spin(probe::gpu_stream_async(probe::Stream::Write, tiny, nullptr, it.tiny_reps)); });
     std::cout << "calibrated at " << bytes_label(g) << ": gpu_write " << it.gpu_write_ns / 1e3 << " us, gpu_tiny x"
               << it.tiny_reps << " " << tiny_check / 1e3 << " us\n";
     interferers.push_back(std::move(it));
@@ -173,16 +177,16 @@ int main(int argc, char** argv) {
     for (Interferer& it : interferers) {
       const std::string g = bytes_label(it.bytes);
       record("idle_spin", g, [&] { spin_for(it.gpu_write_ns); });
-      record("gpu_tiny", g, [&] { gpu_spin(probe::gpu_stream_async(probe::Stream::Write, tiny, nullptr, it.tiny_reps)); });
+      record("gpu_tiny", g,
+             [&] { gpu_spin(probe::gpu_stream_async(probe::Stream::Write, tiny, nullptr, it.tiny_reps)); });
       record("gpu_write", g, [&] { gpu_spin(probe::gpu_stream_async(probe::Stream::Write, it.gpu)); });
       record("gpu_read", g, [&] { gpu_spin(probe::gpu_stream_async(probe::Stream::Read, it.gpu)); });
       record("cpu_read", g, [&] { g_sink = read_all(it.cpu.contents(), it.bytes); });
 
       // Concurrent: GPU runs long enough to cover the CPU pass several times over.
       const uint64_t pass_ns = median_ns(pass.run);
-      const uint32_t repeats =
-          static_cast<uint32_t>(std::max<uint64_t>(1, (std::max<uint64_t>(5'000'000, 4 * pass_ns) +
-                                                       it.gpu_write_ns - 1) / it.gpu_write_ns));
+      const uint32_t repeats = static_cast<uint32_t>(
+          std::max<uint64_t>(1, (std::max<uint64_t>(5'000'000, 4 * pass_ns) + it.gpu_write_ns - 1) / it.gpu_write_ns));
       std::optional<probe::Submission> sub;
       cb::Result r = cb::run_with_metrics(
           "cache_interference", params("gpu_concurrent", g), cfg,

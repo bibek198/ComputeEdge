@@ -139,8 +139,8 @@ Environment record_environment() {
   @autoreleasepool {
     NSProcessInfo* info = [NSProcessInfo processInfo];
     NSOperatingSystemVersion v = [info operatingSystemVersion];
-    env.os_version = std::to_string(v.majorVersion) + "." + std::to_string(v.minorVersion) + "." +
-                     std::to_string(v.patchVersion);
+    env.os_version =
+        std::to_string(v.majorVersion) + "." + std::to_string(v.minorVersion) + "." + std::to_string(v.patchVersion);
     env.low_power_mode = [info isLowPowerModeEnabled];
   }
   @autoreleasepool {

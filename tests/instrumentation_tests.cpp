@@ -17,7 +17,8 @@ using namespace computeedge;
 namespace {
 
 size_t count_type(const std::vector<Event>& events, EventType type) {
-  return static_cast<size_t>(std::count_if(events.begin(), events.end(), [&](const Event& e) { return e.type == type; }));
+  return static_cast<size_t>(
+      std::count_if(events.begin(), events.end(), [&](const Event& e) { return e.type == type; }));
 }
 
 }  // namespace
@@ -39,7 +40,9 @@ TEST(Instrumentation, DisabledLogRecordsNothing) {
   EventLog::global().set_enabled(false);
   EventLog::global().clear();
   emit(EventType::Dispatch, 1);
-  { Tensor t({8}); }
+  {
+    Tensor t({8});
+  }
   EXPECT_EQ(EventLog::global().size(), 0u);
 }
 
@@ -107,7 +110,8 @@ TEST(Instrumentation, MatmulEmitsDispatchAndTimedSpan) {
   ASSERT_EQ(count_type(events, EventType::Dispatch), 1u);
   ASSERT_EQ(count_type(events, EventType::Begin), 1u);
   ASSERT_EQ(count_type(events, EventType::End), 1u);
-  const auto dispatch = *std::find_if(events.begin(), events.end(), [](const Event& e) { return e.type == EventType::Dispatch; });
+  const auto dispatch =
+      *std::find_if(events.begin(), events.end(), [](const Event& e) { return e.type == EventType::Dispatch; });
   EXPECT_EQ(dispatch.backend, Backend::CPU);
   EXPECT_NE(dispatch.exec_id, 0u);
   for (const Event& e : events) {

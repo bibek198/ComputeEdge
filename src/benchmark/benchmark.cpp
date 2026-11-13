@@ -42,8 +42,8 @@ std::string trace_params(const std::map<std::string, std::string>& params) {
 void trace_run(const char* kind, const std::string& name, const std::map<std::string, std::string>& params,
                const Config& c, bool has_setup, double flops_per_call) {
   if (!trace_enabled()) return;
-  trace(std::string(kind) + " name=" + name + " params={" + trace_params(params) + "} warmup=" +
-        std::to_string(c.warmup) + " min_warmup_ns=" + std::to_string(c.min_warmup_ns) +
+  trace(std::string(kind) + " name=" + name + " params={" + trace_params(params) +
+        "} warmup=" + std::to_string(c.warmup) + " min_warmup_ns=" + std::to_string(c.min_warmup_ns) +
         " reps=" + std::to_string(c.repetitions) + " inner=" + std::to_string(c.inner_iterations) +
         " min_sample_ns=" + std::to_string(c.min_sample_ns) + " cooldown=" + (c.cooldown ? "1" : "0") +
         " setup=" + (has_setup ? "1" : "0") + " flops=" + std::to_string(flops_per_call));
@@ -123,9 +123,8 @@ Result run(const std::string& name, const std::map<std::string, std::string>& pa
   return run_impl(name, params, config, fn, flops_per_call, setup, nullptr);
 }
 
-Result run_with_metrics(const std::string& name, const std::map<std::string, std::string>& params,
-                        const Config& config, const MetricsFn& fn, double flops_per_call,
-                        const std::function<void()>& setup) {
+Result run_with_metrics(const std::string& name, const std::map<std::string, std::string>& params, const Config& config,
+                        const MetricsFn& fn, double flops_per_call, const std::function<void()>& setup) {
   Config cfg = config;
   cfg.inner_iterations = 1;  // one call per sample, so metrics align with samples
   trace_run("run_with_metrics", name, params, cfg, static_cast<bool>(setup), flops_per_call);
@@ -222,8 +221,8 @@ void ResultWriter::flush() const {
       for (size_t i = 0; i < r.samples_ns.size(); ++i) {
         f << csv_field(r.name);
         for (const auto& k : keys) f << ',' << csv_field(param_value(r, k));
-        f << ',' << i << ',' << r.inner_iterations << ',' << r.samples_ns[i] << ','
-          << to_string(r.sample_thermal[i]) << '\n';
+        f << ',' << i << ',' << r.inner_iterations << ',' << r.samples_ns[i] << ',' << to_string(r.sample_thermal[i])
+          << '\n';
       }
     }
   }
@@ -239,8 +238,7 @@ void ResultWriter::flush() const {
       for (const auto& k : keys) f << ',' << csv_field(param_value(r, k));
       f << ',' << s.n << ',' << r.inner_iterations << ',' << s.median << ',' << s.p25 << ',' << s.p75 << ',' << s.iqr
         << ',' << s.ci95_lo << ',' << s.ci95_hi << ',' << s.mean << ',' << s.stddev << ',' << s.min << ',' << s.max
-        << ',' << r.gflops_median() << ',' << to_string(r.thermal_before) << ',' << to_string(r.thermal_after)
-        << '\n';
+        << ',' << r.gflops_median() << ',' << to_string(r.thermal_before) << ',' << to_string(r.thermal_after) << '\n';
     }
   }
   write_metrics(dir, results_, keys);

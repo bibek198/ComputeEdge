@@ -56,7 +56,7 @@ class MetalStorage : public ::testing::TestWithParam<std::tuple<mtl::StorageMode
 
 INSTANTIATE_TEST_SUITE_P(All, MetalStorage,
                          ::testing::Combine(::testing::Values(mtl::StorageMode::NoCopy, mtl::StorageMode::Shared,
-                                                             mtl::StorageMode::Private),
+                                                              mtl::StorageMode::Private),
                                             ::testing::Values(mtl::Kernel::Tiled16, mtl::Kernel::MPS)),
                          [](const auto& info) {
                            return std::string(mtl::to_string(std::get<0>(info.param))) + "_" +

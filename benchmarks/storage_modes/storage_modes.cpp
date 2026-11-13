@@ -41,8 +41,8 @@ bool wants(const std::vector<std::string>& list, const std::string& name) {
 }
 
 probe::BufferKind kind_from(const std::string& s, const char* src) {
-  for (probe::BufferKind k :
-       {probe::BufferKind::Shared, probe::BufferKind::Private, probe::BufferKind::NoCopy, probe::BufferKind::SharedCopy})
+  for (probe::BufferKind k : {probe::BufferKind::Shared, probe::BufferKind::Private, probe::BufferKind::NoCopy,
+                              probe::BufferKind::SharedCopy})
     if (s == probe::to_string(k)) return k;
   usage(src, "unknown buffer kind " + s);
 }
@@ -87,10 +87,14 @@ int main(int argc, char** argv) {
   std::vector<std::string> kinds{"host", "shared", "private", "nocopy", "shared_copy"};
   std::vector<std::string> experiments{"create", "cpu_touch", "gpu_first", "gpu_bw"};
   const CommonOptions opt = parse(argc, argv, src, [&](const std::string& f, const auto& next) {
-    if (f == "--sizes") sizes = split_bytes(next());
-    else if (f == "--kinds") kinds = split(next());
-    else if (f == "--experiments") experiments = split(next());
-    else return false;
+    if (f == "--sizes")
+      sizes = split_bytes(next());
+    else if (f == "--kinds")
+      kinds = split(next());
+    else if (f == "--experiments")
+      experiments = split(next());
+    else
+      return false;
     return true;
   });
   for (const auto& k : kinds)
@@ -152,9 +156,7 @@ int main(int argc, char** argv) {
             host.emplace(bytes);
             mem = host->ptr;
           } else {
-            buf = probe::Buffer::create(k == "shared" ? probe::BufferKind::Shared
-                                                                   : probe::BufferKind::NoCopy,
-                                        bytes);
+            buf = probe::Buffer::create(k == "shared" ? probe::BufferKind::Shared : probe::BufferKind::NoCopy, bytes);
             mem = buf->contents();
           }
         };

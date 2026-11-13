@@ -61,8 +61,8 @@ class EventLog {
 };
 
 // Fast-path helper: records only when the global log is enabled.
-inline void emit(EventType type, uint64_t id, uint64_t bytes = 0, Backend backend = Backend::None,
-                 uint64_t exec_id = 0, const char* label = nullptr) {
+inline void emit(EventType type, uint64_t id, uint64_t bytes = 0, Backend backend = Backend::None, uint64_t exec_id = 0,
+                 const char* label = nullptr) {
   EventLog& log = EventLog::global();
   if (!log.enabled()) return;
   log.record(Event{now_ns(), type, id, exec_id, bytes, backend, label});

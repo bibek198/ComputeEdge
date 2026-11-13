@@ -47,11 +47,16 @@ int main(int argc, char** argv) {
   std::vector<double> gaps_ms{0, 0.1, 1, 10, 100};
   std::vector<std::string> experiments{"methods", "idle"};
   const CommonOptions opt = parse(argc, argv, src, [&](const std::string& f, const auto& next) {
-    if (f == "--methods") methods = split(next());
-    else if (f == "--work") work = split(next());
-    else if (f == "--gaps-ms") gaps_ms = split_doubles(next());
-    else if (f == "--experiments") experiments = split(next());
-    else return false;
+    if (f == "--methods")
+      methods = split(next());
+    else if (f == "--work")
+      work = split(next());
+    else if (f == "--gaps-ms")
+      gaps_ms = split_doubles(next());
+    else if (f == "--experiments")
+      experiments = split(next());
+    else
+      return false;
     return true;
   });
   for (const auto& m : methods) sync_from(m, src);  // validate before running anything

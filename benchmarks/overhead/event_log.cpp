@@ -51,17 +51,18 @@ int main(int argc, char** argv) {
   uint64_t id = 0;
   log.set_enabled(false);
   add(cb::run("emit", {{"log", "disabled"}}, cfg, [&] {
-        const uint64_t i = ++id;
-        emit(EventType::Dispatch, i, 64, Backend::CPU, i, "x");
-      }));
+    const uint64_t i = ++id;
+    emit(EventType::Dispatch, i, 64, Backend::CPU, i, "x");
+  }));
 
   log.set_enabled(true);
   add(cb::run(
-      "emit", {{"log", "enabled"}}, cfg, [&] {
+      "emit", {{"log", "enabled"}}, cfg,
+      [&] {
         const uint64_t i = ++id;
         emit(EventType::Dispatch, i, 64, Backend::CPU, i, "x");
-      }, 0,
-      [&] { log.clear(); }));
+      },
+      0, [&] { log.clear(); }));
 
   log.set_enabled(false);
   add(cb::run("scoped_timer", {{"log", "disabled"}}, cfg, [&] { ScopedTimer t("x"); }));

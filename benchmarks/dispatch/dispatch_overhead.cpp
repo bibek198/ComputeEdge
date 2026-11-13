@@ -43,11 +43,16 @@ int main(int argc, char** argv) {
   std::vector<uint32_t> cmdbufs{1, 2, 4, 8, 16, 32, 64};
   std::vector<std::string> experiments{"dispatches", "encoders", "cmdbufs"};
   const CommonOptions opt = parse(argc, argv, src, [&](const std::string& f, const auto& next) {
-    if (f == "--dispatches") dispatches = to_u32(next());
-    else if (f == "--encoders") encoders = to_u32(next());
-    else if (f == "--cmdbufs") cmdbufs = to_u32(next());
-    else if (f == "--experiments") experiments = split(next());
-    else return false;
+    if (f == "--dispatches")
+      dispatches = to_u32(next());
+    else if (f == "--encoders")
+      encoders = to_u32(next());
+    else if (f == "--cmdbufs")
+      cmdbufs = to_u32(next());
+    else if (f == "--experiments")
+      experiments = split(next());
+    else
+      return false;
     return true;
   });
 

@@ -177,7 +177,8 @@ TEST_F(ProbeTest, WriteStreamFillsCpuVisibleBuffers) {
     const mtl::Timing t = probe::gpu_stream(probe::Stream::Write, buf);
     EXPECT_GT(t.gpu_ns(), 0u);
     const float* f = static_cast<const float*>(buf.contents());
-    for (size_t i = 0; i < buf.bytes() / sizeof(float); ++i) ASSERT_EQ(f[i], 1.0f) << probe::to_string(kind) << " at " << i;
+    for (size_t i = 0; i < buf.bytes() / sizeof(float); ++i)
+      ASSERT_EQ(f[i], 1.0f) << probe::to_string(kind) << " at " << i;
   }
 }
 
