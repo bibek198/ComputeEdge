@@ -31,16 +31,30 @@
 #include <chrono>
 #include <cstdio>
 #include <fstream>
+#include <iostream>
 #include <map>
 #include <optional>
 #include <string>
 #include <thread>
 #include <vector>
 
-#include "harness/bench_common.h"
+#include "computeedge/bench/environment.h"
+#include "computeedge/bench/result_writer.h"
+#include "computeedge/bench/runner.h"
+#include "computeedge/bench/trace.h"
 #include "computeedge/computeedge.h"
+#include "computeedge/core/instrumentation.h"
+#include "computeedge/metal/matmul.h"
+#include "computeedge/metal/probes.h"
+#include "harness/cli.h"
+#include "harness/console.h"
+#include "harness/gpu.h"
+#include "harness/results.h"
 
-using namespace ce_bench;
+namespace cb = computeedge::bench;
+namespace mtl = computeedge::metal;
+namespace probe = computeedge::metal::probe;
+using namespace computeedge::bench::harness;
 using namespace computeedge;
 
 namespace {
@@ -68,7 +82,7 @@ int main(int argc, char** argv) {
   std::string load = "mixed";
   double interval_ms = 1000;
   bool cooldown = true;
-  CommonOptions opt = parse(argc, argv, src, [&](const std::string& f, const auto& next) {
+  CommonOptions opt = parse(argc, argv, src, kAllCommonFlags, [&](const std::string& f, const auto& next) {
     if (f == "--minutes")
       minutes = std::stod(next());
     else if (f == "--load")
@@ -84,12 +98,13 @@ int main(int argc, char** argv) {
   if (load != "mixed" && load != "cpu" && load != "gpu" && load != "none") usage(src, "unknown --load " + load);
 
   pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
-  const cb::Environment env = banner("ComputeEdge M6 / RQ4: thermal drift under sustained load");
+  require_metal();
+  const cb::Environment env = banner("ComputeEdge M6 / RQ4: thermal drift under sustained load", BannerStyle::WithGpu);
   if (cooldown) {
     std::cout << "waiting for thermal state nominal...\n";
     if (!cb::wait_for_thermal(cb::ThermalState::Nominal, 900)) std::cout << "  WARNING: did not reach nominal\n";
   }
-  prewarm_gpu(opt.prewarm_ms);
+  prewarm(PrewarmWorkload::GpuStreamWritePrivate64MiB, opt.prewarm_ms);
 
   auto square = [](size_t n, float v) { return Tensor::full({n, n}, v); };
   const Tensor a1 = square(1024, 0.5f), b1 = square(1024, 0.25f);

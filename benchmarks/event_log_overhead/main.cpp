@@ -14,27 +14,18 @@
 #include "computeedge/bench/runner.h"
 #include "computeedge/core/instrumentation.h"
 #include "computeedge/core/scoped_timer.h"
+#include "harness/cli.h"
+#include "harness/results.h"
 
 using namespace computeedge;
 namespace cb = computeedge::bench;
+using namespace computeedge::bench::harness;
 
 int main(int argc, char** argv) {
-  int reps = 30;
-  std::string out = "data/scratch";
-  bool write = true;
-  for (int i = 1; i < argc; ++i) {
-    const std::string a = argv[i];
-    if (a == "--reps" && i + 1 < argc) {
-      reps = std::stoi(argv[++i]);
-    } else if (a == "--out" && i + 1 < argc) {
-      out = argv[++i];
-    } else if (a == "--no-write") {
-      write = false;
-    } else {
-      std::fprintf(stderr, "unknown argument %s\n", a.c_str());
-      return 2;
-    }
-  }
+  // Accepted flags: --reps --out --no-write.
+  const CommonOptions opt =
+      parse(argc, argv, "benchmarks/event_log_overhead/main.cpp", kReps | kOut | kNoWrite, nullptr);
+  const int reps = opt.reps;
 
   const cb::Environment env = cb::record_environment();
   std::cout << "ComputeEdge instrumentation overhead (" << env.chip << ", " << env.build_type << ")\n\n";
@@ -79,11 +70,6 @@ int main(int argc, char** argv) {
     (void)t;
   }));
 
-  if (write) {
-    cb::ResultWriter writer(out, env);
-    for (const auto& r : results) writer.add(r);
-    writer.flush();
-    std::cout << "\nResults written to " << writer.directory() << '\n';
-  }
+  write_results(opt.out, opt.write, env, results);
   return 0;
 }

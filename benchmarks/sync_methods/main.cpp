@@ -11,33 +11,39 @@
 // Usage:
 //   sync_methods [--methods wait_until_completed,event_wait,completion_handler,spin_event,spin_status]
 //                [--work empty,4M,256M] [--gaps-ms 0,0.1,1,10,100] [--experiments methods,idle]
-//                + common flags (benchmarks/harness/bench_common.h)
+//                + common flags (benchmarks/harness/cli.h)
 
 #include <algorithm>
 #include <chrono>
+#include <iostream>
 #include <optional>
 #include <string>
 #include <thread>
 #include <vector>
 
-#include "harness/bench_common.h"
+#include "computeedge/bench/environment.h"
+#include "computeedge/bench/result_writer.h"
+#include "computeedge/bench/runner.h"
+#include "computeedge/bench/trace.h"
+#include "computeedge/core/instrumentation.h"
+#include "computeedge/metal/matmul.h"
+#include "computeedge/metal/probes.h"
+#include "harness/cli.h"
+#include "harness/console.h"
+#include "harness/gpu.h"
+#include "harness/results.h"
 
-using namespace ce_bench;
+namespace cb = computeedge::bench;
+namespace mtl = computeedge::metal;
+namespace probe = computeedge::metal::probe;
+using namespace computeedge::bench::harness;
 
-namespace {
-
-probe::Sync sync_from(const std::string& s, const char* src) {
-  for (probe::Sync m : {probe::Sync::WaitUntilCompleted, probe::Sync::EventWait, probe::Sync::CompletionHandler,
-                        probe::Sync::SpinEvent, probe::Sync::SpinStatus})
-    if (s == probe::to_string(m)) return m;
-  usage(src, "unknown sync method " + s);
+probe::Sync parse_sync(const std::string& s, const char* src) {
+  return parse_enum(s,
+                    {probe::Sync::WaitUntilCompleted, probe::Sync::EventWait, probe::Sync::CompletionHandler,
+                     probe::Sync::SpinEvent, probe::Sync::SpinStatus},
+                    "sync method", src);
 }
-
-bool wants(const std::vector<std::string>& list, const std::string& name) {
-  return std::find(list.begin(), list.end(), name) != list.end();
-}
-
-}  // namespace
 
 int main(int argc, char** argv) {
   const char* src = "benchmarks/sync_methods/main.cpp";
@@ -46,7 +52,7 @@ int main(int argc, char** argv) {
   std::vector<std::string> work{"empty", "4M", "256M"};
   std::vector<double> gaps_ms{0, 0.1, 1, 10, 100};
   std::vector<std::string> experiments{"methods", "idle"};
-  const CommonOptions opt = parse(argc, argv, src, [&](const std::string& f, const auto& next) {
+  const CommonOptions opt = parse(argc, argv, src, kAllCommonFlags, [&](const std::string& f, const auto& next) {
     if (f == "--methods")
       methods = split(next());
     else if (f == "--work")
@@ -59,10 +65,12 @@ int main(int argc, char** argv) {
       return false;
     return true;
   });
-  for (const auto& m : methods) sync_from(m, src);  // validate before running anything
+  for (const auto& m : methods) parse_sync(m, src);  // validate before running anything
 
-  const cb::Environment env = banner("ComputeEdge M5 / Track A: synchronization methods and idle gaps");
-  prewarm_gpu(opt.prewarm_ms);
+  require_metal();
+  const cb::Environment env =
+      banner("ComputeEdge M5 / Track A: synchronization methods and idle gaps", BannerStyle::WithGpu);
+  prewarm(PrewarmWorkload::GpuStreamWritePrivate64MiB, opt.prewarm_ms);
   const cb::Config cfg = config(opt);
   std::vector<cb::Result> results;
 
@@ -71,11 +79,11 @@ int main(int argc, char** argv) {
       std::optional<probe::Buffer> buf;
       if (w != "empty") buf = probe::Buffer::create(probe::BufferKind::Private, split_bytes(w).at(0));
       for (const std::string& name : methods) {
-        const probe::Sync sync = sync_from(name, src);
+        const probe::Sync sync = parse_sync(name, src);
         cb::Result r = cb::run_with_metrics(
             "sync_method", {{"experiment", "methods"}, {"sync", name}, {"work", w}}, cfg, [&](cb::Metrics& m) {
-              record_timing(m, buf ? probe::gpu_stream(probe::Stream::Write, *buf, nullptr, sync)
-                                   : probe::empty_dispatch({1, 1, 1, sync}));
+              record_probe_timing(m, buf ? probe::gpu_stream(probe::Stream::Write, *buf, nullptr, sync)
+                                         : probe::empty_dispatch({1, 1, 1, sync}));
             });
         std::cout << cb::format_result(r) << std::endl;
         results.push_back(std::move(r));
@@ -85,14 +93,14 @@ int main(int argc, char** argv) {
 
   if (wants(experiments, "idle")) {
     for (const char* name : {"wait_until_completed", "spin_event"}) {
-      const probe::Sync sync = sync_from(name, src);
+      const probe::Sync sync = parse_sync(name, src);
       for (double gap : gaps_ms) {
         const auto sleep_for = std::chrono::nanoseconds(static_cast<int64_t>(gap * 1e6));
         char gap_label[32];
         std::snprintf(gap_label, sizeof(gap_label), "%g", gap);
         cb::Result r = cb::run_with_metrics(
             "sync_idle", {{"experiment", "idle"}, {"sync", name}, {"gap_ms", gap_label}}, cfg,
-            [&](cb::Metrics& m) { record_timing(m, probe::empty_dispatch({1, 1, 1, sync})); }, 0,
+            [&](cb::Metrics& m) { record_probe_timing(m, probe::empty_dispatch({1, 1, 1, sync})); }, 0,
             [&] {
               if (gap > 0) std::this_thread::sleep_for(sleep_for);
             });
@@ -102,6 +110,6 @@ int main(int argc, char** argv) {
     }
   }
 
-  write_results(opt, env, results);
+  write_results(opt.out, opt.write, env, results);
   return 0;
 }

@@ -26,62 +26,45 @@
 //
 // Usage:
 //   cache_interference [--working-sets 1M,4M,12M,64M] [--gpu-sizes 16M,64M,256M] [--passes read,slc,sgemm]
-//                      + common flags (benchmarks/harness/bench_common.h)
+//                      + common flags (benchmarks/harness/cli.h)
 
 #include <pthread.h>
 #include <sys/qos.h>
 
 #include <algorithm>
 #include <cstring>
+#include <iostream>
 #include <optional>
 #include <string>
 #include <vector>
 
-#include "harness/bench_common.h"
+#include "computeedge/bench/environment.h"
+#include "computeedge/bench/result_writer.h"
+#include "computeedge/bench/runner.h"
+#include "computeedge/bench/trace.h"
 #include "computeedge/computeedge.h"
+#include "computeedge/core/instrumentation.h"
+#include "computeedge/metal/matmul.h"
+#include "computeedge/metal/probes.h"
+#include "harness/cli.h"
+#include "harness/console.h"
+#include "harness/gpu.h"
+#include "harness/hot_path.h"
+#include "harness/results.h"
 
-using namespace ce_bench;
+namespace cb = computeedge::bench;
+namespace mtl = computeedge::metal;
+namespace probe = computeedge::metal::probe;
+using namespace computeedge::bench::harness;
 using computeedge::now_ns;
 
 namespace {
-
-volatile uint64_t g_sink;
-
-uint64_t read_all(const void* p, size_t bytes) {
-  const uint64_t* w = static_cast<const uint64_t*>(p);
-  uint64_t acc = 0;
-  for (size_t i = 0; i < bytes / sizeof(uint64_t); ++i) acc += w[i];
-  return acc;
-}
 
 // Runs GPU work and busy-polls until it completes (keeps the CPU clocked up).
 void gpu_spin(probe::Submission sub) {
   while (!sub.done()) {
   }
   sub.wait();
-}
-
-void spin_for(uint64_t ns) {
-  const uint64_t until = now_ns() + ns;
-  while (now_ns() < until) {
-  }
-}
-
-bool wants(const std::vector<std::string>& list, const std::string& name) {
-  return std::find(list.begin(), list.end(), name) != list.end();
-}
-
-// Median of a few runs of fn() (ns): calibrates control durations.
-template <typename Fn>
-uint64_t median_ns(Fn&& fn, int runs = 7) {
-  std::vector<uint64_t> v;
-  for (int i = 0; i < runs; ++i) {
-    const uint64_t t0 = now_ns();
-    fn();
-    v.push_back(now_ns() - t0);
-  }
-  std::sort(v.begin(), v.end());
-  return v[v.size() / 2];
 }
 
 }  // namespace
@@ -91,7 +74,7 @@ int main(int argc, char** argv) {
   std::vector<size_t> working_sets = split_bytes("1M,4M,12M,64M");
   std::vector<size_t> gpu_sizes = split_bytes("16M,64M,256M");
   std::vector<std::string> passes{"read", "slc", "sgemm"};
-  const CommonOptions opt = parse(argc, argv, src, [&](const std::string& f, const auto& next) {
+  const CommonOptions opt = parse(argc, argv, src, kAllCommonFlags, [&](const std::string& f, const auto& next) {
     if (f == "--working-sets")
       working_sets = split_bytes(next());
     else if (f == "--gpu-sizes")
@@ -106,8 +89,9 @@ int main(int argc, char** argv) {
   // Prefer the performance cores for the measuring thread.
   pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
 
-  const cb::Environment env = banner("ComputeEdge M6 / RQ3: CPU-GPU cache interference");
-  prewarm_gpu(opt.prewarm_ms);
+  require_metal();
+  const cb::Environment env = banner("ComputeEdge M6 / RQ3: CPU-GPU cache interference", BannerStyle::WithGpu);
+  prewarm(PrewarmWorkload::GpuStreamWritePrivate64MiB, opt.prewarm_ms);
   const cb::Config cfg = config(opt);
   std::vector<cb::Result> results;
   probe::Buffer tiny = probe::Buffer::create(probe::BufferKind::Private, 16 << 10);
@@ -260,6 +244,6 @@ int main(int argc, char** argv) {
     measure_pass(pass);
   }
 
-  write_results(opt, env, results);
+  write_results(opt.out, opt.write, env, results);
   return 0;
 }

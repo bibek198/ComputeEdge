@@ -122,6 +122,25 @@ target_compile_definitions(computeedge_bench PRIVATE
   CE_SANITIZE_ENABLED=$<BOOL:${CE_SANITIZE}>)
 
 # ---------------------------------------------------------------------------
+# Benchmark harness: code shared by the benchmark binaries (benchmarks/harness/).
+# The GPU part is a separate library so CPU-only binaries do not link Metal.
+# ---------------------------------------------------------------------------
+add_library(computeedge_bench_harness STATIC
+  benchmarks/harness/cli.cpp
+  benchmarks/harness/console.cpp
+  benchmarks/harness/correctness.cpp
+  benchmarks/harness/host_memory.cpp
+  benchmarks/harness/results.cpp
+)
+target_include_directories(computeedge_bench_harness PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/benchmarks)
+target_link_libraries(computeedge_bench_harness PUBLIC computeedge_bench computeedge_core)
+target_compile_options(computeedge_bench_harness PRIVATE ${CE_WARNINGS})
+
+add_library(computeedge_bench_harness_gpu STATIC benchmarks/harness/gpu.cpp)
+target_link_libraries(computeedge_bench_harness_gpu PUBLIC computeedge_bench_harness computeedge_metal)
+target_compile_options(computeedge_bench_harness_gpu PRIVATE ${CE_WARNINGS})
+
+# ---------------------------------------------------------------------------
 # Examples
 # ---------------------------------------------------------------------------
 if(CE_BUILD_EXAMPLES)
@@ -136,24 +155,23 @@ endif()
 if(CE_BUILD_BENCHMARKS)
   function(ce_benchmark name source)
     add_executable(${name} ${source})
-    target_link_libraries(${name} PRIVATE computeedge_bench ${ARGN})
-    target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/benchmarks)
+    target_link_libraries(${name} PRIVATE ${ARGN})   # each binary lists exactly what it links
     target_compile_options(${name} PRIVATE ${CE_WARNINGS})
     set_target_properties(${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/benchmarks)
   endfunction()
 
-  ce_benchmark(cpu_matmul benchmarks/cpu_matmul/main.cpp computeedge_cpu)
-  ce_benchmark(metal_matmul benchmarks/metal_matmul/main.cpp computeedge_cpu computeedge_metal)
-  ce_benchmark(event_log_overhead benchmarks/event_log_overhead/main.cpp)
-  ce_benchmark(ce_env tools/ce_env/main.cpp)
+  ce_benchmark(cpu_matmul benchmarks/cpu_matmul/main.cpp computeedge_bench_harness computeedge_cpu)
+  ce_benchmark(metal_matmul benchmarks/metal_matmul/main.cpp computeedge_bench_harness_gpu computeedge_cpu)
+  ce_benchmark(event_log_overhead benchmarks/event_log_overhead/main.cpp computeedge_bench_harness)
+  ce_benchmark(ce_env tools/ce_env/main.cpp computeedge_bench)
   # M5 characterization (Tracks A and B)
-  ce_benchmark(dispatch_overhead benchmarks/dispatch_overhead/main.cpp computeedge_metal)
-  ce_benchmark(sync_methods benchmarks/sync_methods/main.cpp computeedge_metal)
-  ce_benchmark(storage_modes benchmarks/storage_modes/main.cpp computeedge_metal)
+  ce_benchmark(dispatch_overhead benchmarks/dispatch_overhead/main.cpp computeedge_bench_harness_gpu)
+  ce_benchmark(sync_methods benchmarks/sync_methods/main.cpp computeedge_bench_harness_gpu)
+  ce_benchmark(storage_modes benchmarks/storage_modes/main.cpp computeedge_bench_harness_gpu)
   # M6: cache interference and thermal drift
-  ce_benchmark(cache_interference benchmarks/cache_interference/main.cpp computeedge_cpu computeedge_metal)
-  ce_benchmark(thermal_drift benchmarks/thermal_drift/main.cpp computeedge_cpu computeedge_metal)
-  ce_benchmark(followups benchmarks/followups/main.cpp computeedge_metal)
+  ce_benchmark(cache_interference benchmarks/cache_interference/main.cpp computeedge_bench_harness_gpu computeedge_cpu)
+  ce_benchmark(thermal_drift benchmarks/thermal_drift/main.cpp computeedge_bench_harness_gpu computeedge_cpu)
+  ce_benchmark(followups benchmarks/followups/main.cpp computeedge_bench_harness_gpu)
 endif()
 
 # ---------------------------------------------------------------------------
@@ -182,8 +200,12 @@ if(CE_BUILD_TESTS)
     tests/bench/environment_test.cpp
     tests/bench/runner_test.cpp
     tests/bench/result_writer_test.cpp
+    tests/harness/cli_test.cpp
+    tests/harness/gpu_test.cpp
+    tests/harness/memory_and_correctness_test.cpp
   )
-  target_link_libraries(computeedge_tests PRIVATE computeedge computeedge_bench GTest::gtest_main)
+  target_link_libraries(computeedge_tests PRIVATE computeedge computeedge_bench_harness_gpu
+  GTest::gtest_main)
   target_compile_options(computeedge_tests PRIVATE -Wall -Wextra)
 
   include(GoogleTest)

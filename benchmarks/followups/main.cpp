@@ -25,30 +25,33 @@
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
 
-#include "harness/bench_common.h"
+#include "computeedge/bench/environment.h"
+#include "computeedge/bench/result_writer.h"
+#include "computeedge/bench/runner.h"
+#include "computeedge/bench/trace.h"
+#include "computeedge/core/instrumentation.h"
+#include "computeedge/metal/matmul.h"
+#include "computeedge/metal/probes.h"
+#include "harness/cli.h"
+#include "harness/console.h"
+#include "harness/gpu.h"
+#include "harness/host_memory.h"
+#include "harness/hot_path.h"
+#include "harness/results.h"
 
-using namespace ce_bench;
+namespace cb = computeedge::bench;
+namespace mtl = computeedge::metal;
+namespace probe = computeedge::metal::probe;
+using namespace computeedge::bench::harness;
 using computeedge::now_ns;
 
 namespace {
-
-bool wants(const std::vector<std::string>& list, const std::string& name) {
-  return std::find(list.begin(), list.end(), name) != list.end();
-}
-
-volatile uint64_t g_sink;
-
-uint64_t read_all(const void* p, size_t bytes) {
-  const uint64_t* w = static_cast<const uint64_t*>(p);
-  uint64_t acc = 0;
-  for (size_t i = 0; i < bytes / sizeof(uint64_t); ++i) acc += w[i];
-  return acc;
-}
 
 // Distinct values per word so the compiler cannot turn this into memset; it
 // vectorises to plain 128-bit stores.
@@ -57,46 +60,12 @@ __attribute__((noinline)) void store_loop(void* p, size_t bytes, uint64_t seed) 
   for (size_t i = 0; i < bytes / sizeof(uint64_t); ++i) w[i] = i ^ seed;
 }
 
-uint64_t timed(const auto& fn) {
-  const uint64_t t0 = now_ns();
-  fn();
-  return now_ns() - t0;
-}
-
-// Host memory from a chosen source (not a Metal buffer).
-struct HostMem {
-  enum class Source { Memalign, Mmap };
-  HostMem(Source source, size_t bytes) : source(source), bytes(bytes) {
-    if (source == Source::Memalign) {
-      if (posix_memalign(&ptr, static_cast<size_t>(getpagesize()), bytes) != 0) ptr = nullptr;
-    } else {
-      ptr = mmap(nullptr, bytes, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
-      if (ptr == MAP_FAILED) ptr = nullptr;
-    }
-    if (!ptr) {
-      std::fprintf(stderr, "host allocation failed\n");
-      std::exit(1);
-    }
-  }
-  HostMem(const HostMem&) = delete;
-  HostMem& operator=(const HostMem&) = delete;
-  ~HostMem() {
-    if (source == Source::Memalign)
-      std::free(ptr);
-    else
-      munmap(ptr, bytes);
-  }
-  Source source;
-  size_t bytes;
-  void* ptr = nullptr;
-};
-
 }  // namespace
 
 int main(int argc, char** argv) {
   const char* src = "benchmarks/followups/main.cpp";
   std::vector<std::string> experiments{"wake", "cpu_write", "gpu_write"};
-  const CommonOptions opt = parse(argc, argv, src, [&](const std::string& f, const auto& next) {
+  const CommonOptions opt = parse(argc, argv, src, kAllCommonFlags, [&](const std::string& f, const auto& next) {
     if (f == "--experiments")
       experiments = split(next());
     else
@@ -104,8 +73,9 @@ int main(int argc, char** argv) {
     return true;
   });
 
-  const cb::Environment env = banner("ComputeEdge M6: follow-ups to open M5 findings");
-  prewarm_gpu(opt.prewarm_ms);
+  require_metal();
+  const cb::Environment env = banner("ComputeEdge M6: follow-ups to open M5 findings", BannerStyle::WithGpu);
+  prewarm(PrewarmWorkload::GpuStreamWritePrivate64MiB, opt.prewarm_ms);
   const cb::Config cfg = config(opt);
   std::vector<cb::Result> results;
   auto keep = [&](cb::Result r) {
@@ -126,7 +96,7 @@ int main(int argc, char** argv) {
                                    {"bytes", std::to_string(bytes)},
                                    {"sync", "spin_event"}},
                                   cfg, [&](cb::Metrics& m) {
-                                    record_timing(m, probe::gpu_stream(s, buf, nullptr, probe::Sync::SpinEvent));
+                                    record_probe_timing(m, probe::gpu_stream(s, buf, nullptr, probe::Sync::SpinEvent));
                                   }));
       }
     }
@@ -139,13 +109,13 @@ int main(int argc, char** argv) {
       std::string name;
       void* ptr;
     };
-    HostMem memalign(HostMem::Source::Memalign, bytes), mapped(HostMem::Source::Mmap, bytes),
-        mapped_for_nocopy(HostMem::Source::Mmap, bytes);
+    HostMemory memalign(bytes, HostMemory::Source::Memalign), mapped(bytes, HostMemory::Source::Mmap),
+        mapped_for_nocopy(bytes, HostMemory::Source::Mmap);
     probe::Buffer shared = probe::Buffer::create(probe::BufferKind::Shared, bytes);
     probe::Buffer shared_wc = probe::Buffer::create(probe::BufferKind::SharedWriteCombined, bytes);
-    probe::Buffer nocopy = probe::Buffer::create(probe::BufferKind::NoCopy, bytes, mapped_for_nocopy.ptr);
-    const std::vector<Source> sources{{"memalign", memalign.ptr},
-                                      {"mmap", mapped.ptr},
+    probe::Buffer nocopy = probe::Buffer::create(probe::BufferKind::NoCopy, bytes, mapped_for_nocopy.data());
+    const std::vector<Source> sources{{"memalign", memalign.data()},
+                                      {"mmap", mapped.data()},
                                       {"shared", shared.contents()},
                                       {"shared_wc", shared_wc.contents()},
                                       {"nocopy_mmap", nocopy.contents()}};
@@ -160,9 +130,10 @@ int main(int argc, char** argv) {
                                  {"bytes", std::to_string(bytes)}},
                                 cfg, [&](cb::Metrics& m) {
                                   ++seed;
-                                  m["memset_ns"] = double(timed([&] { std::memset(s.ptr, int(seed & 0xFF), bytes); }));
-                                  m["store_loop_ns"] = double(timed([&] { store_loop(s.ptr, bytes, seed); }));
-                                  m["read_ns"] = double(timed([&] { g_sink = read_all(s.ptr, bytes); }));
+                                  m["memset_ns"] =
+                                      double(timed_ns([&] { std::memset(s.ptr, int(seed & 0xFF), bytes); }));
+                                  m["store_loop_ns"] = double(timed_ns([&] { store_loop(s.ptr, bytes, seed); }));
+                                  m["read_ns"] = double(timed_ns([&] { g_sink = read_all(s.ptr, bytes); }));
                                 }));
     }
   }
@@ -174,7 +145,7 @@ int main(int argc, char** argv) {
     const size_t bytes = size_t{64} << 20;
     for (const char* kind : {"shared", "nocopy", "memalign"}) {
       std::optional<probe::Buffer> buf;
-      std::optional<HostMem> host;
+      std::optional<HostMemory> host;
       void* ptr = nullptr;
       keep(cb::run_with_metrics(
           "followup_cpu_write_fresh",
@@ -185,15 +156,15 @@ int main(int argc, char** argv) {
           cfg,
           [&](cb::Metrics& m) {
             for (int i = 1; i <= 4; ++i)
-              m["write" + std::to_string(i) + "_ns"] = double(timed([&] { std::memset(ptr, i, bytes); }));
+              m["write" + std::to_string(i) + "_ns"] = double(timed_ns([&] { std::memset(ptr, i, bytes); }));
           },
           0,
           [&] {
             buf.reset();
             host.reset();
             if (std::string(kind) == "memalign") {
-              host.emplace(HostMem::Source::Memalign, bytes);
-              ptr = host->ptr;
+              host.emplace(bytes, HostMemory::Source::Memalign);
+              ptr = host->data();
             } else {
               buf = probe::Buffer::create(
                   std::string(kind) == "shared" ? probe::BufferKind::Shared : probe::BufferKind::NoCopy, bytes);
@@ -217,7 +188,7 @@ int main(int argc, char** argv) {
                                    {"size", bytes_label(bytes)},
                                    {"bytes", std::to_string(bytes)}},
                                   cfg, [&](cb::Metrics& m) {
-                                    record_timing(m, probe::gpu_stream(probe::Stream::Write, buf));
+                                    record_probe_timing(m, probe::gpu_stream(probe::Stream::Write, buf));
                                     m["two_pass_gpu_ns"] = double(
                                         probe::gpu_stream_async(probe::Stream::Write, buf, nullptr, 2).wait().gpu_ns());
                                   }));
@@ -250,6 +221,6 @@ int main(int argc, char** argv) {
     }
   }
 
-  write_results(opt, env, results);
+  write_results(opt.out, opt.write, env, results);
   return 0;
 }
