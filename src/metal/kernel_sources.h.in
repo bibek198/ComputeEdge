@@ -4,5 +4,6 @@
 namespace computeedge::metal::detail {
 
 inline constexpr const char* kMatmulSource = R"CE_MSL(@CE_MSL_MATMUL@)CE_MSL";
+inline constexpr const char* kProbesSource = R"CE_MSL(@CE_MSL_PROBES@)CE_MSL";
 
 }  // namespace computeedge::metal::detail

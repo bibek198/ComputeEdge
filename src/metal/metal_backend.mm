@@ -4,19 +4,13 @@
 // @autoreleasepool boundaries, so errors raised inside a pool are captured as
 // strings and thrown after the pool has been popped.
 
-#import <Foundation/Foundation.h>
-#import <Metal/Metal.h>
-#import <MetalPerformanceShaders/MetalPerformanceShaders.h>
+#include "context.h"
 
 #include <unistd.h>
 
 #include <climits>
 #include <cstring>
-#include <mutex>
-#include <map>
 #include <string>
-#include <tuple>
-#include <unordered_map>
 
 #include "computeedge/error.h"
 #include "computeedge/instrumentation.h"
@@ -26,34 +20,17 @@
 
 namespace computeedge::metal {
 
-namespace {
-
-constexpr NSUInteger kTile = 16;
-
-struct MatmulParams {
-  uint32_t M;
-  uint32_t N;
-  uint32_t K;
-};
-
-struct Context {
-  id<MTLDevice> device = nil;
-  id<MTLCommandQueue> queue = nil;
-  id<MTLLibrary> library = nil;
-  std::unordered_map<std::string, id<MTLComputePipelineState>> pipelines;
-  // MPS kernels are shape-specific; cache them so steady-state calls do not pay
-  // for object creation (as a framework would).
-  std::map<std::tuple<size_t, size_t, size_t>, MPSMatrixMultiplication*> mps_kernels;
-  uint64_t compile_ns = 0;
-  std::mutex mutex;
-};
+namespace detail {
 
 Context& context() {
   static Context* ctx = [] {
     auto* c = new Context;  // intentionally leaked: lives for the process
     @autoreleasepool {
       c->device = MTLCreateSystemDefaultDevice();
-      if (c->device) c->queue = [c->device newCommandQueue];
+      if (c->device) {
+        c->queue = [c->device newCommandQueue];
+        c->event = [c->device newSharedEvent];
+      }
     }
     return c;
   }();
@@ -64,47 +41,77 @@ std::string ns_error(NSError* error) {
   return error ? std::string([[error localizedDescription] UTF8String]) : std::string("unknown error");
 }
 
-// Compiles the library on first use. Caller holds ctx.mutex.
-void ensure_library_locked(Context& ctx) {
-  if (ctx.library) return;
+namespace {
+
+const char* library_source(const std::string& name) {
+  if (name == "matmul") return kMatmulSource;
+  if (name == "probes") return kProbesSource;
+  throw Error("unknown Metal library: " + name);
+}
+
+// Compiles the named library on first use. Caller holds ctx.mutex.
+id<MTLLibrary> library_locked(Context& ctx, const std::string& name) {
+  if (auto it = ctx.libraries.find(name); it != ctx.libraries.end()) return it->second;
+  const char* src = library_source(name);
   std::string failure;
+  id<MTLLibrary> lib = nil;
   const uint64_t t0 = now_ns();
   @autoreleasepool {
     NSError* error = nil;
-    NSString* source = [NSString stringWithUTF8String:detail::kMatmulSource];
-    ctx.library = [ctx.device newLibraryWithSource:source options:[MTLCompileOptions new] error:&error];
-    if (!ctx.library) failure = "Metal shader compilation failed: " + ns_error(error);
+    NSString* source = [NSString stringWithUTF8String:src];
+    lib = [ctx.device newLibraryWithSource:source options:[MTLCompileOptions new] error:&error];
+    if (!lib) failure = "Metal shader compilation failed (" + name + "): " + ns_error(error);
   }
   ctx.compile_ns += now_ns() - t0;
   if (!failure.empty()) throw Error(failure);
+  ctx.libraries.emplace(name, lib);
+  return lib;
 }
 
-id<MTLComputePipelineState> pipeline(const std::string& name) {
+}  // namespace
+
+id<MTLComputePipelineState> pipeline(const std::string& library, const std::string& function) {
   Context& ctx = context();
   std::lock_guard<std::mutex> lock(ctx.mutex);
-  if (auto it = ctx.pipelines.find(name); it != ctx.pipelines.end()) return it->second;
-  ensure_library_locked(ctx);
+  const std::string key = library + "/" + function;
+  if (auto it = ctx.pipelines.find(key); it != ctx.pipelines.end()) return it->second;
+  id<MTLLibrary> lib = library_locked(ctx, library);
 
   std::string failure;
   id<MTLComputePipelineState> pso = nil;
   const uint64_t t0 = now_ns();
   @autoreleasepool {
-    id<MTLFunction> fn = [ctx.library newFunctionWithName:[NSString stringWithUTF8String:name.c_str()]];
+    id<MTLFunction> fn = [lib newFunctionWithName:[NSString stringWithUTF8String:function.c_str()]];
     if (!fn) {
-      failure = "Metal function not found: " + name;
+      failure = "Metal function not found: " + key;
     } else {
       NSError* error = nil;
       pso = [ctx.device newComputePipelineStateWithFunction:fn error:&error];
-      if (!pso) failure = "Metal pipeline creation failed for " + name + ": " + ns_error(error);
+      if (!pso) failure = "Metal pipeline creation failed for " + key + ": " + ns_error(error);
     }
   }
   ctx.compile_ns += now_ns() - t0;
   if (!failure.empty()) throw Error(failure);
-  ctx.pipelines.emplace(name, pso);
+  ctx.pipelines.emplace(key, pso);
   return pso;
 }
 
-uint64_t to_ns(CFTimeInterval seconds) { return seconds > 0 ? static_cast<uint64_t>(seconds * 1e9) : 0; }
+}  // namespace detail
+
+namespace {
+
+using detail::Context;
+using detail::context;
+using detail::ns_error;
+using detail::to_ns;
+
+constexpr NSUInteger kTile = 16;
+
+struct MatmulParams {
+  uint32_t M;
+  uint32_t N;
+  uint32_t K;
+};
 
 uint32_t checked_u32(size_t v, const char* what) {
   if (v > UINT32_MAX) throw Error(std::string("metal::matmul: ") + what + " exceeds UINT32_MAX");
@@ -181,7 +188,7 @@ DeviceInfo device_info() {
 uint64_t warmup() {
   if (!available()) throw Error("Metal is not available on this system");
   const uint64_t before = compile_ns();
-  pipeline("matmul_tiled");
+  detail::pipeline("matmul", "matmul_tiled");
   return compile_ns() - before;
 }
 
@@ -217,7 +224,7 @@ void matmul_into(const Tensor& a, const Tensor& b, Tensor& out, const MatmulOpti
   // K == 0 is an all-zeros result; MPS rejects zero-sized matrices, so the
   // tiled kernel handles that case for both choices.
   const bool use_mps = options.kernel == Kernel::MPS && K > 0;
-  id<MTLComputePipelineState> pso = pipeline("matmul_tiled");  // may compile (cold start)
+  id<MTLComputePipelineState> pso = detail::pipeline("matmul", "matmul_tiled");  // may compile (cold start)
   MPSMatrixMultiplication* mps = use_mps ? mps_kernel(M, N, K) : nil;
   Context& ctx = context();
 

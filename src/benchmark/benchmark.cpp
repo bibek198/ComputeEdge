@@ -79,7 +79,8 @@ Result run(const std::string& name, const std::map<std::string, std::string>& pa
 }
 
 Result run_with_metrics(const std::string& name, const std::map<std::string, std::string>& params,
-                        const Config& config, const MetricsFn& fn, double flops_per_call) {
+                        const Config& config, const MetricsFn& fn, double flops_per_call,
+                        const std::function<void()>& setup) {
   Config cfg = config;
   cfg.inner_iterations = 1;  // one call per sample, so metrics align with samples
   bool measuring = false;
@@ -94,7 +95,7 @@ Result run_with_metrics(const std::string& name, const std::map<std::string, std
         fn(scratch);
         if (measuring) collected.push_back(scratch);
       },
-      flops_per_call, {}, &measuring);
+      flops_per_call, setup, &measuring);
 
   for (const Metrics& m : collected)
     for (const auto& [key, value] : m) r.metrics[key].push_back(value);

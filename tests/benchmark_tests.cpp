@@ -211,6 +211,30 @@ TEST(Runner, MetricsAlignWithMeasuredSamples) {
   EXPECT_EQ(r.metric_summaries.at("call").median, 6);
 }
 
+TEST(Runner, MetricsSetupRunsBeforeEveryCallUntimed) {
+  cb::Config cfg;
+  cfg.warmup = 3;
+  cfg.min_warmup_ns = 0;
+  cfg.repetitions = 5;
+  int calls = 0, setups = 0;
+  const cb::Result r = cb::run_with_metrics(
+      "setup", {}, cfg,
+      [&](cb::Metrics& m) {
+        EXPECT_EQ(setups, calls + 1) << "setup must run right before each call";
+        ++calls;
+        m["x"] = 1;
+      },
+      0, [&] {
+        ++setups;
+        const uint64_t until = computeedge::now_ns() + 2'000'000;  // 2 ms, must not be timed
+        while (computeedge::now_ns() < until) {
+        }
+      });
+  EXPECT_EQ(calls, 3 + 5);
+  EXPECT_EQ(setups, 3 + 5);
+  for (double s : r.samples_ns) EXPECT_LT(s, 1'000'000.0);
+}
+
 TEST(Runner, MetricsMustBeReportedEveryCall) {
   cb::Config cfg;
   cfg.warmup = 0;

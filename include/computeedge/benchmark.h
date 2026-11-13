@@ -118,8 +118,11 @@ Result run(const std::string& name, const std::map<std::string, std::string>& pa
 using Metrics = std::map<std::string, double>;
 using MetricsFn = std::function<void(Metrics&)>;
 
+// `setup` (optional) runs before every call, outside the timed region (e.g. an
+// idle gap, or creating a fresh buffer for a first-use measurement).
 Result run_with_metrics(const std::string& name, const std::map<std::string, std::string>& params,
-                        const Config& config, const MetricsFn& fn, double flops_per_call = 0);
+                        const Config& config, const MetricsFn& fn, double flops_per_call = 0,
+                        const std::function<void()>& setup = {});
 
 // ---------------------------------------------------------------------------
 // Output

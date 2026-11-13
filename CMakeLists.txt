@@ -77,12 +77,15 @@ target_compile_options(computeedge_cpu PRIVATE ${CE_WARNINGS})
 # Metal backend. Kernels are compiled at runtime (newLibraryWithSource:), so
 # no offline Metal toolchain is needed; the .metal sources are embedded here.
 # ---------------------------------------------------------------------------
-set(CE_METAL_KERNELS ${CMAKE_CURRENT_SOURCE_DIR}/src/metal/kernels/matmul.metal)
+set(CE_METAL_KERNELS
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/metal/kernels/matmul.metal
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/metal/kernels/probes.metal)
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CE_METAL_KERNELS})
 file(READ src/metal/kernels/matmul.metal CE_MSL_MATMUL)
+file(READ src/metal/kernels/probes.metal CE_MSL_PROBES)
 configure_file(src/metal/kernel_sources.h.in ${CMAKE_BINARY_DIR}/generated/computeedge/kernel_sources.h @ONLY)
 
-add_library(computeedge_metal STATIC src/metal/metal_backend.mm)
+add_library(computeedge_metal STATIC src/metal/metal_backend.mm src/metal/probes.mm)
 target_link_libraries(computeedge_metal PUBLIC computeedge_core
   "-framework Metal" "-framework MetalPerformanceShaders" "-framework Foundation")
 target_include_directories(computeedge_metal PRIVATE ${CMAKE_BINARY_DIR}/generated)
@@ -134,6 +137,10 @@ if(CE_BUILD_BENCHMARKS)
   ce_benchmark(metal_matmul benchmarks/baseline/metal_matmul.cpp computeedge_cpu computeedge_metal)
   ce_benchmark(event_log_overhead benchmarks/overhead/event_log.cpp)
   ce_benchmark(ce_env benchmarks/tools/ce_env.cpp)
+  # M5 characterization (Tracks A and B)
+  ce_benchmark(dispatch_overhead benchmarks/dispatch/dispatch_overhead.cpp computeedge_metal)
+  ce_benchmark(sync_methods benchmarks/synchronization/sync_methods.cpp computeedge_metal)
+  ce_benchmark(storage_modes benchmarks/storage_modes/storage_modes.cpp computeedge_metal)
 endif()
 
 # ---------------------------------------------------------------------------
@@ -158,6 +165,7 @@ if(CE_BUILD_TESTS)
     tests/matmul_tests.cpp
     tests/benchmark_tests.cpp
     tests/backend_tests.cpp
+    tests/probe_tests.cpp
   )
   target_link_libraries(computeedge_tests PRIVATE computeedge computeedge_bench GTest::gtest_main)
   target_compile_options(computeedge_tests PRIVATE -Wall -Wextra)
