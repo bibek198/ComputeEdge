@@ -93,6 +93,29 @@ cmake --preset debug   && cmake --build --preset debug   && ctest --preset debug
   - Prevention: every later text replacement excludes `data/` and `paper/generated/`. Phase 8 makes the data
     zone write-protected for analysis code.
 
+## Shared harness (Phase 3)
+
+- **What moved.** `benchmarks/harness/` (namespace `computeedge::bench::harness`) replaces `bench_common.h` and the
+  private copies in `cpu_matmul`, `metal_matmul` and `event_log_overhead`. The modules are `cli`, `console`,
+  `results`, `host_memory`, `correctness` and `gpu`, plus a header-only `hot_path.h`.
+- **Hot-path helpers stay inlinable.** `read_all`, `g_sink`, `spin_for`, `timed_ns` and `median_ns` are header-only
+  `inline` functions, identical to the three former copies, so the measured loops compile as before.
+- **Per-binary common-flag sets.** Each binary enables exactly the flags it accepted before. For example,
+  `cpu_matmul` still rejects `--prewarm-ms`, and `event_log_overhead` accepts only `--reps`, `--out` and `--no-write`.
+- **D14 kept.** The two pre-warm workloads are named enumerators (`GpuStreamWritePrivate64MiB`,
+  `MetalMatmulShared256`). They reproduce the original loops exactly, and each benchmark passes its own.
+- **Tests.** 18 harness tests pin:
+  - the parser defaults (identical to pre-refactor);
+  - rejection of disabled flags and missing values (death tests, exit code 2);
+  - the exact pre-warm workload identities, and that they stay distinct;
+  - the exact probe and matmul timing key sets;
+  - the split helpers, host memory, correctness helpers and hot-path helpers.
+- **Error-message text changes** (error paths only; valid invocations unaffected):
+  - `event_log_overhead` usage errors now use the shared `error: … / see the header of …` format, and a missing
+    value is reported as such instead of as an unknown argument. The exit code is still 2.
+  - The `followups` allocation-failure message now includes the byte count. The exit code is still 1.
+- **Link hygiene.** Each binary links exactly what it needs. `cpu_matmul` links no Metal code, as before.
+
 ## Gate results
 
 | Phase | Gate | Result |
@@ -107,3 +130,6 @@ cmake --preset debug   && cmake --build --preset debug   && ctest --preset debug
 | 2a | Equivalence gate; 162 tests in both presets; headers self-contained | PASS |
 | 2b | Equivalence gate | PASS |
 | 2c | Baseline hashes at new paths (137/137); manifest hash column unchanged; equivalence gate | PASS |
+| 3 | Schema and execution traces identical (incl. per-binary pre-warm workloads, D14) | PASS |
+| 3 | 180 tests pass in release and debug (ASan/UBSan), incl. 18 harness tests; no build or link warnings | PASS |
+| 3 | Equivalence gate | PASS |
