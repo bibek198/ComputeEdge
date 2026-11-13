@@ -69,6 +69,30 @@ cmake --preset debug   && cmake --build --preset debug   && ctest --preset debug
   | ruff | 144 (69 missing docstrings, lambdas, loop-variable capture, line length, naming) | phase 5 |
   | shellcheck | 1 (`run_session.sh`) | phase 8 |
 
+## Layout and data move (Phase 2)
+
+- **2a, C++ modules.** `include/computeedge/{core,cpu,metal,bench}/` with `src/` and `tests/` mirroring them.
+  `benchmark.h`/`.cpp` were split by section into `bench/{stats,environment,runner,result_writer,trace}`, and
+  `ops.h` into `cpu/matmul.h` plus `core/validate.h`. The tests were split by suite into `*_test.cpp`. Code was moved
+  verbatim. All 162 tests pass in both presets, and every public header compiles on its own.
+- **2b, binaries.** `benchmarks/<binary>/main.cpp`, `benchmarks/harness/`, `benchmarks/mlx_matmul/`,
+  `tools/ce_env/` and `scripts/`. Code was moved verbatim. Built binaries keep their paths.
+- **2c, data.** `benchmarks/results/` became `data/`, with `sessions/orig/` (15 original runs), `sessions/<id>/`,
+  `derived/` and `exclusions.json`, all moved with `git mv`.
+  - **Manifest:** the old file with its paths rewritten, not re-hashed. Its first 137 hash fields are identical to
+    the retained baseline. Three entries were appended for a committed claims report
+    (`confirm-20261114-011725`) that predates the refactor and had never been added.
+- **The one intentional default change.** The default `--out` of every benchmark (C++ and MLX) moved from
+  `benchmarks/results`, which no longer exists, to `data/scratch/`, which is git-ignored. Ad-hoc runs can no longer
+  enter the original session. Schema and trace snapshots pass `--out` explicitly, so they are unaffected.
+- **Incident, caught and reverted before commit.** A bulk replacement of path strings in comments and docs also
+  edited two committed report files under `data/derived/reports/` and the generated `paper/generated/numbers.tex`.
+  - Detection: the manifest check and a byte comparison.
+  - Fix: the files were restored from the git index / HEAD, and both are byte-identical to `pre-refactor`
+    (verified with `cmp`).
+  - Prevention: every later text replacement excludes `data/` and `paper/generated/`. Phase 8 makes the data
+    zone write-protected for analysis code.
+
 ## Gate results
 
 | Phase | Gate | Result |
@@ -80,3 +104,6 @@ cmake --preset debug   && cmake --build --preset debug   && ctest --preset debug
 | 1 | Include sorting is reordering-only | PASS |
 | 1 | Both presets build with `-Werror`; 162 tests pass | PASS |
 | 1 | Equivalence gate after formatting (data, schema, traces, claims, numbers) | PASS |
+| 2a | Equivalence gate; 162 tests in both presets; headers self-contained | PASS |
+| 2b | Equivalence gate | PASS |
+| 2c | Baseline hashes at new paths (137/137); manifest hash column unchanged; equivalence gate | PASS |
