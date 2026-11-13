@@ -1,0 +1,6 @@
+benchmark,log,n_samples,inner_iterations,median_ns,p25_ns,p75_ns,iqr_ns,ci95_lo_ns,ci95_hi_ns,mean_ns,stddev_ns,min_ns,max_ns,gflops_median,thermal_before,thermal_after
+emit,disabled,30,1048576,1.5084,1.46644,1.56073,0.0942843,1.48513,1.55179,1.5872,0.28831,1.35128,2.89583,0,nominal,nominal
+emit,enabled,30,65536,15.8752,15.0727,17.8051,2.73244,15.3265,16.5481,18.0915,8.39045,14.3433,60.8857,0,nominal,nominal
+scoped_timer,disabled,30,131072,14.4458,14.2714,14.7836,0.512199,14.3181,14.7149,14.5892,0.451857,14.1182,15.8469,0,nominal,nominal
+scoped_timer,enabled,30,32768,45.564,45.4168,45.7338,0.316925,45.5214,45.7153,45.5577,0.568896,43.5855,46.6296,0,nominal,nominal
+now_ns,,30,131072,9.59826,9.5636,9.77778,0.21418,9.56599,9.69505,9.71762,0.256244,9.5218,10.5432,0,nominal,nominal
