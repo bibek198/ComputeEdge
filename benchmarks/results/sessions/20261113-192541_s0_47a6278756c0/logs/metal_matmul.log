@@ -1,0 +1,142 @@
+ComputeEdge Metal matmul benchmark
+  Apple M4 / Apple M4 (Mac16,12), macOS 26.4.1 (25E253)
+  power: AC Power, thermal: nominal, build: Release, git 47a6278756c0
+
+matmul_metal_cold k=64 m=64 n=64 storage=nocopy  median 2849.875 us  IQR 0.000 us  CI95 [2849.875, 2849.875] us
+    buffer_ns      median     15.375 us  IQR    0.000 us
+    commit_ns      median     15.834 us  IQR    0.000 us
+    compile_ns     median   1282.042 us  IQR    0.000 us
+    copy_in_ns     median      0.500 us  IQR    0.000 us
+    copy_out_ns    median      0.000 us  IQR    0.000 us
+    encode_ns      median    120.958 us  IQR    0.000 us
+    gpu_ns         median     19.125 us  IQR    0.000 us
+    queue_ns       median   1250.750 us  IQR    0.000 us
+    sched_ns       median    970.000 us  IQR    0.000 us
+    wait_ns        median   1390.458 us  IQR    0.000 us
+    wake_ns        median    120.583 us  IQR    0.000 us
+     [nominal->nominal, x1]
+
+GPU pre-warm: 2788 dispatches over 1000 ms
+
+matmul_metal backend=metal dtype=f32 k=128 kernel=mps m=128 n=128 storage=nocopy  median 204.708 us  IQR 6.396 us  CI95 [202.292, 206.854] us  20.5 GFLOP/s
+    buffer_ns      median      6.208 us  IQR    0.281 us
+    commit_ns      median      1.750 us  IQR    0.115 us
+    copy_in_ns     median      0.083 us  IQR    0.001 us
+    copy_out_ns    median      0.000 us  IQR    0.000 us
+    encode_ns      median     22.834 us  IQR    0.229 us
+    gpu_ns         median      9.916 us  IQR    0.354 us
+    queue_ns       median     84.041 us  IQR    6.303 us
+    sched_ns       median     10.312 us  IQR    1.772 us
+    wait_ns        median    168.042 us  IQR    6.198 us
+    wake_ns        median     74.416 us  IQR    2.823 us
+     [nominal->nominal, x1]
+matmul_metal backend=metal dtype=f32 k=128 kernel=mps m=128 n=128 storage=shared  median 205.520 us  IQR 8.865 us  CI95 [203.625, 209.417] us  20.4 GFLOP/s
+    buffer_ns      median      8.041 us  IQR    1.125 us
+    commit_ns      median      1.292 us  IQR    0.084 us
+    copy_in_ns     median      6.875 us  IQR    1.594 us
+    copy_out_ns    median      4.125 us  IQR    0.334 us
+    encode_ns      median     16.500 us  IQR    5.146 us
+    gpu_ns         median      7.625 us  IQR    0.136 us
+    queue_ns       median     85.853 us  IQR    4.719 us
+    sched_ns       median     12.667 us  IQR    2.375 us
+    wait_ns        median    162.605 us  IQR    5.979 us
+    wake_ns        median     68.188 us  IQR    3.053 us
+     [nominal->nominal, x1]
+matmul_metal backend=metal dtype=f32 k=512 kernel=mps m=512 n=512 storage=nocopy  median 362.417 us  IQR 12.167 us  CI95 [360.104, 369.000] us  740.7 GFLOP/s
+    buffer_ns      median      5.833 us  IQR    0.209 us
+    commit_ns      median      1.250 us  IQR    0.031 us
+    copy_in_ns     median      0.042 us  IQR    0.031 us
+    copy_out_ns    median      0.000 us  IQR    0.000 us
+    encode_ns      median     19.666 us  IQR    1.292 us
+    gpu_ns         median    122.978 us  IQR    1.302 us
+    queue_ns       median    104.208 us  IQR   10.354 us
+    sched_ns       median     34.333 us  IQR    2.729 us
+    wait_ns        median    331.541 us  IQR   10.510 us
+    wake_ns        median    104.833 us  IQR    3.375 us
+     [nominal->nominal, x1]
+matmul_metal backend=metal dtype=f32 k=512 kernel=mps m=512 n=512 storage=shared  median 529.708 us  IQR 13.656 us  CI95 [523.354, 533.167] us  506.8 GFLOP/s
+    buffer_ns      median      7.271 us  IQR    0.886 us
+    commit_ns      median      1.521 us  IQR    0.323 us
+    copy_in_ns     median    103.145 us  IQR    7.750 us
+    copy_out_ns    median     57.499 us  IQR    2.968 us
+    encode_ns      median     16.917 us  IQR    0.427 us
+    gpu_ns         median    114.520 us  IQR    2.188 us
+    queue_ns       median    120.312 us  IQR    7.458 us
+    sched_ns       median     41.250 us  IQR    5.677 us
+    wait_ns        median    337.354 us  IQR   14.761 us
+    wake_ns        median     98.791 us  IQR   10.188 us
+     [nominal->nominal, x1]
+matmul_metal backend=metal dtype=f32 k=1024 kernel=mps m=1024 n=1024 storage=nocopy  median 1427.312 us  IQR 67.219 us  CI95 [1391.812, 1441.167] us  1504.6 GFLOP/s
+    buffer_ns      median     25.854 us  IQR    1.531 us
+    commit_ns      median      1.250 us  IQR    0.271 us
+    copy_in_ns     median      0.334 us  IQR    0.042 us
+    copy_out_ns    median      0.000 us  IQR    0.000 us
+    encode_ns      median     20.084 us  IQR    3.292 us
+    gpu_ns         median    900.729 us  IQR   46.791 us
+    queue_ns       median    247.208 us  IQR   44.510 us
+    sched_ns       median    161.480 us  IQR   39.749 us
+    wait_ns        median   1362.062 us  IQR   72.271 us
+    wake_ns        median    188.896 us  IQR   74.844 us
+     [nominal->nominal, x1]
+matmul_metal backend=metal dtype=f32 k=1024 kernel=mps m=1024 n=1024 storage=shared  median 2076.313 us  IQR 77.469 us  CI95 [2054.749, 2086.583] us  1034.3 GFLOP/s
+    buffer_ns      median     13.479 us  IQR    1.292 us
+    commit_ns      median      2.250 us  IQR    1.218 us
+    copy_in_ns     median    473.166 us  IQR   12.177 us
+    copy_out_ns    median    273.250 us  IQR   35.886 us
+    encode_ns      median     17.938 us  IQR    1.791 us
+    gpu_ns         median    848.042 us  IQR    3.157 us
+    queue_ns       median    271.917 us  IQR   13.198 us
+    sched_ns       median    187.812 us  IQR   13.083 us
+    wait_ns        median   1286.271 us  IQR   33.198 us
+    wake_ns        median    165.625 us  IQR   36.666 us
+     [nominal->nominal, x1]
+matmul_metal backend=metal dtype=f32 k=2048 kernel=mps m=2048 n=2048 storage=nocopy  median 7514.958 us  IQR 80.364 us  CI95 [7501.583, 7540.480] us  2286.1 GFLOP/s
+    buffer_ns      median     22.583 us  IQR    8.261 us
+    commit_ns      median      1.688 us  IQR    1.333 us
+    copy_in_ns     median      0.375 us  IQR    0.084 us
+    copy_out_ns    median      0.000 us  IQR    0.000 us
+    encode_ns      median     18.146 us  IQR    3.458 us
+    gpu_ns         median   6629.020 us  IQR    8.761 us
+    queue_ns       median    641.667 us  IQR   16.480 us
+    sched_ns       median    558.042 us  IQR   21.885 us
+    wait_ns        median   7443.230 us  IQR   76.312 us
+    wake_ns        median    170.458 us  IQR   15.396 us
+     [nominal->nominal, x1]
+matmul_metal backend=metal dtype=f32 k=2048 kernel=mps m=2048 n=2048 storage=shared  median 10482.604 us  IQR 71.635 us  CI95 [10458.501, 10506.938] us  1638.9 GFLOP/s
+    buffer_ns      median     15.209 us  IQR    1.635 us
+    commit_ns      median      3.104 us  IQR    0.594 us
+    copy_in_ns     median   1854.895 us  IQR   45.500 us
+    copy_out_ns    median   1014.833 us  IQR   16.323 us
+    encode_ns      median     25.875 us  IQR    3.490 us
+    gpu_ns         median   6637.562 us  IQR    3.999 us
+    queue_ns       median    738.458 us  IQR   26.177 us
+    sched_ns       median    653.438 us  IQR   25.198 us
+    wait_ns        median   7549.917 us  IQR   44.730 us
+    wake_ns        median    173.000 us  IQR   10.365 us
+     [nominal->nominal, x1]
+matmul_metal backend=metal dtype=f32 k=4096 kernel=mps m=4096 n=4096 storage=nocopy  median 55760.334 us  IQR 304.510 us  CI95 [55698.062, 55875.542] us  2464.8 GFLOP/s
+    buffer_ns      median     26.000 us  IQR    6.333 us
+    commit_ns      median      3.250 us  IQR    1.135 us
+    copy_in_ns     median      0.208 us  IQR    0.198 us
+    copy_out_ns    median      0.000 us  IQR    0.000 us
+    encode_ns      median     39.791 us  IQR   13.239 us
+    gpu_ns         median  53102.750 us  IQR  274.021 us
+    queue_ns       median   2365.834 us  IQR  269.459 us
+    sched_ns       median   2253.750 us  IQR  267.625 us
+    wait_ns        median  55666.105 us  IQR  274.302 us
+    wake_ns        median    178.458 us  IQR   44.104 us
+     [nominal->nominal, x1]
+matmul_metal backend=metal dtype=f32 k=4096 kernel=mps m=4096 n=4096 storage=shared  median 69505.937 us  IQR 752.168 us  CI95 [69279.042, 69726.750] us  1977.4 GFLOP/s
+    buffer_ns      median     45.938 us  IQR    8.167 us
+    commit_ns      median      8.938 us  IQR    1.583 us
+    copy_in_ns     median   8167.146 us  IQR  411.822 us
+    copy_out_ns    median   4480.646 us  IQR  168.864 us
+    encode_ns      median     78.916 us  IQR   11.188 us
+    gpu_ns         median  53038.291 us  IQR  185.875 us
+    queue_ns       median   3301.542 us  IQR  219.417 us
+    sched_ns       median   3210.979 us  IQR  220.406 us
+    wait_ns        median  56602.834 us  IQR  240.104 us
+    wake_ns        median    179.188 us  IQR   44.187 us
+     [nominal->nominal, x1]
+
+Results written to benchmarks/results/sessions/20261113-192541_s0_47a6278756c0/20261113-192606_47a6278756c0

@@ -1,0 +1,54 @@
+ComputeEdge M6 / RQ4: thermal drift under sustained load
+  Apple M4 / Apple M4 (Mac16,12), macOS 26.4.1 (25E253)
+  power: AC Power, thermal: nominal, build: Release, git 47a6278756c0
+
+waiting for thermal state nominal...
+GPU pre-warm: 1017 x 64 MiB writes over 1000 ms
+
+running 15 min, load=mixed, interval 1000 ms
+  t=   1.1 s  cycle    0  thermal nominal   cpu_2048 11.43 ms  gpu_2048 14.05 ms
+  t=  49.4 s  cycle   45  thermal fair      cpu_2048 9.67 ms  gpu_2048 7.47 ms
+  t=  66.0 s  cycle   60  thermal fair      cpu_2048 13.21 ms  gpu_2048 7.62 ms
+  t= 130.3 s  cycle  120  thermal fair      cpu_2048 18.67 ms  gpu_2048 8.12 ms
+  t= 192.3 s  cycle  180  thermal fair      cpu_2048 22.47 ms  gpu_2048 8.90 ms
+  t= 255.3 s  cycle  240  thermal fair      cpu_2048 24.06 ms  gpu_2048 8.94 ms
+  t= 319.6 s  cycle  300  thermal fair      cpu_2048 31.94 ms  gpu_2048 10.37 ms
+  t= 389.2 s  cycle  360  thermal fair      cpu_2048 55.46 ms  gpu_2048 10.70 ms
+  t= 477.4 s  cycle  420  thermal fair      cpu_2048 35.10 ms  gpu_2048 11.66 ms
+  t= 515.3 s  cycle  434  thermal nominal   cpu_2048 161.38 ms  gpu_2048 30.33 ms
+  t= 636.5 s  cycle  480  thermal nominal   cpu_2048 154.59 ms  gpu_2048 13.40 ms
+  t= 788.2 s  cycle  540  thermal nominal   cpu_2048 235.29 ms  gpu_2048 21.11 ms
+  t= 875.0 s  cycle  600  thermal nominal   cpu_2048 59.23 ms  gpu_2048 16.48 ms
+done: 619 cycles
+thermal_drift load=mixed window_min=0 workload=cpu_2048  median 11385.938 us  IQR 1986.021 us  CI95 [10836.896, 12032.875] us  1508.9 GFLOP/s  [nominal->fair, x1]
+thermal_drift load=mixed window_min=0 workload=gpu_2048  median 7580.770 us  IQR 148.458 us  CI95 [7548.396, 7624.871] us  2266.2 GFLOP/s  [nominal->fair, x1]
+thermal_drift load=mixed window_min=1 workload=cpu_2048  median 13241.916 us  IQR 4664.468 us  CI95 [12461.376, 15177.682] us  1297.4 GFLOP/s  [fair->fair, x1]
+thermal_drift load=mixed window_min=1 workload=gpu_2048  median 7963.938 us  IQR 451.240 us  CI95 [7856.895, 8059.839] us  2157.2 GFLOP/s  [fair->fair, x1]
+thermal_drift load=mixed window_min=2 workload=cpu_2048  median 21598.958 us  IQR 1939.188 us  CI95 [21290.250, 22188.708] us  795.4 GFLOP/s  [fair->fair, x1]
+thermal_drift load=mixed window_min=2 workload=gpu_2048  median 8688.459 us  IQR 304.291 us  CI95 [8588.794, 8756.208] us  1977.3 GFLOP/s  [fair->fair, x1]
+thermal_drift load=mixed window_min=3 workload=cpu_2048  median 22567.916 us  IQR 2608.249 us  CI95 [22152.042, 23671.542] us  761.3 GFLOP/s  [fair->fair, x1]
+thermal_drift load=mixed window_min=3 workload=gpu_2048  median 9127.083 us  IQR 399.041 us  CI95 [8990.167, 9228.250] us  1882.3 GFLOP/s  [fair->fair, x1]
+thermal_drift load=mixed window_min=4 workload=cpu_2048  median 24215.250 us  IQR 5359.167 us  CI95 [23953.417, 24700.333] us  709.5 GFLOP/s  [fair->fair, x1]
+thermal_drift load=mixed window_min=4 workload=gpu_2048  median 9200.792 us  IQR 416.959 us  CI95 [9123.250, 9364.750] us  1867.2 GFLOP/s  [fair->fair, x1]
+thermal_drift load=mixed window_min=5 workload=cpu_2048  median 27088.729 us  IQR 7217.583 us  CI95 [25412.062, 29222.000] us  634.2 GFLOP/s  [fair->fair, x1]
+thermal_drift load=mixed window_min=5 workload=gpu_2048  median 10579.791 us  IQR 902.145 us  CI95 [10361.792, 10824.509] us  1623.8 GFLOP/s  [fair->fair, x1]
+thermal_drift load=mixed window_min=6 workload=cpu_2048  median 51489.291 us  IQR 49861.510 us  CI95 [41612.541, 68168.959] us  333.7 GFLOP/s  [fair->fair, x1]
+thermal_drift load=mixed window_min=6 workload=gpu_2048  median 11187.062 us  IQR 2622.104 us  CI95 [10648.958, 11531.937] us  1535.7 GFLOP/s  [fair->fair, x1]
+thermal_drift load=mixed window_min=7 workload=cpu_2048  median 36668.583 us  IQR 22867.750 us  CI95 [34235.250, 46221.416] us  468.5 GFLOP/s  [fair->fair, x1]
+thermal_drift load=mixed window_min=7 workload=gpu_2048  median 11658.417 us  IQR 1359.334 us  CI95 [11192.917, 12120.791] us  1473.6 GFLOP/s  [fair->fair, x1]
+thermal_drift load=mixed window_min=8 workload=cpu_2048  median 177866.166 us  IQR 63500.042 us  CI95 [167017.083, 206310.459] us  96.6 GFLOP/s  [fair->nominal, x1]
+thermal_drift load=mixed window_min=8 workload=gpu_2048  median 30330.125 us  IQR 36873.667 us  CI95 [25108.750, 55559.458] us  566.4 GFLOP/s  [fair->nominal, x1]
+thermal_drift load=mixed window_min=9 workload=cpu_2048  median 162969.083 us  IQR 9736.666 us  CI95 [158947.209, 166358.917] us  105.4 GFLOP/s  [nominal->nominal, x1]
+thermal_drift load=mixed window_min=9 workload=gpu_2048  median 15429.083 us  IQR 42044.854 us  CI95 [14818.583, 54757.875] us  1113.5 GFLOP/s  [nominal->nominal, x1]
+thermal_drift load=mixed window_min=10 workload=cpu_2048  median 155661.688 us  IQR 9644.511 us  CI95 [151339.459, 158248.125] us  110.4 GFLOP/s  [nominal->nominal, x1]
+thermal_drift load=mixed window_min=10 workload=gpu_2048  median 15437.750 us  IQR 40072.230 us  CI95 [14134.416, 52431.000] us  1112.8 GFLOP/s  [nominal->nominal, x1]
+thermal_drift load=mixed window_min=11 workload=cpu_2048  median 157461.292 us  IQR 15022.896 us  CI95 [152007.750, 162993.125] us  109.1 GFLOP/s  [nominal->nominal, x1]
+thermal_drift load=mixed window_min=11 workload=gpu_2048  median 21251.542 us  IQR 39150.625 us  CI95 [14936.875, 52748.125] us  808.4 GFLOP/s  [nominal->nominal, x1]
+thermal_drift load=mixed window_min=12 workload=cpu_2048  median 155819.167 us  IQR 8510.990 us  CI95 [152918.958, 158866.792] us  110.3 GFLOP/s  [nominal->nominal, x1]
+thermal_drift load=mixed window_min=12 workload=gpu_2048  median 15232.209 us  IQR 36945.031 us  CI95 [14352.818, 49982.584] us  1127.9 GFLOP/s  [nominal->nominal, x1]
+thermal_drift load=mixed window_min=13 workload=cpu_2048  median 67248.500 us  IQR 26277.959 us  CI95 [56954.792, 73087.792] us  255.5 GFLOP/s  [nominal->nominal, x1]
+thermal_drift load=mixed window_min=13 workload=gpu_2048  median 16340.625 us  IQR 21274.208 us  CI95 [14983.333, 34722.625] us  1051.4 GFLOP/s  [nominal->nominal, x1]
+thermal_drift load=mixed window_min=14 workload=cpu_2048  median 62897.834 us  IQR 25566.844 us  CI95 [50044.459, 67213.458] us  273.1 GFLOP/s  [nominal->nominal, x1]
+thermal_drift load=mixed window_min=14 workload=gpu_2048  median 16343.104 us  IQR 22196.438 us  CI95 [15245.354, 35188.479] us  1051.2 GFLOP/s  [nominal->nominal, x1]
+
+Results written to benchmarks/results/sessions/20261113-192541_s0_47a6278756c0/20261113-194304_47a6278756c0

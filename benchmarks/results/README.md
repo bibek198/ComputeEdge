@@ -15,6 +15,10 @@ or delete them.**
   changes) and carries `env.json`: chip, OS build, power source, Low Power Mode, thermal state, compiler, flags,
   build type and git SHA. The code that produced a run is `git checkout <sha>`.
 
+- **Excluded, not deleted.** A run invalidated by something outside the experiment (power source change, a
+  concurrent heavy app) is listed in `exclusions.json` with the evidence, and left out of every analysis. Its
+  files stay. Never exclude a run because its result is inconvenient.
+
 ## Layout
 
 | Path | Contents |

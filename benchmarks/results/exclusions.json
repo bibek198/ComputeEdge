@@ -1,0 +1,13 @@
+{
+  "_policy": "Runs listed here stay on disk (raw data is immutable) but are left out of every analysis. Each entry needs the evidence for excluding it. Never exclude a run because its result is inconvenient.",
+  "excluded_runs": [
+    {
+      "run": "sessions/20261113-192541_s0_47a6278756c0/20261113-194304_47a6278756c0",
+      "benchmark": "thermal_drift",
+      "reason": "Power source changed mid-run and a concurrent camera/microphone/WebRTC video call overlapped it. The run started on AC Power at 19:28 (env.json); the pmset log shows 'Using Batt' from 19:36:04 onward; camera, audio and Chrome WebRTC power assertions were active from about 19:34 to 19:42. From t=~600 s, cycles stretched from 1 s to ~2.6 s and CPU SGEMM 2048^2 degraded to 154 ms, while macOS reported thermal state nominal.",
+      "evidence": "pmset -g log, 2026-11-13 19:28-19:43 +0530; logs/thermal_drift.log in the session directory",
+      "decided": "2026-11-13",
+      "guard_added": "thermal_drift now checks the power source every cycle and stops (exit 3, valid=no_power_changed); run_session.sh stops a session that loses AC power and records conditions.csv"
+    }
+  ]
+}

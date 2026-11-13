@@ -1,0 +1,230 @@
+ComputeEdge M6: follow-ups to open M5 findings
+  Apple M4 / Apple M4 (Mac16,12), macOS 26.4.1 (25E253)
+  power: AC Power, thermal: nominal, build: Release, git 47a6278756c0
+
+GPU pre-warm: 1047 x 64 MiB writes over 1000 ms
+
+followup_wake bytes=1048576 experiment=wake size=1M stream=read sync=spin_event  median 150.770 us  IQR 5.636 us  CI95 [149.020, 151.958] us
+    commit_ns      median      1.125 us  IQR    0.292 us
+    encode_ns      median      2.626 us  IQR    0.583 us
+    gpu_ns         median      9.562 us  IQR    0.084 us
+    queue_ns       median     81.334 us  IQR    1.615 us
+    total_ns       median    140.292 us  IQR    5.697 us
+    wait_ns        median    135.938 us  IQR    4.938 us
+    wake_ns        median     44.729 us  IQR    3.990 us
+     [nominal->nominal, x1]
+followup_wake bytes=1048576 experiment=wake size=1M stream=write sync=spin_event  median 181.812 us  IQR 23.000 us  CI95 [174.896, 191.354] us
+    commit_ns      median      0.958 us  IQR    0.125 us
+    encode_ns      median      2.542 us  IQR    0.199 us
+    gpu_ns         median     18.459 us  IQR    0.115 us
+    queue_ns       median     65.084 us  IQR   22.385 us
+    total_ns       median    172.854 us  IQR   21.990 us
+    wait_ns        median    169.375 us  IQR   21.688 us
+    wake_ns        median     84.896 us  IQR    2.396 us
+     [nominal->nominal, x1]
+followup_wake bytes=4194304 experiment=wake size=4M stream=read sync=spin_event  median 208.750 us  IQR 16.730 us  CI95 [206.083, 214.958] us
+    commit_ns      median      1.042 us  IQR    0.209 us
+    encode_ns      median      2.500 us  IQR    0.302 us
+    gpu_ns         median     57.459 us  IQR    0.271 us
+    queue_ns       median     64.271 us  IQR    8.073 us
+    total_ns       median    199.313 us  IQR   17.302 us
+    wait_ns        median    195.792 us  IQR   16.854 us
+    wake_ns        median     74.375 us  IQR    4.093 us
+     [nominal->nominal, x1]
+followup_wake bytes=4194304 experiment=wake size=4M stream=write sync=spin_event  median 223.833 us  IQR 12.426 us  CI95 [220.938, 229.521] us
+    commit_ns      median      0.917 us  IQR    0.229 us
+    encode_ns      median      2.542 us  IQR    0.521 us
+    gpu_ns         median     53.230 us  IQR    0.510 us
+    queue_ns       median     59.500 us  IQR   12.333 us
+    total_ns       median    215.167 us  IQR   11.958 us
+    wait_ns        median    211.605 us  IQR   11.229 us
+    wake_ns        median     97.438 us  IQR    1.875 us
+     [nominal->nominal, x1]
+followup_wake bytes=16777216 experiment=wake size=16M stream=read sync=spin_event  median 463.375 us  IQR 17.354 us  CI95 [453.853, 468.896] us
+    commit_ns      median      1.209 us  IQR    0.208 us
+    encode_ns      median      2.979 us  IQR    0.240 us
+    gpu_ns         median    212.958 us  IQR    0.895 us
+    queue_ns       median    106.667 us  IQR   11.792 us
+    total_ns       median    439.417 us  IQR   17.021 us
+    wait_ns        median    435.522 us  IQR   17.208 us
+    wake_ns        median    114.229 us  IQR   12.156 us
+     [nominal->nominal, x1]
+followup_wake bytes=16777216 experiment=wake size=16M stream=write sync=spin_event  median 446.563 us  IQR 10.041 us  CI95 [443.229, 450.688] us
+    commit_ns      median      1.166 us  IQR    0.115 us
+    encode_ns      median      2.917 us  IQR    0.125 us
+    gpu_ns         median    207.520 us  IQR    0.615 us
+    queue_ns       median    101.646 us  IQR    9.427 us
+    total_ns       median    422.084 us  IQR    9.677 us
+    wait_ns        median    417.896 us  IQR   10.000 us
+    wake_ns        median    109.312 us  IQR    2.511 us
+     [nominal->nominal, x1]
+followup_wake bytes=67108864 experiment=wake size=64M stream=read sync=spin_event  median 860.312 us  IQR 25.645 us  CI95 [855.562, 870.792] us
+    commit_ns      median      1.167 us  IQR    0.208 us
+    encode_ns      median      2.938 us  IQR    0.145 us
+    gpu_ns         median    634.333 us  IQR   28.677 us
+    queue_ns       median     94.583 us  IQR    2.386 us
+    total_ns       median    834.562 us  IQR   24.104 us
+    wait_ns        median    830.625 us  IQR   24.312 us
+    wake_ns        median     99.938 us  IQR    3.146 us
+     [nominal->nominal, x1]
+followup_wake bytes=67108864 experiment=wake size=64M stream=write sync=spin_event  median 882.458 us  IQR 17.458 us  CI95 [879.500, 891.542] us
+    commit_ns      median      1.167 us  IQR    0.157 us
+    encode_ns      median      3.000 us  IQR    0.156 us
+    gpu_ns         median    659.105 us  IQR    9.864 us
+    queue_ns       median     91.666 us  IQR    2.761 us
+    total_ns       median    857.958 us  IQR   16.999 us
+    wait_ns        median    853.250 us  IQR   16.676 us
+    wake_ns        median    102.708 us  IQR    2.719 us
+     [nominal->nominal, x1]
+followup_wake bytes=268435456 experiment=wake size=256M stream=read sync=spin_event  median 2778.104 us  IQR 118.448 us  CI95 [2759.771, 2839.125] us
+    commit_ns      median      1.687 us  IQR    0.594 us
+    encode_ns      median      3.458 us  IQR    1.114 us
+    gpu_ns         median   2552.667 us  IQR  110.645 us
+    queue_ns       median     93.916 us  IQR    1.897 us
+    total_ns       median   2752.167 us  IQR  118.729 us
+    wait_ns        median   2744.729 us  IQR  120.312 us
+    wake_ns        median     99.395 us  IQR    4.905 us
+     [nominal->nominal, x1]
+followup_wake bytes=268435456 experiment=wake size=256M stream=write sync=spin_event  median 3017.083 us  IQR 34.052 us  CI95 [3008.938, 3032.646] us
+    commit_ns      median      1.500 us  IQR    0.615 us
+    encode_ns      median      3.312 us  IQR    0.781 us
+    gpu_ns         median   2783.438 us  IQR   28.073 us
+    queue_ns       median     92.270 us  IQR    1.562 us
+    total_ns       median   2990.166 us  IQR   33.822 us
+    wait_ns        median   2985.416 us  IQR   32.646 us
+    wake_ns        median    110.104 us  IQR    2.833 us
+     [nominal->nominal, x1]
+followup_cpu_write bytes=67108864 experiment=cpu_write size=64M source=memalign  median 2502.729 us  IQR 35.584 us  CI95 [2492.209, 2518.334] us
+    memset_ns      median    746.229 us  IQR   16.771 us
+    read_ns        median   1008.417 us  IQR   30.084 us
+    store_loop_ns  median    748.771 us  IQR   13.479 us
+     [nominal->nominal, x1]
+followup_cpu_write bytes=67108864 experiment=cpu_write size=64M source=mmap  median 2522.959 us  IQR 29.240 us  CI95 [2514.791, 2535.125] us
+    memset_ns      median    749.646 us  IQR   14.593 us
+    read_ns        median   1017.229 us  IQR   29.052 us
+    store_loop_ns  median    753.708 us  IQR   11.927 us
+     [nominal->nominal, x1]
+followup_cpu_write bytes=67108864 experiment=cpu_write size=64M source=shared  median 2527.791 us  IQR 37.812 us  CI95 [2520.021, 2534.791] us
+    memset_ns      median    752.375 us  IQR   21.418 us
+    read_ns        median   1010.625 us  IQR   25.761 us
+    store_loop_ns  median    757.188 us  IQR   25.468 us
+     [nominal->nominal, x1]
+followup_cpu_write bytes=67108864 experiment=cpu_write size=64M source=shared_wc  median 21593.020 us  IQR 126.312 us  CI95 [21570.375, 21655.229] us
+    memset_ns      median    916.042 us  IQR   12.239 us
+    read_ns        median  19737.105 us  IQR  118.708 us
+    store_loop_ns  median    914.417 us  IQR    9.365 us
+     [nominal->nominal, x1]
+followup_cpu_write bytes=67108864 experiment=cpu_write size=64M source=nocopy_mmap  median 2524.229 us  IQR 27.459 us  CI95 [2514.104, 2530.709] us
+    memset_ns      median    750.042 us  IQR   17.301 us
+    read_ns        median   1013.979 us  IQR   20.552 us
+    store_loop_ns  median    753.250 us  IQR   10.000 us
+     [nominal->nominal, x1]
+followup_cpu_write_fresh bytes=67108864 experiment=cpu_write_fresh size=64M source=shared  median 6590.938 us  IQR 144.542 us  CI95 [6561.875, 6657.917] us
+    write1_ns      median   3400.375 us  IQR   87.146 us
+    write2_ns      median   1349.021 us  IQR   59.666 us
+    write3_ns      median    917.250 us  IQR    5.230 us
+    write4_ns      median    914.355 us  IQR    8.552 us
+     [nominal->nominal, x1]
+followup_cpu_write_fresh bytes=67108864 experiment=cpu_write_fresh size=64M source=nocopy  median 3664.729 us  IQR 35.176 us  CI95 [3661.916, 3677.646] us
+    write1_ns      median    920.520 us  IQR   11.501 us
+    write2_ns      median    917.667 us  IQR    9.396 us
+    write3_ns      median    914.375 us  IQR    9.374 us
+    write4_ns      median    914.333 us  IQR    8.114 us
+     [nominal->nominal, x1]
+followup_cpu_write_fresh bytes=67108864 experiment=cpu_write_fresh size=64M source=memalign  median 3666.000 us  IQR 31.156 us  CI95 [3659.416, 3680.750] us
+    write1_ns      median    914.292 us  IQR    7.396 us
+    write2_ns      median    914.354 us  IQR    4.479 us
+    write3_ns      median    914.437 us  IQR    9.354 us
+    write4_ns      median    915.917 us  IQR   18.980 us
+     [nominal->nominal, x1]
+followup_gpu_write bytes=134217728 experiment=gpu_write layout=one_buffer size=128M  median 4946.667 us  IQR 289.344 us  CI95 [4789.980, 4984.583] us
+    commit_ns      median      3.938 us  IQR    3.146 us
+    encode_ns      median      8.396 us  IQR    3.438 us
+    gpu_ns         median   1425.479 us  IQR  140.022 us
+    queue_ns       median     95.292 us  IQR    6.511 us
+    total_ns       median   1685.021 us  IQR  154.562 us
+    two_pass_gpu_ns median   2906.083 us  IQR  207.636 us
+    wait_ns        median   1671.729 us  IQR  151.583 us
+    wake_ns        median    158.333 us  IQR   19.552 us
+     [nominal->nominal, x1]
+followup_gpu_write bytes=201326592 experiment=gpu_write layout=one_buffer size=192M  median 6989.271 us  IQR 284.438 us  CI95 [6930.854, 7117.646] us
+    commit_ns      median      6.417 us  IQR    2.604 us
+    encode_ns      median     14.125 us  IQR    5.187 us
+    gpu_ns         median   2152.375 us  IQR  138.375 us
+    queue_ns       median    102.188 us  IQR    8.990 us
+    total_ns       median   2437.729 us  IQR  129.448 us
+    two_pass_gpu_ns median   4271.812 us  IQR  169.792 us
+    wait_ns        median   2413.458 us  IQR  125.198 us
+    wake_ns        median    147.250 us  IQR   23.522 us
+     [nominal->nominal, x1]
+followup_gpu_write bytes=268435456 experiment=gpu_write layout=one_buffer size=256M  median 9078.396 us  IQR 303.135 us  CI95 [9001.687, 9182.312] us
+    commit_ns      median      8.417 us  IQR    4.343 us
+    encode_ns      median     15.751 us  IQR    5.792 us
+    gpu_ns         median   2809.542 us  IQR  171.438 us
+    queue_ns       median    108.584 us  IQR   10.354 us
+    total_ns       median   3095.521 us  IQR  175.397 us
+    two_pass_gpu_ns median   5635.562 us  IQR  149.615 us
+    wait_ns        median   3066.209 us  IQR  172.677 us
+    wake_ns        median    154.917 us  IQR   17.302 us
+     [nominal->nominal, x1]
+followup_gpu_write bytes=335544320 experiment=gpu_write layout=one_buffer size=320M  median 11552.938 us  IQR 517.125 us  CI95 [11434.209, 11766.396] us
+    commit_ns      median      9.000 us  IQR    3.167 us
+    encode_ns      median     20.250 us  IQR    5.115 us
+    gpu_ns         median   3595.041 us  IQR  194.218 us
+    queue_ns       median    110.083 us  IQR    6.030 us
+    total_ns       median   3896.104 us  IQR  187.979 us
+    two_pass_gpu_ns median   7317.000 us  IQR  366.500 us
+    wait_ns        median   3867.584 us  IQR  178.594 us
+    wake_ns        median    154.145 us  IQR   26.062 us
+     [nominal->nominal, x1]
+followup_gpu_write bytes=402653184 experiment=gpu_write layout=one_buffer size=384M  median 14470.521 us  IQR 263.479 us  CI95 [14439.584, 14593.562] us
+    commit_ns      median      8.021 us  IQR    3.427 us
+    encode_ns      median     10.749 us  IQR    4.802 us
+    gpu_ns         median   4617.875 us  IQR  121.782 us
+    queue_ns       median    103.834 us  IQR   14.136 us
+    total_ns       median   4910.562 us  IQR  145.823 us
+    two_pass_gpu_ns median   9247.729 us  IQR  233.822 us
+    wait_ns        median   4888.105 us  IQR  135.052 us
+    wake_ns        median    168.750 us  IQR   17.146 us
+     [nominal->nominal, x1]
+followup_gpu_write bytes=536870912 experiment=gpu_write layout=one_buffer size=512M  median 23132.000 us  IQR 1942.052 us  CI95 [21688.292, 23389.125] us
+    commit_ns      median      6.167 us  IQR    4.677 us
+    encode_ns      median     14.875 us  IQR    9.198 us
+    gpu_ns         median   7500.770 us  IQR  686.447 us
+    queue_ns       median    102.500 us  IQR   16.521 us
+    total_ns       median   7812.271 us  IQR  630.303 us
+    two_pass_gpu_ns median  14995.250 us  IQR 1264.802 us
+    wait_ns        median   7789.000 us  IQR  660.323 us
+    wake_ns        median    175.437 us  IQR   23.105 us
+     [nominal->nominal, x1]
+followup_gpu_write bytes=536870912 experiment=gpu_write layout=256M_chunks size=512M  median 6442.688 us  IQR 717.698 us  CI95 [6309.021, 6603.333] us
+    gpu_ns         median   6128.791 us  IQR  648.532 us
+     [nominal->nominal, x1]
+followup_gpu_write bytes=805306368 experiment=gpu_write layout=one_buffer size=768M  median 51535.396 us  IQR 308.166 us  CI95 [51428.375, 51639.020] us
+    commit_ns      median      6.792 us  IQR    5.188 us
+    encode_ns      median     13.750 us  IQR    5.699 us
+    gpu_ns         median  16965.833 us  IQR  130.853 us
+    queue_ns       median    102.187 us  IQR    9.010 us
+    total_ns       median  17273.334 us  IQR  118.136 us
+    two_pass_gpu_ns median  33905.000 us  IQR  134.177 us
+    wait_ns        median  17258.417 us  IQR  115.490 us
+    wake_ns        median    180.646 us  IQR   35.187 us
+     [nominal->nominal, x1]
+followup_gpu_write bytes=805306368 experiment=gpu_write layout=256M_chunks size=768M  median 8872.000 us  IQR 315.000 us  CI95 [8843.646, 9010.688] us
+    gpu_ns         median   8544.562 us  IQR  308.406 us
+     [nominal->nominal, x1]
+followup_gpu_write bytes=1073741824 experiment=gpu_write layout=one_buffer size=1G  median 87529.042 us  IQR 2291.021 us  CI95 [87008.417, 88125.542] us
+    commit_ns      median      3.438 us  IQR    4.905 us
+    encode_ns      median     20.729 us  IQR    4.697 us
+    gpu_ns         median  29011.562 us  IQR  649.126 us
+    queue_ns       median    103.792 us  IQR    7.396 us
+    total_ns       median  29302.792 us  IQR  659.353 us
+    two_pass_gpu_ns median  57933.188 us  IQR 1651.156 us
+    wait_ns        median  29276.355 us  IQR  662.759 us
+    wake_ns        median    183.333 us  IQR   16.448 us
+     [nominal->nominal, x1]
+followup_gpu_write bytes=1073741824 experiment=gpu_write layout=256M_chunks size=1G  median 12840.667 us  IQR 731.677 us  CI95 [12522.958, 12966.167] us
+    gpu_ns         median  12540.354 us  IQR  694.625 us
+     [nominal->nominal, x1]
+
+Results written to benchmarks/results/sessions/20261113-192541_s0_47a6278756c0/20261113-192624_47a6278756c0

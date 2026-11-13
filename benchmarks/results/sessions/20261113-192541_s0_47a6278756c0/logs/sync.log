@@ -1,0 +1,233 @@
+ComputeEdge M5 / Track A: synchronization methods and idle gaps
+  Apple M4 / Apple M4 (Mac16,12), macOS 26.4.1 (25E253)
+  power: AC Power, thermal: nominal, build: Release, git 47a6278756c0
+
+GPU pre-warm: 1006 x 64 MiB writes over 1000 ms
+
+sync_method experiment=methods sync=completion_handler work=empty  median 164.167 us  IQR 18.688 us  CI95 [152.375, 165.500] us
+    commit_ns      median      1.334 us  IQR    0.042 us
+    encode_ns      median      2.458 us  IQR    0.062 us
+    gpu_ns         median      1.791 us  IQR    0.084 us
+    queue_ns       median     91.812 us  IQR   19.459 us
+    total_ns       median    162.729 us  IQR   18.729 us
+    wait_ns        median    158.875 us  IQR   18.750 us
+    wake_ns        median     64.125 us  IQR    1.792 us
+     [nominal->nominal, x1]
+sync_method experiment=methods sync=event_wait work=empty  median 166.083 us  IQR 7.125 us  CI95 [162.667, 167.646] us
+    commit_ns      median      1.125 us  IQR    0.042 us
+    encode_ns      median      3.000 us  IQR    0.083 us
+    gpu_ns         median      1.812 us  IQR    0.074 us
+    queue_ns       median     92.583 us  IQR    6.239 us
+    total_ns       median    159.333 us  IQR    7.292 us
+    wait_ns        median    155.188 us  IQR    7.354 us
+    wake_ns        median     61.249 us  IQR    3.062 us
+     [nominal->nominal, x1]
+sync_method experiment=methods sync=wait_until_completed work=empty  median 157.208 us  IQR 6.729 us  CI95 [154.750, 159.083] us
+    commit_ns      median      1.334 us  IQR    0.042 us
+    encode_ns      median      2.333 us  IQR    0.125 us
+    gpu_ns         median      1.688 us  IQR    0.043 us
+    queue_ns       median     87.751 us  IQR    5.448 us
+    total_ns       median    155.875 us  IQR    6.718 us
+    wait_ns        median    152.208 us  IQR    7.083 us
+    wake_ns        median     63.916 us  IQR    1.583 us
+     [nominal->nominal, x1]
+sync_method experiment=methods sync=spin_status work=empty  median 126.334 us  IQR 33.146 us  CI95 [109.041, 134.438] us
+    commit_ns      median      0.938 us  IQR    0.198 us
+    encode_ns      median      2.958 us  IQR    0.531 us
+    gpu_ns         median      5.000 us  IQR    0.084 us
+    queue_ns       median     69.979 us  IQR   31.959 us
+    total_ns       median    124.917 us  IQR   33.219 us
+    wait_ns        median    120.979 us  IQR   33.386 us
+    wake_ns        median     45.749 us  IQR    4.218 us
+     [nominal->nominal, x1]
+sync_method experiment=methods sync=spin_event work=empty  median 133.521 us  IQR 30.688 us  CI95 [107.876, 135.542] us
+    commit_ns      median      0.917 us  IQR    0.324 us
+    encode_ns      median      2.417 us  IQR    0.729 us
+    gpu_ns         median      5.041 us  IQR    0.084 us
+    queue_ns       median     76.271 us  IQR   32.230 us
+    total_ns       median    124.771 us  IQR   30.604 us
+    wait_ns        median    121.230 us  IQR   30.281 us
+    wake_ns        median     38.687 us  IQR    4.875 us
+     [nominal->nominal, x1]
+sync_method experiment=methods sync=completion_handler work=4M  median 344.083 us  IQR 26.052 us  CI95 [332.979, 353.187] us
+    commit_ns      median      1.625 us  IQR    0.521 us
+    encode_ns      median      2.896 us  IQR    0.510 us
+    gpu_ns         median     47.605 us  IQR    3.417 us
+    queue_ns       median    101.625 us  IQR    6.468 us
+    total_ns       median    342.209 us  IQR   25.730 us
+    wait_ns        median    337.687 us  IQR   27.104 us
+    wake_ns        median    190.478 us  IQR   16.293 us
+     [nominal->nominal, x1]
+sync_method experiment=methods sync=event_wait work=4M  median 242.000 us  IQR 6.593 us  CI95 [239.917, 244.604] us
+    commit_ns      median      1.167 us  IQR    0.115 us
+    encode_ns      median      3.083 us  IQR    0.125 us
+    gpu_ns         median     24.750 us  IQR    0.146 us
+    queue_ns       median     93.271 us  IQR    6.688 us
+    total_ns       median    235.792 us  IQR    6.584 us
+    wait_ns        median    231.480 us  IQR    6.542 us
+    wake_ns        median    112.584 us  IQR    2.188 us
+     [nominal->nominal, x1]
+sync_method experiment=methods sync=wait_until_completed work=4M  median 234.188 us  IQR 9.729 us  CI95 [231.604, 237.646] us
+    commit_ns      median      1.000 us  IQR    0.115 us
+    encode_ns      median      1.792 us  IQR    0.042 us
+    gpu_ns         median     24.750 us  IQR    0.364 us
+    queue_ns       median     93.167 us  IQR    7.677 us
+    total_ns       median    233.312 us  IQR    9.989 us
+    wait_ns        median    230.437 us  IQR    9.958 us
+    wake_ns        median    115.688 us  IQR    6.489 us
+     [nominal->nominal, x1]
+sync_method experiment=methods sync=spin_status work=4M  median 280.541 us  IQR 3.635 us  CI95 [279.875, 282.458] us
+    commit_ns      median      1.396 us  IQR    0.126 us
+    encode_ns      median      2.729 us  IQR    0.416 us
+    gpu_ns         median     53.125 us  IQR    0.334 us
+    queue_ns       median    100.167 us  IQR    1.657 us
+    total_ns       median    279.729 us  IQR    3.427 us
+    wait_ns        median    275.334 us  IQR    3.177 us
+    wake_ns        median    122.229 us  IQR    0.771 us
+     [nominal->nominal, x1]
+sync_method experiment=methods sync=spin_event work=4M  median 287.250 us  IQR 3.062 us  CI95 [285.959, 288.125] us
+    commit_ns      median      1.000 us  IQR    0.083 us
+    encode_ns      median      2.667 us  IQR    0.084 us
+    gpu_ns         median     53.125 us  IQR    0.365 us
+    queue_ns       median     99.812 us  IQR    1.865 us
+    total_ns       median    264.209 us  IQR    2.510 us
+    wait_ns        median    260.479 us  IQR    2.655 us
+    wake_ns        median    107.625 us  IQR    0.781 us
+     [nominal->nominal, x1]
+sync_method experiment=methods sync=completion_handler work=256M  median 3091.584 us  IQR 112.709 us  CI95 [3073.334, 3139.062] us
+    commit_ns      median      6.250 us  IQR    3.490 us
+    encode_ns      median      9.062 us  IQR    2.364 us
+    gpu_ns         median   2804.167 us  IQR   99.448 us
+    queue_ns       median    104.480 us  IQR   12.718 us
+    total_ns       median   3083.896 us  IQR  110.761 us
+    wait_ns        median   3071.729 us  IQR  116.459 us
+    wake_ns        median    162.270 us  IQR    9.989 us
+     [nominal->nominal, x1]
+sync_method experiment=methods sync=event_wait work=256M  median 3079.479 us  IQR 59.292 us  CI95 [3059.667, 3105.521] us
+    commit_ns      median      4.958 us  IQR    2.208 us
+    encode_ns      median     10.916 us  IQR    2.042 us
+    gpu_ns         median   2794.542 us  IQR   55.761 us
+    queue_ns       median    102.875 us  IQR   14.072 us
+    total_ns       median   3058.562 us  IQR   60.271 us
+    wait_ns        median   3042.292 us  IQR   61.365 us
+    wake_ns        median    143.083 us  IQR   13.729 us
+     [nominal->nominal, x1]
+sync_method experiment=methods sync=wait_until_completed work=256M  median 3072.562 us  IQR 66.375 us  CI95 [3054.916, 3103.104] us
+    commit_ns      median      5.562 us  IQR    6.646 us
+    encode_ns      median      8.375 us  IQR    4.511 us
+    gpu_ns         median   2781.959 us  IQR   43.156 us
+    queue_ns       median    103.855 us  IQR   14.709 us
+    total_ns       median   3068.333 us  IQR   65.635 us
+    wait_ns        median   3052.459 us  IQR   56.166 us
+    wake_ns        median    163.958 us  IQR   12.094 us
+     [nominal->nominal, x1]
+sync_method experiment=methods sync=spin_status work=256M  median 3005.729 us  IQR 28.115 us  CI95 [3000.062, 3020.834] us
+    commit_ns      median      1.708 us  IQR    0.531 us
+    encode_ns      median      3.125 us  IQR    0.157 us
+    gpu_ns         median   2782.521 us  IQR   32.625 us
+    queue_ns       median     91.999 us  IQR    3.490 us
+    total_ns       median   3004.646 us  IQR   27.719 us
+    wait_ns        median   3000.062 us  IQR   27.739 us
+    wake_ns        median    125.958 us  IQR    3.239 us
+     [nominal->nominal, x1]
+sync_method experiment=methods sync=spin_event work=256M  median 3054.854 us  IQR 186.416 us  CI95 [3013.499, 3104.416] us
+    commit_ns      median      1.355 us  IQR    0.500 us
+    encode_ns      median      3.104 us  IQR    0.573 us
+    gpu_ns         median   2806.000 us  IQR  161.062 us
+    queue_ns       median     90.959 us  IQR    2.072 us
+    total_ns       median   3029.479 us  IQR  186.646 us
+    wait_ns        median   3024.688 us  IQR  185.802 us
+    wake_ns        median    109.562 us  IQR    5.906 us
+     [nominal->nominal, x1]
+sync_idle experiment=idle gap_ms=0 sync=wait_until_completed  median 125.604 us  IQR 53.093 us  CI95 [102.709, 146.042] us
+    commit_ns      median      1.542 us  IQR    0.199 us
+    encode_ns      median      2.459 us  IQR    0.292 us
+    gpu_ns         median      1.334 us  IQR    0.115 us
+    queue_ns       median     64.084 us  IQR   40.395 us
+    total_ns       median    124.042 us  IQR   53.042 us
+    wait_ns        median    119.750 us  IQR   53.802 us
+    wake_ns        median     50.562 us  IQR   16.115 us
+     [nominal->nominal, x1]
+sync_idle experiment=idle gap_ms=0.1 sync=wait_until_completed  median 162.792 us  IQR 5.709 us  CI95 [160.063, 164.105] us
+    commit_ns      median      1.125 us  IQR    0.073 us
+    encode_ns      median      1.917 us  IQR    0.043 us
+    gpu_ns         median      1.791 us  IQR    0.084 us
+    queue_ns       median     92.688 us  IQR    5.718 us
+    total_ns       median    161.688 us  IQR    5.741 us
+    wait_ns        median    158.480 us  IQR    5.740 us
+    wake_ns        median     63.875 us  IQR    1.760 us
+     [nominal->nominal, x1]
+sync_idle experiment=idle gap_ms=1 sync=wait_until_completed  median 349.041 us  IQR 62.895 us  CI95 [339.562, 376.208] us
+    commit_ns      median      5.979 us  IQR    5.677 us
+    encode_ns      median      9.501 us  IQR    8.604 us
+    gpu_ns         median      5.875 us  IQR    0.375 us
+    queue_ns       median    207.875 us  IQR   43.093 us
+    total_ns       median    346.084 us  IQR   61.876 us
+    wait_ns        median    329.209 us  IQR   51.541 us
+    wake_ns        median    108.833 us  IQR   18.282 us
+     [nominal->nominal, x1]
+sync_idle experiment=idle gap_ms=10 sync=wait_until_completed  median 814.188 us  IQR 115.416 us  CI95 [777.167, 852.500] us
+    commit_ns      median     14.771 us  IQR    6.146 us
+    encode_ns      median     42.625 us  IQR   26.647 us
+    gpu_ns         median      6.062 us  IQR    2.875 us
+    queue_ns       median    577.812 us  IQR   89.885 us
+    total_ns       median    799.605 us  IQR  116.781 us
+    wait_ns        median    748.145 us  IQR   99.156 us
+    wake_ns        median    138.520 us  IQR   56.792 us
+     [nominal->nominal, x1]
+sync_idle experiment=idle gap_ms=100 sync=wait_until_completed  median 991.188 us  IQR 265.854 us  CI95 [863.417, 1067.792] us
+    commit_ns      median     24.521 us  IQR    8.938 us
+    encode_ns      median     76.667 us  IQR   16.687 us
+    gpu_ns         median      6.271 us  IQR    0.980 us
+    queue_ns       median    701.188 us  IQR  229.229 us
+    total_ns       median    964.145 us  IQR  259.885 us
+    wait_ns        median    857.458 us  IQR  236.729 us
+    wake_ns        median    141.875 us  IQR   52.438 us
+     [nominal->nominal, x1]
+sync_idle experiment=idle gap_ms=0 sync=spin_event  median 126.166 us  IQR 30.417 us  CI95 [104.584, 133.813] us
+    commit_ns      median      0.875 us  IQR    0.084 us
+    encode_ns      median      2.354 us  IQR    0.281 us
+    gpu_ns         median      5.000 us  IQR    0.041 us
+    queue_ns       median     57.812 us  IQR   32.531 us
+    total_ns       median    117.271 us  IQR   31.011 us
+    wait_ns        median    113.959 us  IQR   31.334 us
+    wake_ns        median     38.312 us  IQR    2.052 us
+     [nominal->nominal, x1]
+sync_idle experiment=idle gap_ms=0.1 sync=spin_event  median 138.521 us  IQR 7.333 us  CI95 [136.167, 141.229] us
+    commit_ns      median      0.917 us  IQR    0.043 us
+    encode_ns      median      2.375 us  IQR    0.084 us
+    gpu_ns         median      5.000 us  IQR    0.041 us
+    queue_ns       median     80.438 us  IQR    2.729 us
+    total_ns       median    129.375 us  IQR    7.375 us
+    wait_ns        median    125.855 us  IQR    7.270 us
+    wake_ns        median     39.583 us  IQR    4.187 us
+     [nominal->nominal, x1]
+sync_idle experiment=idle gap_ms=1 sync=spin_event  median 329.208 us  IQR 99.896 us  CI95 [293.459, 367.459] us
+    commit_ns      median      3.249 us  IQR    3.115 us
+    encode_ns      median      6.500 us  IQR    5.979 us
+    gpu_ns         median      5.291 us  IQR    0.084 us
+    queue_ns       median    198.021 us  IQR   69.103 us
+    total_ns       median    293.417 us  IQR   91.864 us
+    wait_ns        median    283.459 us  IQR   82.271 us
+    wake_ns        median     78.688 us  IQR   15.386 us
+     [nominal->nominal, x1]
+sync_idle experiment=idle gap_ms=10 sync=spin_event  median 724.458 us  IQR 100.011 us  CI95 [707.083, 780.479] us
+    commit_ns      median     10.667 us  IQR    2.406 us
+    encode_ns      median     41.062 us  IQR   20.666 us
+    gpu_ns         median      5.709 us  IQR    1.865 us
+    queue_ns       median    550.562 us  IQR   80.239 us
+    total_ns       median    671.770 us  IQR   90.459 us
+    wait_ns        median    637.270 us  IQR   83.562 us
+    wake_ns        median     87.792 us  IQR   13.916 us
+     [nominal->nominal, x1]
+sync_idle experiment=idle gap_ms=100 sync=spin_event  median 996.021 us  IQR 285.740 us  CI95 [881.605, 1101.147] us
+    commit_ns      median     17.770 us  IQR    6.375 us
+    encode_ns      median     88.334 us  IQR   24.469 us
+    gpu_ns         median      6.062 us  IQR    0.427 us
+    queue_ns       median    720.271 us  IQR  203.844 us
+    total_ns       median    943.208 us  IQR  268.928 us
+    wait_ns        median    833.355 us  IQR  239.228 us
+    wake_ns        median    103.729 us  IQR   24.375 us
+     [nominal->nominal, x1]
+
+Results written to benchmarks/results/sessions/20261113-192541_s0_47a6278756c0/20261113-192557_47a6278756c0

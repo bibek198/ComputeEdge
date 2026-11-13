@@ -1,0 +1,14 @@
+{
+  "session": "20261113-192541_s0_47a6278756c0",
+  "index": 0,
+  "git_sha": "47a6278756c0df982579b79539c33e2ae643a18c",
+  "started_utc": "2026-11-13T13:55:41Z",
+  "finished_utc": "2026-11-13T14:13:04Z",
+  "order": "sync metal_matmul followups mlx_matmul dispatch cpu_matmul storage cache thermal_drift",
+  "reversed_sweeps": 0,
+  "sync_method_order": "completion_handler,event_wait,wait_until_completed,spin_status,spin_event",
+  "thermal_load": "mixed",
+  "thermal_minutes": 15,
+  "uptime": "19 days",
+  "process_count": 521
+}
