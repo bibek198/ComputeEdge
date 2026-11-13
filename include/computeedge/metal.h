@@ -23,6 +23,14 @@ enum class StorageMode : uint8_t {
 
 const char* to_string(StorageMode mode);
 
+// Which GPU kernel computes the product.
+enum class Kernel : uint8_t {
+  Tiled16,  // ComputeEdge's own 16x16 threadgroup-tiled kernel (src/metal/kernels/matmul.metal)
+  MPS,      // Apple's MPSMatrixMultiplication: the tuned-kernel reference
+};
+
+const char* to_string(Kernel kernel);
+
 struct DeviceInfo {
   std::string name;
   bool has_unified_memory = false;
@@ -68,9 +76,10 @@ struct Timing {
 
 struct MatmulOptions {
   StorageMode storage = StorageMode::NoCopy;
+  Kernel kernel = Kernel::Tiled16;
 };
 
-// C[M,N] = A[M,K] * B[K,N] on the GPU (FP32, tiled kernel). `out` must be a
+// C[M,N] = A[M,K] * B[K,N] on the GPU (FP32). `out` must be a
 // contiguous [M,N] tensor; for NoCopy its storage must be page-aligned (the
 // default allocator guarantees this).
 void matmul_into(const Tensor& a, const Tensor& b, Tensor& out, const MatmulOptions& options = {},

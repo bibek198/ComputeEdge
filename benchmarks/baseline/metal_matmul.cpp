@@ -8,6 +8,7 @@
 //
 // Usage:
 //   metal_matmul [--sizes 128,512,1024,2048,4096] [--storage nocopy,shared,private]
+//                [--kernels tiled16,mps]
 //                [--warmup 10] [--min-warmup-ms 200] [--prewarm-ms 1000] [--reps 30]
 //                [--out benchmarks/results] [--cooldown] [--no-write]
 
@@ -33,6 +34,7 @@ namespace {
 struct Options {
   std::vector<size_t> sizes{128, 512, 1024, 2048, 4096};
   std::vector<std::string> storage{"nocopy", "shared", "private"};
+  std::vector<std::string> kernels{"tiled16", "mps"};
   int warmup = 10;
   double min_warmup_ms = 200;
   double prewarm_ms = 1000;
@@ -68,6 +70,8 @@ Options parse(int argc, char** argv) {
       for (const auto& s : split(next())) o.sizes.push_back(std::stoul(s));
     } else if (a == "--storage") {
       o.storage = split(next());
+    } else if (a == "--kernels") {
+      o.kernels = split(next());
     } else if (a == "--warmup") {
       o.warmup = std::stoi(next());
     } else if (a == "--min-warmup-ms") {
@@ -94,6 +98,12 @@ mtl::StorageMode storage_from(const std::string& s) {
   if (s == "shared") return mtl::StorageMode::Shared;
   if (s == "private") return mtl::StorageMode::Private;
   usage(("unknown storage mode " + s).c_str());
+}
+
+mtl::Kernel kernel_from(const std::string& s) {
+  if (s == "tiled16") return mtl::Kernel::Tiled16;
+  if (s == "mps") return mtl::Kernel::MPS;
+  usage(("unknown kernel " + s).c_str());
 }
 
 Tensor random_square(size_t n, uint32_t seed) {
@@ -194,35 +204,37 @@ int main(int argc, char** argv) {
     const double flops = 2.0 * double(n) * double(n) * double(n);
     const Tensor ref = matmul(A, B, MatmulImpl::Accelerate);
 
-    for (const std::string& storage_name : opt.storage) {
-      const mtl::MatmulOptions mo{storage_from(storage_name)};
-      Tensor C({n, n});
+    for (const std::string& kernel_name : opt.kernels) {
+      for (const std::string& storage_name : opt.storage) {
+        const mtl::MatmulOptions mo{storage_from(storage_name), kernel_from(kernel_name)};
+        Tensor C({n, n});
 
-      mtl::matmul_into(A, B, C, mo);  // correctness gate against Accelerate
-      const double err = max_scaled_error(C, ref, n);
-      if (err > 1e-5) {
-        std::fprintf(stderr, "correctness check FAILED at n=%zu storage=%s (scaled error %.3g)\n", n,
-                     storage_name.c_str(), err);
-        return 1;
+        mtl::matmul_into(A, B, C, mo);  // correctness gate against Accelerate
+        const double err = max_scaled_error(C, ref, n);
+        if (err > 1e-5) {
+          std::fprintf(stderr, "correctness check FAILED at n=%zu kernel=%s storage=%s (scaled error %.3g)\n", n,
+                       kernel_name.c_str(), storage_name.c_str(), err);
+          return 1;
+        }
+
+        const std::map<std::string, std::string> params{{"backend", "metal"},
+                                                        {"kernel", kernel_name},
+                                                        {"storage", storage_name},
+                                                        {"m", std::to_string(n)},
+                                                        {"n", std::to_string(n)},
+                                                        {"k", std::to_string(n)},
+                                                        {"dtype", "f32"}};
+        cb::Result r = cb::run_with_metrics(
+            "matmul_metal", params, cfg,
+            [&](cb::Metrics& m) {
+              mtl::Timing t;
+              mtl::matmul_into(A, B, C, mo, &t);
+              record_timing(m, t);
+            },
+            flops);
+        std::cout << cb::format_result(r) << std::endl;
+        results.push_back(std::move(r));
       }
-
-      const std::map<std::string, std::string> params{{"backend", "metal"},
-                                                      {"kernel", "tiled16"},
-                                                      {"storage", storage_name},
-                                                      {"m", std::to_string(n)},
-                                                      {"n", std::to_string(n)},
-                                                      {"k", std::to_string(n)},
-                                                      {"dtype", "f32"}};
-      cb::Result r = cb::run_with_metrics(
-          "matmul_metal", params, cfg,
-          [&](cb::Metrics& m) {
-            mtl::Timing t;
-            mtl::matmul_into(A, B, C, mo, &t);
-            record_timing(m, t);
-          },
-          flops);
-      std::cout << cb::format_result(r) << std::endl;
-      results.push_back(std::move(r));
     }
   }
 

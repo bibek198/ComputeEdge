@@ -83,7 +83,8 @@ file(READ src/metal/kernels/matmul.metal CE_MSL_MATMUL)
 configure_file(src/metal/kernel_sources.h.in ${CMAKE_BINARY_DIR}/generated/computeedge/kernel_sources.h @ONLY)
 
 add_library(computeedge_metal STATIC src/metal/metal_backend.mm)
-target_link_libraries(computeedge_metal PUBLIC computeedge_core "-framework Metal" "-framework Foundation")
+target_link_libraries(computeedge_metal PUBLIC computeedge_core
+  "-framework Metal" "-framework MetalPerformanceShaders" "-framework Foundation")
 target_include_directories(computeedge_metal PRIVATE ${CMAKE_BINARY_DIR}/generated)
 target_compile_options(computeedge_metal PRIVATE ${CE_WARNINGS} -fobjc-arc)
 
@@ -132,6 +133,7 @@ if(CE_BUILD_BENCHMARKS)
   ce_benchmark(cpu_matmul benchmarks/baseline/cpu_matmul.cpp computeedge_cpu)
   ce_benchmark(metal_matmul benchmarks/baseline/metal_matmul.cpp computeedge_cpu computeedge_metal)
   ce_benchmark(event_log_overhead benchmarks/overhead/event_log.cpp)
+  ce_benchmark(ce_env benchmarks/tools/ce_env.cpp)
 endif()
 
 # ---------------------------------------------------------------------------

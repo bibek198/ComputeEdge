@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cmath>
 #include <random>
+#include <tuple>
 #include <vector>
 
 #include "computeedge/computeedge.h"
@@ -41,20 +42,26 @@ class MetalTest : public ::testing::Test {
   }
 };
 
-class MetalStorage : public ::testing::TestWithParam<mtl::StorageMode> {
+// Every storage mode x every kernel.
+class MetalStorage : public ::testing::TestWithParam<std::tuple<mtl::StorageMode, mtl::Kernel>> {
  protected:
   void SetUp() override {
     if (!mtl::available()) GTEST_SKIP() << "Metal not available";
   }
-  mtl::MatmulOptions opts() const { return {GetParam()}; }
+  mtl::StorageMode storage() const { return std::get<0>(GetParam()); }
+  mtl::MatmulOptions opts() const { return {std::get<0>(GetParam()), std::get<1>(GetParam())}; }
 };
 
 }  // namespace
 
 INSTANTIATE_TEST_SUITE_P(All, MetalStorage,
-                         ::testing::Values(mtl::StorageMode::NoCopy, mtl::StorageMode::Shared,
-                                           mtl::StorageMode::Private),
-                         [](const auto& info) { return std::string(mtl::to_string(info.param)); });
+                         ::testing::Combine(::testing::Values(mtl::StorageMode::NoCopy, mtl::StorageMode::Shared,
+                                                             mtl::StorageMode::Private),
+                                            ::testing::Values(mtl::Kernel::Tiled16, mtl::Kernel::MPS)),
+                         [](const auto& info) {
+                           return std::string(mtl::to_string(std::get<0>(info.param))) + "_" +
+                                  mtl::to_string(std::get<1>(info.param));
+                         });
 
 TEST_F(MetalTest, DeviceInfo) {
   const mtl::DeviceInfo info = mtl::device_info();
@@ -140,7 +147,7 @@ TEST_P(MetalStorage, TimingIsConsistent) {
   EXPECT_LE(t.gpu_end_ns, t.wait_end_ns);
   EXPECT_LT(t.wait_end_ns, after);
   EXPECT_GE(t.wake_ns(), 0);
-  if (GetParam() == mtl::StorageMode::NoCopy) {
+  if (storage() == mtl::StorageMode::NoCopy) {
     EXPECT_EQ(t.copy_out_ns, 0u);
   } else {
     EXPECT_GT(t.copy_out_ns, 0u);
@@ -183,6 +190,20 @@ TEST_F(MetalTest, EmitsDispatchSubmitSyncAndGpuSpan) {
   EXPECT_LE(dispatch->t_ns, submit->t_ns);
   EXPECT_LE(gpu_begin->t_ns, gpu_end->t_ns);
   EXPECT_LE(gpu_end->t_ns, sync->t_ns);
+}
+
+TEST_F(MetalTest, MpsAndTiledAgree) {
+  Tensor a = random_tensor({300, 200}, 21), b = random_tensor({200, 100}, 22);
+  const std::vector<float> tiled = mtl::matmul(a, b, {mtl::StorageMode::NoCopy, mtl::Kernel::Tiled16}).to_vector();
+  const std::vector<float> mps = mtl::matmul(a, b, {mtl::StorageMode::NoCopy, mtl::Kernel::MPS}).to_vector();
+  for (size_t i = 0; i < tiled.size(); ++i) ASSERT_NEAR(tiled[i], mps[i], 1e-4f * (std::abs(tiled[i]) + 1.0f));
+}
+
+TEST_F(MetalTest, MpsWithOffsetView) {
+  // A reshaped view keeps offset 0, but exercise MPS on transposed (materialised) inputs too.
+  Tensor a = random_tensor({64, 48}, 23).transpose();
+  Tensor b = random_tensor({64, 32}, 24);
+  expect_matches_accelerate(mtl::matmul(a, b, {mtl::StorageMode::NoCopy, mtl::Kernel::MPS}), a, b);
 }
 
 TEST_F(MetalTest, ValidatesArguments) {

@@ -6,13 +6,16 @@
 
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
+#import <MetalPerformanceShaders/MetalPerformanceShaders.h>
 
 #include <unistd.h>
 
 #include <climits>
 #include <cstring>
 #include <mutex>
+#include <map>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 
 #include "computeedge/error.h"
@@ -38,6 +41,9 @@ struct Context {
   id<MTLCommandQueue> queue = nil;
   id<MTLLibrary> library = nil;
   std::unordered_map<std::string, id<MTLComputePipelineState>> pipelines;
+  // MPS kernels are shape-specific; cache them so steady-state calls do not pay
+  // for object creation (as a framework would).
+  std::map<std::tuple<size_t, size_t, size_t>, MPSMatrixMultiplication*> mps_kernels;
   uint64_t compile_ns = 0;
   std::mutex mutex;
 };
@@ -117,7 +123,36 @@ void emit_at(uint64_t t_ns, EventType type, uint64_t exec, const char* label) {
   log.record(Event{t_ns, type, exec, exec, 0, Backend::Metal, label});
 }
 
+MPSMatrixMultiplication* mps_kernel(size_t M, size_t N, size_t K) {
+  Context& ctx = context();
+  std::lock_guard<std::mutex> lock(ctx.mutex);
+  const auto key = std::make_tuple(M, N, K);
+  if (auto it = ctx.mps_kernels.find(key); it != ctx.mps_kernels.end()) return it->second;
+  MPSMatrixMultiplication* mm = [[MPSMatrixMultiplication alloc] initWithDevice:ctx.device
+                                                                     resultRows:M
+                                                                  resultColumns:N
+                                                                interiorColumns:K];
+  ctx.mps_kernels.emplace(key, mm);
+  return mm;
+}
+
+MPSMatrix* mps_matrix(id<MTLBuffer> buffer, NSUInteger offset, size_t rows, size_t cols) {
+  MPSMatrixDescriptor* desc = [MPSMatrixDescriptor matrixDescriptorWithRows:rows
+                                                                    columns:cols
+                                                                   rowBytes:cols * sizeof(float)
+                                                                   dataType:MPSDataTypeFloat32];
+  return [[MPSMatrix alloc] initWithBuffer:buffer offset:offset descriptor:desc];
+}
+
 }  // namespace
+
+const char* to_string(Kernel kernel) {
+  switch (kernel) {
+    case Kernel::Tiled16: return "tiled16";
+    case Kernel::MPS: return "mps";
+  }
+  return "unknown";
+}
 
 const char* to_string(StorageMode mode) {
   switch (mode) {
@@ -166,7 +201,8 @@ void matmul_into(const Tensor& a, const Tensor& b, Tensor& out, const MatmulOpti
   const size_t K = a.shape()[1];
   const size_t N = b.shape()[1];
   const uint64_t exec = next_exec_id();
-  emit(EventType::Dispatch, exec, out.nbytes(), Backend::Metal, exec, "matmul_metal");
+  emit(EventType::Dispatch, exec, out.nbytes(), Backend::Metal, exec,
+       options.kernel == Kernel::MPS ? "matmul_metal_mps" : "matmul_metal");
 
   if (M == 0 || N == 0) {
     t.total_ns = now_ns() - start;
@@ -178,7 +214,11 @@ void matmul_into(const Tensor& a, const Tensor& b, Tensor& out, const MatmulOpti
     throw Error("metal::matmul: NoCopy needs page-aligned output storage; use StorageMode::Shared");
   }
 
+  // K == 0 is an all-zeros result; MPS rejects zero-sized matrices, so the
+  // tiled kernel handles that case for both choices.
+  const bool use_mps = options.kernel == Kernel::MPS && K > 0;
   id<MTLComputePipelineState> pso = pipeline("matmul_tiled");  // may compile (cold start)
+  MPSMatrixMultiplication* mps = use_mps ? mps_kernel(M, N, K) : nil;
   Context& ctx = context();
 
   // Inputs must be contiguous row-major; copies (if any) count as copy_in.
@@ -266,15 +306,22 @@ void matmul_into(const Tensor& a, const Tensor& b, Tensor& out, const MatmulOpti
         [blit copyFromBuffer:host_b sourceOffset:0 toBuffer:gpu_b destinationOffset:0 size:bytes_b];
         [blit endEncoding];
       }
-      id<MTLComputeCommandEncoder> enc = [cb computeCommandEncoder];
-      [enc setComputePipelineState:pso];
-      [enc setBuffer:gpu_a offset:off_a atIndex:0];
-      [enc setBuffer:gpu_b offset:off_b atIndex:1];
-      [enc setBuffer:gpu_c offset:off_c atIndex:2];
-      [enc setBytes:&params length:sizeof(params) atIndex:3];
-      [enc dispatchThreadgroups:MTLSizeMake((N + kTile - 1) / kTile, (M + kTile - 1) / kTile, 1)
-          threadsPerThreadgroup:MTLSizeMake(kTile, kTile, 1)];
-      [enc endEncoding];
+      if (use_mps) {
+        [mps encodeToCommandBuffer:cb
+                        leftMatrix:mps_matrix(gpu_a, off_a, M, K)
+                       rightMatrix:mps_matrix(gpu_b, off_b, K, N)
+                      resultMatrix:mps_matrix(gpu_c, off_c, M, N)];
+      } else {
+        id<MTLComputeCommandEncoder> enc = [cb computeCommandEncoder];
+        [enc setComputePipelineState:pso];
+        [enc setBuffer:gpu_a offset:off_a atIndex:0];
+        [enc setBuffer:gpu_b offset:off_b atIndex:1];
+        [enc setBuffer:gpu_c offset:off_c atIndex:2];
+        [enc setBytes:&params length:sizeof(params) atIndex:3];
+        [enc dispatchThreadgroups:MTLSizeMake((N + kTile - 1) / kTile, (M + kTile - 1) / kTile, 1)
+            threadsPerThreadgroup:MTLSizeMake(kTile, kTile, 1)];
+        [enc endEncoding];
+      }
       if (options.storage == StorageMode::Private) {
         id<MTLBlitCommandEncoder> blit = [cb blitCommandEncoder];
         [blit copyFromBuffer:gpu_c sourceOffset:0 toBuffer:host_c destinationOffset:0 size:bytes_c];
