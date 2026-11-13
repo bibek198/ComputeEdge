@@ -141,6 +141,7 @@ inline cb::Environment banner(const char* title) {
 // Continuous real GPU work (64 MiB write streams) so clocks reach steady state
 // before measurement; see the pre-warm note in docs/plan_and_architecture.md §7.2.
 inline void prewarm_gpu(double ms) {
+  cb::trace("prewarm workload=gpu_stream_write kind=private bytes=67108864 ms=" + std::to_string(ms));
   if (ms <= 0) return;
   probe::Buffer buf = probe::Buffer::create(probe::BufferKind::Private, size_t{64} << 20);
   const uint64_t until = computeedge::now_ns() + static_cast<uint64_t>(ms * 1e6);

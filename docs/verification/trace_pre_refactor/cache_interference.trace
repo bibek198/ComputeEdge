@@ -1,0 +1,26 @@
+prewarm workload=gpu_stream_write kind=private bytes=67108864 ms=0.000000
+calibrate gpu_write g=16777216 runs=7 tiny_refinements=4 tiny_bytes=16384
+run_with_metrics name=cache_interference params={g=16M,pass=read,phase=idle_spin,ws=1M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=16M,pass=read,phase=gpu_tiny,ws=1M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=16M,pass=read,phase=gpu_write,ws=1M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=16M,pass=read,phase=gpu_read,ws=1M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=16M,pass=read,phase=cpu_read,ws=1M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=16M,pass=read,phase=gpu_concurrent,ws=1M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=-,pass=read,phase=idle_short,ws=1M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=1M,pass=read,phase=idle_same,ws=1M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=1M,pass=read,phase=gpu_tiny_same,ws=1M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=1M,pass=read,phase=gpu_same,ws=1M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=16M,pass=slc,phase=idle_spin,ws=16M@8K} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=16M,pass=slc,phase=gpu_tiny,ws=16M@8K} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=16M,pass=slc,phase=gpu_write,ws=16M@8K} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=16M,pass=slc,phase=gpu_read,ws=16M@8K} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=16M,pass=slc,phase=cpu_read,ws=16M@8K} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=16M,pass=slc,phase=gpu_concurrent,ws=16M@8K} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=-,pass=slc,phase=idle_short,ws=16M@8K} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=16M,pass=sgemm,phase=idle_spin,ws=3M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=16M,pass=sgemm,phase=gpu_tiny,ws=3M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=16M,pass=sgemm,phase=gpu_write,ws=3M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=16M,pass=sgemm,phase=gpu_read,ws=3M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=16M,pass=sgemm,phase=cpu_read,ws=3M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=16M,pass=sgemm,phase=gpu_concurrent,ws=3M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=cache_interference params={g=-,pass=sgemm,phase=idle_short,ws=3M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000

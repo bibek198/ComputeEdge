@@ -3,15 +3,21 @@
 # (tools/verification/schema_snapshot.py). Used to prove that a refactor did not
 # change what any benchmark measures or how results are labelled.
 #
-#   tools/verification/capture_schema.sh OUT.json [BUILD_DIR]
+#   tools/verification/capture_schema.sh OUT.json [BUILD_DIR] [TRACE_DIR]
 #
-# BUILD_DIR defaults to build/release. Results go to a temporary directory that is
+# BUILD_DIR defaults to build/release. With TRACE_DIR, each binary also writes its
+# execution trace (CE_TRACE, see bench::trace) to TRACE_DIR/<binary>.trace. Results go to a temporary directory that is
 # removed afterwards; nothing is written to the data tree.
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 
 out_json="$1"
 build="${2:-build/release}"
+trace_dir="${3:-}"
+if [[ -n "$trace_dir" ]]; then
+  trace_dir="$(cd "$(dirname "$trace_dir")" && pwd)/$(basename "$trace_dir")"
+  rm -rf "$trace_dir" && mkdir -p "$trace_dir"
+fi
 B="$build/benchmarks"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
@@ -20,7 +26,9 @@ quick=(--reps 3 --warmup 1 --min-warmup-ms 0)
 run() {  # name, then the command
   local name="$1"; shift
   echo "  $name"
-  "$@" > "$tmp/$name.log" 2>&1 || { echo "error: $name failed; see log:" >&2; cat "$tmp/$name.log" >&2; exit 1; }
+  local trace=""
+  [[ -n "$trace_dir" ]] && trace="$trace_dir/$name.trace"
+  CE_TRACE="$trace" "$@" > "$tmp/$name.log" 2>&1 || { echo "error: $name failed; see log:" >&2; cat "$tmp/$name.log" >&2; exit 1; }
 }
 
 mkdir -p "$tmp/runs"

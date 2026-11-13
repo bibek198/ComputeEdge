@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -269,4 +270,11 @@ TEST(Writer, WritesMetricsFiles) {
   EXPECT_EQ(count_lines(msum), 1u + 2u);
   EXPECT_NE(read_file(dir / "env.json").find("\"compiler_flags\""), std::string::npos);
   std::filesystem::remove_all(root);
+}
+
+TEST(Trace, InertWithoutEnvironmentVariable) {
+  // The verification trace must never activate in normal runs (CE_TRACE unset in tests).
+  ASSERT_EQ(std::getenv("CE_TRACE"), nullptr);
+  EXPECT_FALSE(cb::trace_enabled());
+  cb::trace("this line goes nowhere");  // must be a harmless no-op
 }

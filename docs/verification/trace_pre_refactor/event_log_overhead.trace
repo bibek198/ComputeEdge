@@ -1,0 +1,5 @@
+run name=emit params={log=disabled} warmup=10 min_warmup_ns=200000000 reps=3 inner=0 min_sample_ns=1000000 cooldown=0 setup=0 flops=0.000000
+run name=emit params={log=enabled} warmup=10 min_warmup_ns=200000000 reps=3 inner=0 min_sample_ns=1000000 cooldown=0 setup=1 flops=0.000000
+run name=scoped_timer params={log=disabled} warmup=10 min_warmup_ns=200000000 reps=3 inner=0 min_sample_ns=1000000 cooldown=0 setup=0 flops=0.000000
+run name=scoped_timer params={log=enabled} warmup=10 min_warmup_ns=200000000 reps=3 inner=0 min_sample_ns=1000000 cooldown=0 setup=1 flops=0.000000
+run name=now_ns params={} warmup=10 min_warmup_ns=200000000 reps=3 inner=0 min_sample_ns=1000000 cooldown=0 setup=0 flops=0.000000

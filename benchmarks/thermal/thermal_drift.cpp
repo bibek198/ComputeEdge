@@ -107,6 +107,13 @@ int main(int argc, char** argv) {
     return probe::gpu_stream(probe::Stream::Write, heat_buf).gpu_ns();
   }();
 
+  {
+    std::string names;
+    for (const auto& w : workloads) names += (names.empty() ? "" : ",") + w.name;
+    cb::trace("thermal workloads=" + names + " load=" + load + " interval_ms=" + std::to_string(interval_ms) +
+              " minutes=" + std::to_string(minutes) + " cooldown=" + (cooldown ? "1" : "0") +
+              " heater_gpu=gpu_stream_write kind=private bytes=67108864 heater_cpu=sgemm n=1024");
+  }
   const uint64_t interval_ns = static_cast<uint64_t>(interval_ms * 1e6);
   const uint64_t start = now_ns();
   const uint64_t end = start + static_cast<uint64_t>(minutes * 60e9);

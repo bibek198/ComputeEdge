@@ -19,6 +19,50 @@ double Result::gflops_median() const {
 
 namespace {
 
+struct TraceSink {
+  std::mutex mutex;
+  std::FILE* file = nullptr;
+};
+
+TraceSink& trace_sink() {
+  static TraceSink* sink = [] {
+    auto* t = new TraceSink;  // intentionally leaked: lives for the process
+    if (const char* path = std::getenv("CE_TRACE"); path && *path) t->file = std::fopen(path, "a");
+    return t;
+  }();
+  return *sink;
+}
+
+std::string trace_params(const std::map<std::string, std::string>& params) {
+  std::string out;
+  for (const auto& [k, v] : params) out += (out.empty() ? "" : ",") + k + "=" + v;
+  return out;
+}
+
+void trace_run(const char* kind, const std::string& name, const std::map<std::string, std::string>& params,
+               const Config& c, bool has_setup, double flops_per_call) {
+  if (!trace_enabled()) return;
+  trace(std::string(kind) + " name=" + name + " params={" + trace_params(params) + "} warmup=" +
+        std::to_string(c.warmup) + " min_warmup_ns=" + std::to_string(c.min_warmup_ns) +
+        " reps=" + std::to_string(c.repetitions) + " inner=" + std::to_string(c.inner_iterations) +
+        " min_sample_ns=" + std::to_string(c.min_sample_ns) + " cooldown=" + (c.cooldown ? "1" : "0") +
+        " setup=" + (has_setup ? "1" : "0") + " flops=" + std::to_string(flops_per_call));
+}
+
+}  // namespace
+
+bool trace_enabled() { return trace_sink().file != nullptr; }
+
+void trace(const std::string& line) {
+  TraceSink& t = trace_sink();
+  if (!t.file) return;
+  std::lock_guard<std::mutex> lock(t.mutex);
+  std::fprintf(t.file, "%s\n", line.c_str());
+  std::fflush(t.file);
+}
+
+namespace {
+
 // `measuring` (optional) is set to true right before the measured samples start,
 // so callers can tell warm-up/calibration calls from measured ones.
 Result run_impl(const std::string& name, const std::map<std::string, std::string>& params, const Config& config,
@@ -75,6 +119,7 @@ Result run_impl(const std::string& name, const std::map<std::string, std::string
 
 Result run(const std::string& name, const std::map<std::string, std::string>& params, const Config& config,
            const std::function<void()>& fn, double flops_per_call, const std::function<void()>& setup) {
+  trace_run("run", name, params, config, static_cast<bool>(setup), flops_per_call);
   return run_impl(name, params, config, fn, flops_per_call, setup, nullptr);
 }
 
@@ -83,6 +128,7 @@ Result run_with_metrics(const std::string& name, const std::map<std::string, std
                         const std::function<void()>& setup) {
   Config cfg = config;
   cfg.inner_iterations = 1;  // one call per sample, so metrics align with samples
+  trace_run("run_with_metrics", name, params, cfg, static_cast<bool>(setup), flops_per_call);
   bool measuring = false;
   std::vector<Metrics> collected;
   collected.reserve(static_cast<size_t>(cfg.repetitions));

@@ -34,8 +34,25 @@ cmake --preset release && cmake --build --preset release && ctest --preset relea
 cmake --preset debug   && cmake --build --preset debug   && ctest --preset debug     # ASan + UBSan
 ```
 
+## Instrumentation (Phase 0b)
+
+- **Hook.** `bench::trace()` and `bench::trace_enabled()` (`include/computeedge/benchmark.h`) are inert unless
+  `CE_TRACE` names a file. When enabled, they record *what* executes, never timings: each `run` / `run_with_metrics`
+  call with its name, parameters, warm-up / calibration / repetition policy and setup flag; each pre-warm workload;
+  the correctness gates; the cache-calibration steps; and the thermal heater and workload set.
+- **Inert when disabled.** The schema snapshot with the hook compiled in and disabled is byte-identical to
+  `schema_pre_refactor.json`, and is still identical with tracing on. The unit test `Trace.InertWithoutEnvironmentVariable`
+  pins the disabled behaviour.
+- **Baseline traces.** `docs/verification/trace_pre_refactor/<binary>.trace` (9 binaries, 152 lines), captured with
+  `tools/verification/capture_schema.sh <json> build/release docs/verification/trace_pre_refactor`. They pin the
+  intentionally different pre-warm workloads (finding D14): `metal_matmul` uses `metal_matmul n=256 storage=shared`,
+  while the probe benchmarks use `gpu_stream_write kind=private bytes=67108864`.
+- **Tag.** `pre-refactor-instrumented`.
+
 ## Gate results
 
 | Phase | Gate | Result |
 |---|---|---|
 | 0a | Baseline captured | PASS |
+| 0b | Hook inert when disabled (schema byte-identical; 162 tests pass) | PASS |
+| 0b | Baseline execution traces captured | PASS |

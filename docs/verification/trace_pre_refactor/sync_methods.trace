@@ -1,0 +1,15 @@
+prewarm workload=gpu_stream_write kind=private bytes=67108864 ms=0.000000
+run_with_metrics name=sync_method params={experiment=methods,sync=wait_until_completed,work=empty} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=0.000000
+run_with_metrics name=sync_method params={experiment=methods,sync=event_wait,work=empty} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=0.000000
+run_with_metrics name=sync_method params={experiment=methods,sync=completion_handler,work=empty} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=0.000000
+run_with_metrics name=sync_method params={experiment=methods,sync=spin_event,work=empty} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=0.000000
+run_with_metrics name=sync_method params={experiment=methods,sync=spin_status,work=empty} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=0.000000
+run_with_metrics name=sync_method params={experiment=methods,sync=wait_until_completed,work=4M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=0.000000
+run_with_metrics name=sync_method params={experiment=methods,sync=event_wait,work=4M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=0.000000
+run_with_metrics name=sync_method params={experiment=methods,sync=completion_handler,work=4M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=0.000000
+run_with_metrics name=sync_method params={experiment=methods,sync=spin_event,work=4M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=0.000000
+run_with_metrics name=sync_method params={experiment=methods,sync=spin_status,work=4M} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=0.000000
+run_with_metrics name=sync_idle params={experiment=idle,gap_ms=0,sync=wait_until_completed} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=sync_idle params={experiment=idle,gap_ms=1,sync=wait_until_completed} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=sync_idle params={experiment=idle,gap_ms=0,sync=spin_event} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000
+run_with_metrics name=sync_idle params={experiment=idle,gap_ms=1,sync=spin_event} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=1 flops=0.000000

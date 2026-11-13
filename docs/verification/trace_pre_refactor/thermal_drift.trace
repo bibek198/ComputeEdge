@@ -1,0 +1,2 @@
+prewarm workload=gpu_stream_write kind=private bytes=67108864 ms=0.000000
+thermal workloads=cpu_1024,cpu_2048,gpu_1024,gpu_2048,gpu_empty load=mixed interval_ms=1000.000000 minutes=0.050000 cooldown=0 heater_gpu=gpu_stream_write kind=private bytes=67108864 heater_cpu=sgemm n=1024

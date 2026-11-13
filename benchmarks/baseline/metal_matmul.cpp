@@ -180,6 +180,7 @@ int main(int argc, char** argv) {
   }
 
   // Process-level GPU pre-warm (excluded from all results).
+  cb::trace("prewarm workload=metal_matmul n=256 storage=shared kernel=tiled16 ms=" + std::to_string(opt.prewarm_ms));
   {
     const Tensor A = random_square(256, 3), B = random_square(256, 4);
     Tensor C({256, 256});
@@ -209,6 +210,8 @@ int main(int argc, char** argv) {
         const mtl::MatmulOptions mo{storage_from(storage_name), kernel_from(kernel_name)};
         Tensor C({n, n});
 
+        cb::trace("gate n=" + std::to_string(n) + " kernel=" + kernel_name + " storage=" + storage_name +
+                  " ref=accelerate tol=1e-5");
         mtl::matmul_into(A, B, C, mo);  // correctness gate against Accelerate
         const double err = max_scaled_error(C, ref, n);
         if (err > 1e-5) {

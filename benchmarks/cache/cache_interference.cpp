@@ -134,6 +134,7 @@ int main(int argc, char** argv) {
                   probe::Buffer::create(probe::BufferKind::NoCopy, g), 0, 0};
     std::memset(it.cpu.contents(), 1, g);
     probe::gpu_stream(probe::Stream::Write, it.gpu);
+    cb::trace("calibrate gpu_write g=" + std::to_string(g) + " runs=7 tiny_refinements=4 tiny_bytes=16384");
     it.gpu_write_ns = median_ns([&] { gpu_spin(probe::gpu_stream_async(probe::Stream::Write, it.gpu)); });
     it.tiny_reps = tiny_repeats(it.gpu_write_ns);
     const uint64_t tiny_check = median_ns([&] {

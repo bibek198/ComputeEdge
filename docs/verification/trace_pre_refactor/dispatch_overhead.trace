@@ -1,0 +1,8 @@
+run_with_metrics name=dispatch_cold params={experiment=cold} warmup=0 min_warmup_ns=0 reps=1 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=0.000000
+prewarm workload=gpu_stream_write kind=private bytes=67108864 ms=0.000000
+run_with_metrics name=dispatch_empty params={command_buffers=1,dispatches=1,encoders=1,experiment=dispatches,sync=wait_until_completed} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=0.000000
+run_with_metrics name=dispatch_empty params={command_buffers=1,dispatches=4,encoders=1,experiment=dispatches,sync=wait_until_completed} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=0.000000
+run_with_metrics name=dispatch_empty params={command_buffers=1,dispatches=1,encoders=1,experiment=encoders,sync=wait_until_completed} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=0.000000
+run_with_metrics name=dispatch_empty params={command_buffers=1,dispatches=1,encoders=4,experiment=encoders,sync=wait_until_completed} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=0.000000
+run_with_metrics name=dispatch_empty params={command_buffers=1,dispatches=1,encoders=1,experiment=cmdbufs,sync=wait_until_completed} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=0.000000
+run_with_metrics name=dispatch_empty params={command_buffers=2,dispatches=1,encoders=1,experiment=cmdbufs,sync=wait_until_completed} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=0.000000

@@ -145,6 +145,7 @@ int main(int argc, char** argv) {
 
     // Correctness gate: Accelerate vs naive reference where affordable.
     if (n <= opt.naive_max) {
+      cb::trace("gate n=" + std::to_string(n) + " impl=accelerate ref=naive tol=1e-5");
       const double err = max_scaled_error(matmul(A, B, MatmulImpl::Accelerate), matmul(A, B, MatmulImpl::Naive), n);
       if (err > 1e-5) {
         std::fprintf(stderr, "correctness check FAILED at n=%zu (scaled error %.3g)\n", n, err);

@@ -1,0 +1,14 @@
+run_with_metrics name=matmul_metal_cold params={k=64,m=64,n=64,storage=nocopy} warmup=0 min_warmup_ns=0 reps=1 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=0.000000
+prewarm workload=metal_matmul n=256 storage=shared kernel=tiled16 ms=0.000000
+gate n=64 kernel=tiled16 storage=nocopy ref=accelerate tol=1e-5
+run_with_metrics name=matmul_metal params={backend=metal,dtype=f32,k=64,kernel=tiled16,m=64,n=64,storage=nocopy} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=524288.000000
+gate n=64 kernel=tiled16 storage=shared ref=accelerate tol=1e-5
+run_with_metrics name=matmul_metal params={backend=metal,dtype=f32,k=64,kernel=tiled16,m=64,n=64,storage=shared} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=524288.000000
+gate n=64 kernel=tiled16 storage=private ref=accelerate tol=1e-5
+run_with_metrics name=matmul_metal params={backend=metal,dtype=f32,k=64,kernel=tiled16,m=64,n=64,storage=private} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=524288.000000
+gate n=64 kernel=mps storage=nocopy ref=accelerate tol=1e-5
+run_with_metrics name=matmul_metal params={backend=metal,dtype=f32,k=64,kernel=mps,m=64,n=64,storage=nocopy} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=524288.000000
+gate n=64 kernel=mps storage=shared ref=accelerate tol=1e-5
+run_with_metrics name=matmul_metal params={backend=metal,dtype=f32,k=64,kernel=mps,m=64,n=64,storage=shared} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=524288.000000
+gate n=64 kernel=mps storage=private ref=accelerate tol=1e-5
+run_with_metrics name=matmul_metal params={backend=metal,dtype=f32,k=64,kernel=mps,m=64,n=64,storage=private} warmup=1 min_warmup_ns=0 reps=3 inner=1 min_sample_ns=50000 cooldown=0 setup=0 flops=524288.000000
