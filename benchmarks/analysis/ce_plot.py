@@ -17,7 +17,11 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
-RESULTS = REPO / "benchmarks" / "results"
+DATA = REPO / "data"
+# The original M4-M6 runs (the "orig" session). Report helpers that pick "the
+# newest run of a benchmark" search only here.
+RESULTS = DATA / "sessions" / "orig"
+DERIVED = DATA / "derived"
 
 SURFACE, TEXT, TEXT_2, MUTED, GRID, AXIS = "#fcfcfb", "#0b0b0b", "#52514e", "#898781", "#e1e0d9", "#c3c2b7"
 CATEGORICAL = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4"]

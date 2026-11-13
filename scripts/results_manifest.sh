@@ -1,13 +1,13 @@
 #!/bin/sh
-# Raw-data integrity for benchmarks/results/.
+# Raw-data integrity for data/.
 #
 #   results_manifest.sh check    verify every file in MANIFEST.sha256 is unchanged (CI / ctest)
 #   results_manifest.sh add      append new result files to the manifest (existing entries are never rewritten)
 #
-# Policy (see benchmarks/results/README.md): committed result files are immutable.
+# Policy (see data/README.md): committed result files are immutable.
 # A wrong run is superseded by a new run, never edited or deleted.
 set -eu
-cd "$(dirname "$0")/../benchmarks/results"
+cd "$(dirname "$0")/../data"
 MANIFEST=MANIFEST.sha256
 
 case "${1:-check}" in

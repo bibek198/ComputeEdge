@@ -3,7 +3,7 @@
 
 Session "orig" is the original M4-M6 measurement (the committed top-level runs);
 s0, s1, ... are confirmation sessions from scripts/run_session.sh
-(benchmarks/results/sessions/<id>/). Each claim has an explicit pass criterion that
+(data/sessions/<id>/). Each claim has an explicit pass criterion that
 is fixed here *before* the confirmation data is looked at, and it is evaluated
 independently per session. A claim is
 
@@ -11,7 +11,7 @@ independently per session. A claim is
   inconsistent   passes in some sessions only
   refuted        fails in every session
 
-Outputs benchmarks/results/reports/confirm-<stamp>/{claims.md, claims.csv, claims.json}
+Outputs data/derived/reports/confirm-<stamp>/{claims.md, claims.csv, claims.json}
 and paper/generated/numbers.tex (LaTeX macros: the cross-session median of each
 headline number, so the paper never carries hand-copied values).
 
@@ -35,7 +35,7 @@ import numpy as np
 
 import ce_plot as P
 
-SESSIONS = P.RESULTS / "sessions"
+SESSIONS = P.DATA / "sessions"
 PAPER_NUMBERS = P.REPO / "paper" / "generated" / "numbers.tex"
 
 
@@ -371,14 +371,14 @@ def c17(s: Session):
 # Sessions, evaluation, output
 # ---------------------------------------------------------------------------
 
-EXCLUSIONS = P.RESULTS / "exclusions.json"
+EXCLUSIONS = P.DATA / "exclusions.json"
 
 
 def excluded_runs() -> set[Path]:
-    """Runs listed in benchmarks/results/exclusions.json (kept on disk, left out of analysis)."""
+    """Runs listed in data/exclusions.json (kept on disk, left out of analysis)."""
     if not EXCLUSIONS.exists():
         return set()
-    return {(P.RESULTS / e["run"]).resolve() for e in json.loads(EXCLUSIONS.read_text())["excluded_runs"]}
+    return {(P.DATA / e["run"]).resolve() for e in json.loads(EXCLUSIONS.read_text())["excluded_runs"]}
 
 
 def load_sessions(allow_dirty: bool) -> list[Session]:
@@ -387,7 +387,7 @@ def load_sessions(allow_dirty: bool) -> list[Session]:
     original = [r for r in P.run_dirs() if clean(r)]
     sessions = [Session("orig", original)]
     if SESSIONS.exists():
-        for d in sorted(p for p in SESSIONS.iterdir() if p.is_dir()):
+        for d in sorted(p for p in SESSIONS.iterdir() if p.is_dir() and p.name != "orig"):
             runs = [r for r in d.iterdir() if (r / "summary.csv").exists() and clean(r)]
             if runs:
                 sessions.append(Session(d.name, runs))
@@ -423,12 +423,12 @@ def main() -> int:
             except Missing:
                 results[c.id][s.name] = None
 
-    out = P.RESULTS / "reports" / f"confirm-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}"
+    out = P.DERIVED / "reports" / f"confirm-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}"
     out.mkdir(parents=True)
     md = ["# Claim confirmation across sessions", "",
           f"{len(sessions)} session(s): " + ", ".join(f"`{label(s)}` = `{s.name}`" for s in sessions) + ".",
           "Criteria are fixed in `benchmarks/analysis/confirm_claims.py`. A claim is paper-ready when it is "
-          "**confirmed in >= 3 sessions**. Runs in `benchmarks/results/exclusions.json` are left out "
+          "**confirmed in >= 3 sessions**. Runs in `data/exclusions.json` are left out "
           f"({len(excluded_runs())} excluded).", "",
           "| claim | finding | statement | criterion | " + " | ".join(label(x) for x in sessions)
           + " | verdict |", "|---|---:|---|---|" + "---|" * len(sessions) + "---|"]

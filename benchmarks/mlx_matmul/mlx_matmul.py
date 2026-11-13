@@ -17,7 +17,7 @@ benchmarks do not have.
 Usage:
   .venv/bin/python benchmarks/mlx_matmul/mlx_matmul.py [--sizes 128,512,1024,2048,4096]
       [--streams gpu,cpu] [--warmup 10] [--min-warmup-ms 200] [--prewarm-ms 1000]
-      [--reps 30] [--min-sample-us 50] [--out benchmarks/results] [--cooldown]
+      [--reps 30] [--min-sample-us 50] [--out data/scratch] [--cooldown]
       [--no-write] [--ce-env build/release/benchmarks/ce_env]
 """
 
@@ -185,7 +185,7 @@ def main() -> int:
     p.add_argument("--prewarm-ms", type=float, default=1000)
     p.add_argument("--reps", type=int, default=30)
     p.add_argument("--min-sample-us", type=float, default=50)
-    p.add_argument("--out", default=str(REPO / "benchmarks" / "results"))
+    p.add_argument("--out", default=str(REPO / "data" / "scratch"))
     p.add_argument("--cooldown", action="store_true")
     p.add_argument("--no-write", action="store_true")
     p.add_argument("--ce-env", default=str(REPO / "build" / "release" / "benchmarks" / "ce_env"))

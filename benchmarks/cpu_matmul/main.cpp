@@ -8,7 +8,7 @@
 //   cpu_matmul [--sizes 128,512,1024,2048,4096] [--impls accelerate,naive]
 //              [--modes kernel,e2e] [--warmup 10] [--min-warmup-ms 200] [--reps 30]
 //              [--naive-max 512]
-//              [--out benchmarks/results] [--cooldown] [--no-write]
+//              [--out data/scratch] [--cooldown] [--no-write]
 
 #include <cmath>
 #include <cstdio>
@@ -38,7 +38,7 @@ struct Options {
   double min_warmup_ms = 200;
   int reps = 30;
   size_t naive_max = 512;
-  std::string out = "benchmarks/results";
+  std::string out = "data/scratch";
   bool cooldown = false;
   bool write = true;
 };

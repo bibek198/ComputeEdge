@@ -23,7 +23,7 @@
 //
 // Usage:
 //   thermal_drift [--minutes 15] [--load mixed|cpu|gpu|none] [--interval-ms 1000] [--no-cooldown]
-//                 [--out benchmarks/results] [--no-write] [--prewarm-ms 1000]
+//                 [--out data/scratch] [--no-write] [--prewarm-ms 1000]
 
 #include <pthread.h>
 #include <sys/qos.h>

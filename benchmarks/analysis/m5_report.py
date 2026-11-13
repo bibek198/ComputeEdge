@@ -5,7 +5,7 @@ dispatch_overhead, sync_methods and storage_modes results.
 Uses the newest clean run of each benchmark. For the synchronization-method
 comparison, every clean run is shown side by side, because method order within a
 run is a confound (see the report text). Writes
-benchmarks/results/reports/m5-<stamp>/ with report.md and the PNG figures.
+data/derived/reports/m5-<stamp>/ with report.md and the PNG figures.
 
 Usage: .venv/bin/python benchmarks/analysis/m5_report.py [--allow-dirty]
 """
@@ -324,7 +324,7 @@ def main() -> int:
         print("error: missing dispatch_overhead, sync_methods or storage_modes results", file=sys.stderr)
         return 1
 
-    out = P.RESULTS / "reports" / f"m5-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}"
+    out = P.DERIVED / "reports" / f"m5-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}"
     out.mkdir(parents=True)
     used = {"dispatch": dispatch, "idle": idle, **storage, **{f"sync_{i + 1}": r for i, r in enumerate(sync_runs)}}
     sources = {}

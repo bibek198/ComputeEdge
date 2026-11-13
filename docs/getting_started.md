@@ -88,7 +88,7 @@ scripts/run_baselines.sh
 ```
 
 The script rebuilds the release preset (which refreshes the git SHA), runs the CPU, Metal and MLX benchmarks with
-cooldown, and writes `benchmarks/results/comparisons/<timestamp>/` containing `comparison.md`, `comparison.csv`,
+cooldown, and writes `data/derived/comparisons/<timestamp>/` containing `comparison.md`, `comparison.csv`,
 `latency.png`, `throughput.png` and `sources.json`. Commit first so results are not tagged `-dirty`.
 
 ### Running the M5 characterization
@@ -97,7 +97,7 @@ cooldown, and writes `benchmarks/results/comparisons/<timestamp>/` containing `c
 build/release/benchmarks/dispatch_overhead --cooldown
 build/release/benchmarks/sync_methods --cooldown
 build/release/benchmarks/storage_modes --cooldown        # ~5 min; up to ~3.6 GB of memory at 1 GiB
-.venv/bin/python benchmarks/analysis/m5_report.py         # -> benchmarks/results/reports/m5-<timestamp>/
+.venv/bin/python benchmarks/analysis/m5_report.py         # -> data/derived/reports/m5-<timestamp>/
 ```
 
 M6: `cache_interference --cooldown`, `followups --cooldown`, `thermal_drift --minutes 15` (starts by waiting for
@@ -109,7 +109,7 @@ The low-level probes behind these benchmarks (`include/computeedge/metal_probes.
 Common flags are `--sizes`, `--reps`, `--warmup`, `--min-warmup-ms`, `--cooldown` (wait for thermal state
 `nominal`), `--out DIR` and `--no-write`. Each binary's source file header lists all of its flags.
 
-Each run writes `benchmarks/results/<timestamp>_<git-sha>/`:
+Each run writes `data/scratch/<timestamp>_<git-sha>/`:
 
 | File | Contents |
 |---|---|

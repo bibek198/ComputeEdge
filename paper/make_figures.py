@@ -4,7 +4,7 @@
     .venv/bin/python paper/make_figures.py [--session NAME]
 
 --session is "orig" (the original M4-M6 runs, default) or a confirmation session
-index such as "s0" (benchmarks/results/sessions/<stamp>_s0_<sha>/). The thermal figure uses the newest mixed-load
+index such as "s0" (data/sessions/<stamp>_s0_<sha>/). The thermal figure uses the newest mixed-load
 thermal run in the chosen session. Sources are recorded in figures/sources.json.
 """
 

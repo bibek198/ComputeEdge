@@ -3,7 +3,7 @@ build/
 compile_commands.json
 .DS_Store
 *.csv
-!benchmarks/results/**/*.csv
+!data/**/*.csv
 .venv/
 __pycache__/
 
@@ -14,3 +14,6 @@ paper/main-final.tex
 paper/*.blg
 paper/*.bbl
 paper/*.aux
+
+# Ad-hoc benchmark runs (default --out); never part of the evidence
+data/scratch/

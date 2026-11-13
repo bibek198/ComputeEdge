@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """M6 report: cache interference (RQ3), thermal drift (RQ4) and the follow-up
 experiments on the open M5 findings. Uses the newest clean run of each
-benchmark and writes benchmarks/results/reports/m6-<stamp>/ (report.md, PNGs,
+benchmark and writes data/derived/reports/m6-<stamp>/ (report.md, PNGs,
 sources.json).
 
 Usage: .venv/bin/python benchmarks/analysis/m6_report.py [--allow-dirty]
@@ -325,7 +325,7 @@ def main() -> int:
     if not any(runs.values()):
         print("error: no M6 results", file=sys.stderr)
         return 1
-    out = P.RESULTS / "reports" / f"m6-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}"
+    out = P.DERIVED / "reports" / f"m6-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}"
     out.mkdir(parents=True)
     sources = {}
     for name, run in runs.items():

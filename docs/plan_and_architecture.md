@@ -307,7 +307,7 @@ The cost tables come from Track A/B/D measurements, interpolated in log-size. Th
 
 ```mermaid
 flowchart LR
-    B["bench binary<br/>(C++ / MLX script)"] --> R["raw CSV + env JSON<br/>benchmarks/results/date_sha/"]
+    B["bench binary<br/>(C++ / MLX script)"] --> R["raw CSV + env JSON<br/>data/sessions/id/date_sha/"]
     R --> P["analysis notebooks<br/>(pandas, matplotlib)"]
     P --> F["figures + tables"] --> Paper["paper/"]
     R --> Repro["reproduce.sh<br/>one command per figure"]

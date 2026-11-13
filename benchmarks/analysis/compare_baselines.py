@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """M4 baseline comparison: builds one table and two figures from committed
-benchmark results (summary.csv files under benchmarks/results/).
+benchmark results (summary.csv files under data/sessions/orig/).
 
 Series (all FP32 square SGEMM, one synchronous call per measurement):
   CE CPU · Accelerate   cpu_matmul   impl=accelerate mode=e2e  (allocates output)
@@ -10,7 +10,7 @@ Series (all FP32 square SGEMM, one synchronous call per measurement):
   MLX · GPU stream      mlx_matmul   stream=gpu
 
 By default the newest clean (non "-dirty") run of each benchmark is used; pass
---runs to choose explicitly. Writes benchmarks/results/comparisons/<stamp>/ with
+--runs to choose explicitly. Writes data/derived/comparisons/<stamp>/ with
 comparison.md, comparison.csv, latency.png, throughput.png and sources.json.
 
 Usage: .venv/bin/python benchmarks/analysis/compare_baselines.py [--runs DIR ...] [--allow-dirty]
@@ -31,7 +31,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
-RESULTS = REPO / "benchmarks" / "results"
+RESULTS = REPO / "data" / "sessions" / "orig"   # original runs
+DERIVED = REPO / "data" / "derived"
 
 # Reference palette (dataviz skill), light mode; validated: all checks pass,
 # contrast WARN on slots 3-5 -> direct labels + distinct markers + table view.
@@ -183,7 +184,7 @@ def main() -> int:
 
     data = collect(runs)
     sizes = sorted({n for pts in data.values() for n in pts})
-    out = RESULTS / "comparisons" / dt.datetime.now().strftime("%Y%m%d-%H%M%S")
+    out = DERIVED / "comparisons" / dt.datetime.now().strftime("%Y%m%d-%H%M%S")
     out.mkdir(parents=True)
 
     envs = {b: json.loads((d / "env.json").read_text()) for b, d in runs.items()}

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # One confirmation session: re-runs every experiment behind the paper's claims
 # (M4 crossover, M5 Tracks A/B, M6 RQ3/RQ4 and follow-ups) into
-# benchmarks/results/sessions/<session>/, then checks the claims.
+# data/sessions/<session>/, then checks the claims.
 #
 #   scripts/run_session.sh [--thermal-load mixed|cpu|gpu] [--thermal-minutes 15] [--allow-dirty]
 #
@@ -43,9 +43,9 @@ pmset -g batt | head -1 | grep -q "AC Power" || echo "warning: not on AC power" 
 cmake --preset release >/dev/null   # refreshes the recorded git SHA
 cmake --build --preset release >/dev/null
 
-sessions_dir=benchmarks/results/sessions
+sessions_dir=data/sessions
 mkdir -p "$sessions_dir"
-index=$(find "$sessions_dir" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
+index=$(find "$sessions_dir" -mindepth 1 -maxdepth 1 -type d -name '*_s[0-9]*_*' | wc -l | tr -d ' ')   # confirmation sessions only (not orig)
 session="$(date +%Y%m%d-%H%M%S)_s${index}_$(git rev-parse --short=12 HEAD)"
 out="$sessions_dir/$session"
 mkdir -p "$out/logs"

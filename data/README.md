@@ -1,4 +1,4 @@
-# Benchmark results (raw data)
+# Research data
 
 Every measurement behind ComputeEdge's findings and paper. **These files are the primary data: do not edit
 or delete them.**
@@ -8,8 +8,9 @@ or delete them.**
 - **Immutable.** A committed result file is never modified. A run that turns out to be wrong (a bug, the wrong
   build) is superseded by a new run, and the reason is recorded in `research/findings.md`. Its files stay.
 - **Checked.** `MANIFEST.sha256` holds the SHA-256 of every file. `ctest` runs
-  `benchmarks/tools/results_manifest.sh check`, which fails if any listed file has changed or disappeared.
-  After committing new runs, run `benchmarks/tools/results_manifest.sh add`; existing entries are never rewritten.
+  `scripts/results_manifest.sh check`, which fails if any listed file has changed or disappeared.
+  After committing new runs, run `scripts/results_manifest.sh add`; existing entries are never rewritten.
+  The pre-refactor manifest is retained, unmodified, in `docs/verification/baseline/BASELINE.sha256`.
 - **Byte-exact in git.** `.gitattributes` marks this tree `-text`, so git never rewrites line endings.
 - **Provenance.** Every run directory is `<YYYYmmdd-HHMMSS>_<git sha>` (`-dirty` if the tree had uncommitted
   changes) and carries `env.json`: chip, OS build, power source, Low Power Mode, thermal state, compiler, flags,
@@ -23,9 +24,11 @@ or delete them.**
 
 | Path | Contents |
 |---|---|
-| `<stamp>_<sha>/` | One benchmark process: `env.json`, `samples.csv`, `summary.csv`, and when present `metrics.csv`, `metrics_summary.csv`, `timeseries.csv` |
-| `sessions/<session>/` | Confirmation sessions (`benchmarks/run_session.sh`): `session.json` plus one run directory per benchmark |
-| `comparisons/`, `reports/` | Derived tables and figures (regenerable from the runs; kept because the docs cite them) |
+| `sessions/orig/<stamp>_<sha>/` | The original M4–M6 runs (the "orig" session). One directory per benchmark process: `env.json`, `samples.csv`, `summary.csv`, and when present `metrics.csv`, `metrics_summary.csv`, `timeseries.csv` |
+| `sessions/<stamp>_s<N>_<sha>/` | Confirmation sessions (`scripts/run_session.sh`): `session.json`, `conditions.csv`, `logs/`, plus one run directory per benchmark |
+| `derived/comparisons/`, `derived/reports/` | Derived tables and figures (regenerable from the runs; kept because the docs cite them) |
+| `exclusions.json` | Runs left out of analysis, each with its reason and evidence |
+| `scratch/` | Default `--out` for ad-hoc benchmark runs. Git-ignored and never read by the analysis |
 
 ## File schemas
 

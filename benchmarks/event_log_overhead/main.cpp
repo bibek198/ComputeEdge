@@ -2,7 +2,7 @@
 // and enabled, and of a ScopedTimer. Plan §6 requires this to be measured and
 // reported alongside any result collected with logging on.
 //
-// Usage: event_log_overhead [--reps 30] [--out benchmarks/results] [--no-write]
+// Usage: event_log_overhead [--reps 30] [--out data/scratch] [--no-write]
 
 #include <cstdio>
 #include <cstdlib>
@@ -20,7 +20,7 @@ namespace cb = computeedge::bench;
 
 int main(int argc, char** argv) {
   int reps = 30;
-  std::string out = "benchmarks/results";
+  std::string out = "data/scratch";
   bool write = true;
   for (int i = 1; i < argc; ++i) {
     const std::string a = argv[i];

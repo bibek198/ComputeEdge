@@ -11,18 +11,18 @@ Evidence labels: **solid** (large effect, consistent across repeated runs or con
 
 **Confirmation status.** Each quantitative finding is now a claim (C1–C16) with a pass criterion fixed in
 `benchmarks/analysis/confirm_claims.py`, and is re-checked in every confirmation session
-(`scripts/run_session.sh`). The latest table is in `benchmarks/results/reports/confirm-*/claims.md`. As of
+(`scripts/run_session.sh`). The latest table is in `data/derived/reports/confirm-*/claims.md`. As of
 2026-11-13 (original runs plus session s0): 15 claims passed in every session where they could be evaluated; **C9
 (no eviction by GPU traffic) is inconsistent**, because one of 18 cells came out at +10.6% against a 10% bound in s0.
 The thermal claims C12–C13 rest on one valid run, because s0's thermal run is excluded (see
-`benchmarks/results/exclusions.json`: the adapter was unplugged and a video call ran during it). Paper-ready means
+`data/exclusions.json`: the adapter was unplugged and a video call ran during it). Paper-ready means
 confirmed in ≥3 sessions.
 
 ---
 
 ## M4: baselines (FP32 SGEMM)
 
-Source: [`results/comparisons/20261113-091016`](../benchmarks/results/comparisons/20261113-091016/comparison.md)
+Source: [`results/comparisons/20261113-091016`](../data/derived/comparisons/20261113-091016/comparison.md)
 
 1. **The CPU/GPU crossover is near 1024².** Accelerate wins below it (4.3 µs vs ~190 µs at 128²); GPU (MPS,
    MLX) wins from 2048² (~1.3×). At 1024² the 95% CIs overlap. *Solid* (large effects at both ends). The CPU
@@ -33,7 +33,7 @@ Source: [`results/comparisons/20261113-091016`](../benchmarks/results/comparison
 
 ## M5: dispatch, synchronization, storage modes (Tracks A and B)
 
-Source: [`results/reports/m5-20261113-174406`](../benchmarks/results/reports/m5-20261113-174406/report.md)
+Source: [`results/reports/m5-20261113-174406`](../data/derived/reports/m5-20261113-174406/report.md)
 (runs listed in its `sources.json`)
 
 ### Track A: the fixed cost of a GPU round trip
@@ -107,7 +107,7 @@ Source: [`results/reports/m5-20261113-174406`](../benchmarks/results/reports/m5-
 
 ## M6: cache interference, thermal drift, and follow-ups
 
-Source: [`results/reports/m6-20261113-191318`](../benchmarks/results/reports/m6-20261113-191318/report.md)
+Source: [`results/reports/m6-20261113-191318`](../data/derived/reports/m6-20261113-191318/report.md)
 (runs at 7cf5c55, listed in its `sources.json`)
 
 ### RQ3: does GPU work slow the CPU?

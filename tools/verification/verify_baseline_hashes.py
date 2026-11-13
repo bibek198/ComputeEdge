@@ -22,6 +22,7 @@ DATA_ROOTS = [
     "data/sessions/orig/{rel}",          # refactored layout: original runs
     "data/sessions/{rel_sessions}",      # refactored layout: confirmation sessions
     "data/derived/{rel}",                # refactored layout: reports / comparisons
+    "data/{rel}",                        # refactored layout: top-level files (exclusions.json)
 ]
 
 

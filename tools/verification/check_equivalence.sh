@@ -58,7 +58,8 @@ py="$repo/.venv/bin/python"
 claims_json=""; numbers=""
 if [[ -f "$wt/benchmarks/analysis/confirm_claims.py" ]]; then           # pre-Phase-5 layout
   (cd "$wt" && "$py" benchmarks/analysis/confirm_claims.py >/dev/null)
-  claims_json="$(find "$wt/benchmarks/results/reports" -maxdepth 1 -type d -name 'confirm-*' | sort | tail -1)/claims.json"
+  reports="$wt/data/derived/reports"; [[ -d "$reports" ]] || reports="$wt/benchmarks/results/reports"
+  claims_json="$(find "$reports" -maxdepth 1 -type d -name 'confirm-*' | sort | tail -1)/claims.json"
   numbers="$wt/paper/generated/numbers.tex"
 elif [[ -f "$wt/python/pyproject.toml" || -d "$wt/python/computeedge_analysis" ]]; then   # package layout
   (cd "$wt" && PYTHONPATH="$wt/python" "$py" -m computeedge_analysis.cli claims --out "$work/claims" >/dev/null)

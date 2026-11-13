@@ -4,7 +4,7 @@
 // flags, the environment banner, GPU pre-warm, Timing -> metrics, and output.
 //
 // Common flags: [--warmup 10] [--min-warmup-ms 200] [--prewarm-ms 1000] [--reps 30]
-//               [--out benchmarks/results] [--cooldown] [--no-write]
+//               [--out data/scratch] [--cooldown] [--no-write]
 
 #include <cstdio>
 #include <cstdlib>
@@ -33,7 +33,7 @@ struct CommonOptions {
   double min_warmup_ms = 200;
   double prewarm_ms = 1000;
   int reps = 30;
-  std::string out = "benchmarks/results";
+  std::string out = "data/scratch";
   bool cooldown = false;
   bool write = true;
 };
