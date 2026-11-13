@@ -116,6 +116,33 @@ cmake --preset debug   && cmake --build --preset debug   && ctest --preset debug
   - The `followups` allocation-failure message now includes the byte count. The exit code is still 1.
 - **Link hygiene.** Each binary links exactly what it needs. `cpu_matmul` links no Metal code, as before.
 
+## Presentation vs measurement (Phase 4)
+
+- **Structure.** Each binary is now `options.{h,cpp}` (the CLI contract), `experiments.{h,cpp}` (measurement logic),
+  and `main.cpp` (parse, banner, a `ConsoleReporter`, output), with a namespace `computeedge::bench::<binary>`.
+  Experiments report through `harness::Reporter`. The base class is silent; `ConsoleReporter` prints the same text
+  the code printed before. The harness `prewarm` reports through the reporter instead of printing.
+- **Library.** `thermal_drift`'s per-minute windowing became `bench::window_results`
+  (`include/computeedge/bench/windows.h`). A test checks it against a verbatim copy of the former inline code on
+  20 random time series. `Tensor::print()` (stdout) became `to_string()` and `operator<<`, so the library no longer
+  writes to stdout.
+- **CLI contract tests** (`tests/benchmarks/options_test.cpp`) compile all nine real `options.cpp` files. They check:
+  - every default against the `pre-refactor` source;
+  - the per-binary common-flag sets, as death tests (`cpu_matmul` rejects `--prewarm-ms`; `event_log_overhead`
+    rejects `--warmup` and `--cooldown`);
+  - that option validation (sync method, page-multiple sizes, `--load`) still runs before any measurement.
+- **Moves-only audit.** Every non-print, non-plumbing line of each pre-refactor `main()` body was searched for in the
+  new code: 549 lines checked, 59 not found verbatim, all reviewed:
+
+  | Category | Lines | Explanation |
+  |---|---:|---|
+  | Banner text | 4 | Now in `harness/console.cpp`; identical output |
+  | `1e-5` → `kCorrectnessTolerance` | 2 | Same value, pinned by a test |
+  | `mtl::` → `metal::` alias | 1 | `metal_matmul` pre-warm call, now in `harness/gpu.cpp` |
+  | Former hand-written parser | 10 | `event_log_overhead`, replaced by the harness parser in Phase 3 |
+  | Renamed helpers | 30 | `sync_from`→`parse_sync`, `kind_from`→`parse_kind`, `HostPages`/`HostMem`→`HostMemory`, `.ptr`→`.data()`, `timed`→`timed_ns`; all keep their behaviour |
+  | Thermal windowing | 12 | Moved to `window_results`; equivalence tested |
+
 ## Gate results
 
 | Phase | Gate | Result |
@@ -133,3 +160,8 @@ cmake --preset debug   && cmake --build --preset debug   && ctest --preset debug
 | 3 | Schema and execution traces identical (incl. per-binary pre-warm workloads, D14) | PASS |
 | 3 | 180 tests pass in release and debug (ASan/UBSan), incl. 18 harness tests; no build or link warnings | PASS |
 | 3 | Equivalence gate | PASS |
+| 4 | Schema and execution traces identical | PASS |
+| 4 | 196 tests in release and debug (ASan/UBSan), incl. CLI contracts for all 9 binaries and window_results equivalence | PASS |
+| 4 | Moves-only audit: 549 lines checked, 59 differences all accounted for | PASS |
+| 4 | Library no longer writes to stdout (`grep std::cout src include`: none) | PASS |
+| 4 | Equivalence gate | PASS |
