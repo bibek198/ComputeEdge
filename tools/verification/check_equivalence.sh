@@ -34,8 +34,11 @@ bad()  { echo "FAIL  $1"; fail=1; }
 # ---- 1. raw data -------------------------------------------------------------
 # The data tree moved during the refactor; locate it, then verify the retained
 # baseline hashes against the files at their current paths.
-python3 "$repo/tools/verification/verify_baseline_hashes.py" "$base/baseline/BASELINE.sha256" "$wt" \
-  && pass "raw data: all baseline files present with identical hashes" || bad "raw data hashes"
+if python3 "$repo/tools/verification/verify_baseline_hashes.py" "$base/baseline/BASELINE.sha256" "$wt"; then
+  pass "raw data: all baseline files present with identical hashes"
+else
+  bad "raw data hashes"
+fi
 
 # ---- 2+3. schema and traces ---------------------------------------------------
 build="$repo/build/release"
@@ -55,7 +58,7 @@ py="$repo/.venv/bin/python"
 claims_json=""; numbers=""
 if [[ -f "$wt/benchmarks/analysis/confirm_claims.py" ]]; then           # pre-Phase-5 layout
   (cd "$wt" && "$py" benchmarks/analysis/confirm_claims.py >/dev/null)
-  claims_json="$(ls -d "$wt"/benchmarks/results/reports/confirm-* | sort | tail -1)/claims.json"
+  claims_json="$(find "$wt/benchmarks/results/reports" -maxdepth 1 -type d -name 'confirm-*' | sort | tail -1)/claims.json"
   numbers="$wt/paper/generated/numbers.tex"
 elif [[ -f "$wt/python/pyproject.toml" || -d "$wt/python/computeedge_analysis" ]]; then   # package layout
   (cd "$wt" && PYTHONPATH="$wt/python" "$py" -m computeedge_analysis.cli claims --out "$work/claims" >/dev/null)
@@ -69,4 +72,9 @@ else bad "claims differ:"; diff "$base/baseline/claims.json" "$claims_json" | he
 if grep -v '^% Source:' "$numbers" | cmp -s "$base/baseline/numbers.normalized.tex" -; then pass "numbers.tex identical (normalized)"
 else bad "numbers.tex differs:"; grep -v '^% Source:' "$numbers" | diff "$base/baseline/numbers.normalized.tex" - | head -30; fi
 
-[[ $fail -eq 0 ]] && echo "ALL EQUIVALENCE GATES PASS ($(git rev-parse --short HEAD))" || { echo "EQUIVALENCE GATES FAILED"; exit 1; }
+if [[ $fail -eq 0 ]]; then
+  echo "ALL EQUIVALENCE GATES PASS ($(git rev-parse --short HEAD))"
+else
+  echo "EQUIVALENCE GATES FAILED"
+  exit 1
+fi

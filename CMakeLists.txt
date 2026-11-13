@@ -42,6 +42,12 @@ if(CE_SANITIZE)
 endif()
 
 set(CE_WARNINGS -Wall -Wextra -Wpedantic -Wshadow)
+# CI turns warnings into errors for ComputeEdge's own targets only; third-party
+# code (googletest via FetchContent) never receives these flags.
+option(CE_WARNINGS_AS_ERRORS "Treat warnings in ComputeEdge targets as errors" OFF)
+if(CE_WARNINGS_AS_ERRORS)
+  list(APPEND CE_WARNINGS -Werror)
+endif()
 
 # Library layout (docs/plan_and_architecture.md §3.2):
 #   computeedge_core   tensor, allocator, instrumentation; portable C++, no Apple frameworks

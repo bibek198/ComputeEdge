@@ -1,0 +1,45 @@
+# Continuous integration: build and test both presets, lint, and verify that the
+# committed raw research data is untouched. Metal tests skip themselves when the
+# runner has no usable GPU.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: macos-15   # Apple silicon
+    strategy:
+      fail-fast: false
+      matrix:
+        preset: [release, debug]   # debug = ASan + UBSan
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake --preset ${{ matrix.preset }} -DCE_WARNINGS_AS_ERRORS=ON
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }}
+      - name: Test
+        run: ctest --preset ${{ matrix.preset }} --output-on-failure
+
+  data-integrity:   # mandatory: raw evidence must match its manifests
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Baseline manifest (pre-refactor, never regenerated)
+        run: python3 tools/verification/verify_baseline_hashes.py docs/verification/baseline/BASELINE.sha256 .
+      - name: Current manifest
+        run: sh benchmarks/tools/results_manifest.sh check
+
+  lint:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install linters
+        run: |
+          brew install clang-format shellcheck
+          python3 -m venv .venv
+          .venv/bin/pip install ruff==0.8.4
+      - name: Lint (blocking checks are listed in tools/lint.sh)
+        run: tools/lint.sh

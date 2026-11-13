@@ -49,6 +49,26 @@ cmake --preset debug   && cmake --build --preset debug   && ctest --preset debug
   while the probe benchmarks use `gpu_stream_write kind=private bytes=67108864`.
 - **Tag.** `pre-refactor-instrumented`.
 
+## Tooling (Phase 1)
+
+- **Formatting.** `.clang-format` (Google base, 120 columns, short functions on one line, as in the existing code) and
+  `.editorconfig`. The formatting pass was whitespace-only: all 44 C++/ObjC++ files are identical to their
+  pre-format versions with whitespace removed. Include sorting followed in a separate commit; each changed file
+  has the same multiset of lines as before. `.metal` files and `kernel_sources.h.in` are not formatted.
+- **Static analysis.** `.clang-tidy` enforces the naming convention plus bugprone / performance checks.
+  `ruff.toml` covers Python, and `shellcheck` covers shell. `tools/lint.sh` runs them all.
+- **CI.** `.github/workflows/ci.yml` builds and tests release and debug (ASan/UBSan) with `-DCE_WARNINGS_AS_ERRORS=ON`
+  (project targets only, never googletest). It also verifies the data against the retained baseline manifest
+  (mandatory) and runs lint. Committed, not pushed. Verified locally: both presets build with `-Werror` and pass 162 tests.
+- **Lint baseline** (report-only until each reaches zero; `tools/lint.sh` lists the blocking checks):
+
+  | Check | Findings at Phase 1 | Fixed in |
+  |---|---:|---|
+  | format | 0 (blocking) | — |
+  | clang-tidy | 74 (44 naming, 11 exception-escape, 2 empty-catch, 2 use-after-move, misc. performance) | naming: phases 2–4; error paths: phase 6 |
+  | ruff | 144 (69 missing docstrings, lambdas, loop-variable capture, line length, naming) | phase 5 |
+  | shellcheck | 1 (`run_session.sh`) | phase 8 |
+
 ## Gate results
 
 | Phase | Gate | Result |
@@ -56,3 +76,7 @@ cmake --preset debug   && cmake --build --preset debug   && ctest --preset debug
 | 0a | Baseline captured | PASS |
 | 0b | Hook inert when disabled (schema byte-identical; 162 tests pass) | PASS |
 | 0b | Baseline execution traces captured | PASS |
+| 1 | Formatting is whitespace-only (token check over 44 files) | PASS |
+| 1 | Include sorting is reordering-only | PASS |
+| 1 | Both presets build with `-Werror`; 162 tests pass | PASS |
+| 1 | Equivalence gate after formatting (data, schema, traces, claims, numbers) | PASS |
