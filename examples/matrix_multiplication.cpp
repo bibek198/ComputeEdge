@@ -1,6 +1,6 @@
 // Minimal ComputeEdge example: 2x2 matrix multiplication with instrumentation.
 //
-//   ./build/examples/matrix_multiplication [events.csv]
+//   ./build/release/examples/matrix_multiplication [events.csv]
 
 #include <cstdio>
 #include <iostream>

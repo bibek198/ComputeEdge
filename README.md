@@ -11,10 +11,9 @@ Apple Silicon's unified memory.
 
 ```sh
 brew install cmake ninja
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-cmake --build build && ctest --test-dir build --output-on-failure
-./build/examples/matrix_multiplication            # 19 22 / 43 50
-./build/benchmarks/metal_matmul --sizes 128,1024  # per-phase GPU cost breakdown
+cmake --preset release && cmake --build --preset release && ctest --preset release
+./build/release/examples/matrix_multiplication            # 19 22 / 43 50
+./build/release/benchmarks/metal_matmul --sizes 128,1024  # per-phase GPU cost breakdown
 ```
 
 See [docs/getting_started.md](docs/getting_started.md) for the library API, the event log and benchmarks.
@@ -30,6 +29,7 @@ src/benchmark/         harness: runner, statistics, environment recorder        
 benchmarks/            baseline/ and overhead/ benchmarks, committed results/
 tests/                 GoogleTest suites + layering checks
 docs/, research/       plan & architecture, getting started, related work
+build/                 build output (git-ignored): build/release, build/debug
 ```
 
 ## Documents

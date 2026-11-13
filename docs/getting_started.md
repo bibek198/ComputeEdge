@@ -8,18 +8,14 @@
 
 ## Build and test
 
-```sh
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-cmake --build build
-ctest --test-dir build --output-on-failure
-```
-
-For development, build with AddressSanitizer and UBSan:
+Two presets are defined in `CMakePresets.json`. Everything they produce goes under `build/`, which git ignores.
 
 ```sh
-cmake -S . -B build-asan -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCE_SANITIZE=ON
-cmake --build build-asan && ctest --test-dir build-asan --output-on-failure
+cmake --preset release && cmake --build --preset release && ctest --preset release   # build/release
+cmake --preset debug   && cmake --build --preset debug   && ctest --preset debug     # build/debug, ASan + UBSan
 ```
+
+Use `release` for benchmarks and `debug` while developing. Deleting `build/` is always safe, because it is fully regenerated.
 
 The test suite covers:
 - Tensor, allocator and instrumentation unit tests.
@@ -59,18 +55,18 @@ EventLog::global().write_csv("events.csv");
 ```
 
 Each CSV row is `t_ns,type,id,exec_id,bytes,backend,label`, with all timestamps on one clock, GPU ones included.
-`./build/examples/matrix_multiplication events.csv` writes a small example log.
+`./build/release/examples/matrix_multiplication events.csv` writes a small example log.
 
 ## Benchmarks
 
-Run benchmarks from a **Release** build, **on AC power**, and **after re-running `cmake`** once your changes are
+Run benchmarks from a **Release** build, **on AC power**, and **after re-running `cmake --preset release`** once your changes are
 committed. The git SHA is captured at configure time, so this keeps results tagged with the right revision.
 
 | Binary | What it measures |
 |---|---|
-| `build/benchmarks/cpu_matmul` | Accelerate vs naive SGEMM, compute-only and including output allocation |
-| `build/benchmarks/metal_matmul` | Metal SGEMM per storage mode (NoCopy / Shared / Private), with per-phase breakdown and cold start |
-| `build/benchmarks/event_log_overhead` | Cost of `emit()` and `ScopedTimer` with the log disabled and enabled |
+| `build/release/benchmarks/cpu_matmul` | Accelerate vs naive SGEMM, compute-only and including output allocation |
+| `build/release/benchmarks/metal_matmul` | Metal SGEMM per storage mode (NoCopy / Shared / Private), with per-phase breakdown and cold start |
+| `build/release/benchmarks/event_log_overhead` | Cost of `emit()` and `ScopedTimer` with the log disabled and enabled |
 
 Common flags are `--sizes`, `--reps`, `--warmup`, `--min-warmup-ms`, `--cooldown` (wait for thermal state
 `nominal`), `--out DIR` and `--no-write`. Each binary's source file header lists all of its flags.

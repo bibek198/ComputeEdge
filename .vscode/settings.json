@@ -1,0 +1,10 @@
+{
+  "files.exclude": {
+    "build/": true,
+    "**/.DS_Store": true
+  },
+  "search.exclude": {
+    "build/": true
+  },
+  "cmake.useCMakePresets": "always"
+}
