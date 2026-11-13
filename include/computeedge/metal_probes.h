@@ -51,6 +51,7 @@ enum class BufferKind : uint8_t {
   Private,     // newBufferWithLength, MTLResourceStorageModePrivate (no CPU access)
   NoCopy,      // newBufferWithBytesNoCopy over page-aligned host memory
   SharedCopy,  // newBufferWithBytes: Shared buffer initialised by copying host memory
+  SharedWriteCombined,  // Shared + MTLResourceCPUCacheModeWriteCombined (CPU writes bypass caches)
 };
 
 const char* to_string(BufferKind kind);
@@ -95,5 +96,33 @@ const char* to_string(Stream stream);
 // Streams all of `a` on the GPU (Read or Write), or copies `a` into `b` (Copy;
 // same size). Sizes must be multiples of 16 bytes. Bandwidth = bytes moved / gpu_ns().
 Timing gpu_stream(Stream stream, const Buffer& a, const Buffer* b = nullptr, Sync sync = Sync::WaitUntilCompleted);
+
+// GPU work committed without waiting, so the CPU can run concurrently (M6).
+// wait() blocks until the GPU finishes and returns the Timing (wait_ns is the
+// blocking time inside wait(); total_ns runs from encode start to wait() return).
+// The destructor waits if wait() was never called. Buffers used by the
+// submission must outlive it.
+class Submission {
+ public:
+  Submission() = default;
+  Submission(Submission&& other) noexcept;
+  Submission& operator=(Submission&& other) noexcept;
+  Submission(const Submission&) = delete;
+  Submission& operator=(const Submission&) = delete;
+  ~Submission();
+
+  bool done() const;  // true once the GPU has finished (or nothing is pending)
+  Timing wait();
+
+ private:
+  friend Submission gpu_stream_async(Stream, const Buffer&, const Buffer*, uint32_t);
+  void* handle_ = nullptr;  // retained MTLCommandBuffer object
+  Timing timing_;
+  uint64_t start_ns_ = 0;
+};
+
+// Like gpu_stream, but `repeats` passes over the buffer in one command buffer,
+// committed without waiting.
+Submission gpu_stream_async(Stream stream, const Buffer& a, const Buffer* b = nullptr, uint32_t repeats = 1);
 
 }  // namespace computeedge::metal::probe

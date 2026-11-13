@@ -112,6 +112,11 @@ TEST_F(ProbeTest, BufferKinds) {
   EXPECT_EQ(shared.bytes(), 4 * page);
   EXPECT_NE(shared.contents(), nullptr);
 
+  probe::Buffer wc = probe::Buffer::create(probe::BufferKind::SharedWriteCombined, 4 * page);
+  EXPECT_NE(wc.contents(), nullptr);
+  std::memset(wc.contents(), 7, 4 * page);
+  EXPECT_EQ(static_cast<unsigned char*>(wc.contents())[4 * page - 1], 7);
+
   probe::Buffer priv = probe::Buffer::create(probe::BufferKind::Private, 4 * page);
   EXPECT_EQ(priv.contents(), nullptr) << "Private buffers have no CPU mapping";
 
@@ -200,4 +205,40 @@ TEST_F(ProbeTest, StreamErrors) {
   probe::Buffer empty;
   EXPECT_THROW(probe::gpu_stream(probe::Stream::Read, empty), Error);
   EXPECT_THROW(probe::bind_dispatch(empty), Error);
+}
+
+TEST_F(ProbeTest, AsyncStreamCompletesAndReportsTiming) {
+  probe::Buffer buf = probe::Buffer::create(probe::BufferKind::Shared, 1 << 22);
+  std::memset(buf.contents(), 0, buf.bytes());
+  const uint64_t before = now_ns();
+  probe::Submission sub = probe::gpu_stream_async(probe::Stream::Write, buf, nullptr, 3);
+  const mtl::Timing t = sub.wait();
+  EXPECT_TRUE(sub.done());
+  EXPECT_GT(t.gpu_start_ns, before);
+  EXPECT_LE(t.gpu_start_ns, t.gpu_end_ns);
+  EXPECT_LE(t.gpu_end_ns, t.wait_end_ns);
+  EXPECT_LE(t.encode_ns + t.commit_ns + t.wait_ns, t.total_ns);
+  const float* f = static_cast<const float*>(buf.contents());
+  for (size_t i = 0; i < buf.bytes() / sizeof(float); i += 997) ASSERT_EQ(f[i], 1.0f);
+  EXPECT_EQ(sub.wait().wait_end_ns, t.wait_end_ns) << "second wait returns the same timing";
+}
+
+TEST_F(ProbeTest, AsyncStreamOverlapsWithCpu) {
+  probe::Buffer buf = probe::Buffer::create(probe::BufferKind::Private, size_t{64} << 20);
+  probe::Submission sub = probe::gpu_stream_async(probe::Stream::Write, buf, nullptr, 8);
+  const uint64_t cpu_mark = now_ns();  // CPU is free while the GPU works
+  const mtl::Timing t = sub.wait();
+  EXPECT_LT(cpu_mark, t.gpu_end_ns) << "commit must return before the GPU finishes";
+}
+
+TEST_F(ProbeTest, AsyncSubmissionWaitsOnDestructionAndMove) {
+  probe::Buffer buf = probe::Buffer::create(probe::BufferKind::Shared, 1 << 20);
+  std::memset(buf.contents(), 0, buf.bytes());
+  {
+    probe::Submission a = probe::gpu_stream_async(probe::Stream::Write, buf);
+    probe::Submission b = std::move(a);
+    EXPECT_TRUE(a.done());
+  }  // b's destructor waits
+  EXPECT_EQ(static_cast<const float*>(buf.contents())[buf.bytes() / sizeof(float) - 1], 1.0f);
+  EXPECT_THROW(probe::gpu_stream_async(probe::Stream::Write, buf, nullptr, 0), Error);
 }

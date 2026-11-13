@@ -141,6 +141,10 @@ if(CE_BUILD_BENCHMARKS)
   ce_benchmark(dispatch_overhead benchmarks/dispatch/dispatch_overhead.cpp computeedge_metal)
   ce_benchmark(sync_methods benchmarks/synchronization/sync_methods.cpp computeedge_metal)
   ce_benchmark(storage_modes benchmarks/storage_modes/storage_modes.cpp computeedge_metal)
+  # M6: cache interference and thermal drift
+  ce_benchmark(cache_interference benchmarks/cache/cache_interference.cpp computeedge_cpu computeedge_metal)
+  ce_benchmark(thermal_drift benchmarks/thermal/thermal_drift.cpp computeedge_cpu computeedge_metal)
+  ce_benchmark(followups benchmarks/storage_modes/followups.cpp computeedge_metal)
 endif()
 
 # ---------------------------------------------------------------------------

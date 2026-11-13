@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -172,6 +173,7 @@ const char* to_string(BufferKind kind) {
     case BufferKind::Private: return "private";
     case BufferKind::NoCopy: return "nocopy";
     case BufferKind::SharedCopy: return "shared_copy";
+    case BufferKind::SharedWriteCombined: return "shared_wc";
   }
   return "unknown";
 }
@@ -247,6 +249,10 @@ Buffer Buffer::create(BufferKind kind, size_t bytes, void* host) {
         break;
       case BufferKind::Private:
         buf = [device newBufferWithLength:bytes options:MTLResourceStorageModePrivate];
+        break;
+      case BufferKind::SharedWriteCombined:
+        buf = [device newBufferWithLength:bytes
+                                  options:MTLResourceStorageModeShared | MTLResourceCPUCacheModeWriteCombined];
         break;
       case BufferKind::NoCopy: {
         if (host) {
@@ -343,13 +349,19 @@ Timing bind_dispatch(const Buffer& buffer, Sync sync) {
   });
 }
 
-Timing gpu_stream(Stream stream, const Buffer& a, const Buffer* b, Sync sync) {
+namespace {
+
+// Validates a stream request and returns a function that encodes `repeats`
+// stream dispatches into an encoder.
+std::function<void(id<MTLComputeCommandEncoder>)> stream_encoder(Stream stream, const Buffer& a, const Buffer* b,
+                                                                  uint32_t repeats) {
   require_available();
   if (!a) throw Error("probe::gpu_stream: empty buffer");
   if (a.bytes() % 16 != 0) throw Error("probe::gpu_stream: size must be a multiple of 16 bytes");
   if (stream == Stream::Copy && (!b || !*b || b->bytes() != a.bytes())) {
     throw Error("probe::gpu_stream: Copy needs a destination buffer of the same size");
   }
+  if (repeats == 0) throw Error("probe::gpu_stream: repeats must be >= 1");
   const size_t n4_full = a.bytes() / 16;
   if (n4_full > UINT32_MAX) throw Error("probe::gpu_stream: buffer too large");
   const uint32_t n4 = static_cast<uint32_t>(n4_full);
@@ -363,14 +375,111 @@ Timing gpu_stream(Stream stream, const Buffer& a, const Buffer* b, Sync sync) {
 
   id<MTLBuffer> src = mtl(a);
   id<MTLBuffer> dst = b ? mtl(*b) : nil;
-  return run_single(sync, [&](id<MTLComputeCommandEncoder> enc) {
+  return [=](id<MTLComputeCommandEncoder> enc) {
+    uint32_t count = n4;
     [enc setComputePipelineState:pso];
     [enc setBuffer:src offset:0 atIndex:0];
     if (stream == Stream::Read) [enc setBuffer:sink offset:0 atIndex:1];
     if (stream == Stream::Copy) [enc setBuffer:dst offset:0 atIndex:1];
-    [enc setBytes:&n4 length:sizeof(n4) atIndex:2];
-    [enc dispatchThreads:MTLSizeMake(threads, 1, 1) threadsPerThreadgroup:MTLSizeMake(group, 1, 1)];
-  });
+    [enc setBytes:&count length:sizeof(count) atIndex:2];
+    for (uint32_t r = 0; r < repeats; ++r) {
+      [enc dispatchThreads:MTLSizeMake(threads, 1, 1) threadsPerThreadgroup:MTLSizeMake(group, 1, 1)];
+    }
+  };
+}
+
+}  // namespace
+
+Timing gpu_stream(Stream stream, const Buffer& a, const Buffer* b, Sync sync) {
+  const auto encode = stream_encoder(stream, a, b, 1);
+  return run_single(sync, encode);
+}
+
+// ---------------------------------------------------------------------------
+// Asynchronous submission
+// ---------------------------------------------------------------------------
+
+Submission gpu_stream_async(Stream stream, const Buffer& a, const Buffer* b, uint32_t repeats) {
+  const auto encode = stream_encoder(stream, a, b, repeats);
+  Submission sub;
+  @autoreleasepool {
+    const uint64_t start = now_ns();
+    id<MTLCommandBuffer> cb = [context().queue commandBuffer];
+    id<MTLComputeCommandEncoder> enc = [cb computeCommandEncoder];
+    encode(enc);
+    [enc endEncoding];
+    sub.timing_.encode_ns = now_ns() - start;
+    const uint64_t c0 = now_ns();
+    [cb commit];
+    sub.timing_.commit_end_ns = now_ns();
+    sub.timing_.commit_ns = sub.timing_.commit_end_ns - c0;
+    sub.start_ns_ = start;
+    sub.handle_ = (__bridge_retained void*)cb;
+  }
+  return sub;
+}
+
+Submission::Submission(Submission&& other) noexcept
+    : handle_(other.handle_), timing_(other.timing_), start_ns_(other.start_ns_) {
+  other.handle_ = nullptr;
+}
+
+Submission& Submission::operator=(Submission&& other) noexcept {
+  if (this != &other) {
+    if (handle_) {
+      try {
+        wait();
+      } catch (...) {
+      }
+    }
+    handle_ = other.handle_;
+    timing_ = other.timing_;
+    start_ns_ = other.start_ns_;
+    other.handle_ = nullptr;
+  }
+  return *this;
+}
+
+Submission::~Submission() {
+  if (handle_) {
+    try {
+      wait();  // never leave GPU work running against buffers the caller may free
+    } catch (...) {
+    }
+  }
+}
+
+bool Submission::done() const {
+  if (!handle_) return true;
+  bool finished = false;
+  @autoreleasepool {
+    finished = [(__bridge id<MTLCommandBuffer>)handle_ status] >= MTLCommandBufferStatusCompleted;
+  }
+  return finished;
+}
+
+Timing Submission::wait() {
+  if (!handle_) return timing_;
+  std::string failure;
+  @autoreleasepool {
+    id<MTLCommandBuffer> cb = (__bridge_transfer id<MTLCommandBuffer>)handle_;
+    handle_ = nullptr;
+    const uint64_t w0 = now_ns();
+    [cb waitUntilCompleted];
+    timing_.wait_end_ns = now_ns();
+    timing_.wait_ns = timing_.wait_end_ns - w0;
+    timing_.total_ns = timing_.wait_end_ns - start_ns_;
+    if ([cb status] != MTLCommandBufferStatusCompleted) {
+      failure = "probe: async command buffer failed: " + ns_error([cb error]);
+    } else {
+      timing_.sched_start_ns = to_ns([cb kernelStartTime]);
+      timing_.sched_end_ns = to_ns([cb kernelEndTime]);
+      timing_.gpu_start_ns = to_ns([cb GPUStartTime]);
+      timing_.gpu_end_ns = to_ns([cb GPUEndTime]);
+    }
+  }
+  if (!failure.empty()) throw Error(failure);
+  return timing_;
 }
 
 }  // namespace computeedge::metal::probe
