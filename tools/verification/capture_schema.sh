@@ -42,8 +42,9 @@ run storage_modes      "$B/storage_modes" "${quick[@]}" "${o[@]}" --prewarm-ms 0
 run cache_interference "$B/cache_interference" "${quick[@]}" "${o[@]}" --prewarm-ms 0 --working-sets 1M --gpu-sizes 16M
 run followups          "$B/followups" "${quick[@]}" "${o[@]}" --prewarm-ms 0
 run thermal_drift      "$B/thermal_drift" "${o[@]}" --prewarm-ms 0 --minutes 0.05 --no-cooldown
-if [[ -x .venv/bin/python ]]; then
-  run mlx_matmul .venv/bin/python benchmarks/mlx/mlx_matmul.py --sizes 64 --reps 3 --warmup 1 --min-warmup-ms 0 \
+py="${CE_PYTHON:-.venv/bin/python}"
+if [[ -x "$py" ]]; then
+  run mlx_matmul "$py" benchmarks/mlx/mlx_matmul.py --sizes 64 --reps 3 --warmup 1 --min-warmup-ms 0 \
     --prewarm-ms 0 --out "$tmp/runs" --ce-env "$build/benchmarks/ce_env"
 fi
 "$B/ce_env" > "$tmp/ce_env.json"
