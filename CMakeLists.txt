@@ -105,14 +105,16 @@ add_library(computeedge::computeedge ALIAS computeedge)
 # Benchmark harness (Foundation / IOKit / Metal for environment recording)
 # ---------------------------------------------------------------------------
 add_library(computeedge_bench STATIC
-  src/benchmark/benchmark.cpp
-  src/benchmark/stats.cpp
-  src/benchmark/env_recorder.mm
+  src/bench/environment.mm
+  src/bench/result_writer.cpp
+  src/bench/runner.cpp
+  src/bench/stats.cpp
+  src/bench/trace.cpp
 )
 target_link_libraries(computeedge_bench PUBLIC computeedge_core
   "-framework Foundation" "-framework IOKit" "-framework Metal")
 target_compile_options(computeedge_bench PRIVATE ${CE_WARNINGS})
-set_source_files_properties(src/benchmark/env_recorder.mm PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
+set_source_files_properties(src/bench/environment.mm PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
 target_compile_definitions(computeedge_bench PRIVATE
   CE_GIT_SHA="${CE_GIT_SHA}"
   CE_BUILD_TYPE="${CMAKE_BUILD_TYPE}"
@@ -169,13 +171,16 @@ if(CE_BUILD_TESTS)
 
   enable_testing()
   add_executable(computeedge_tests
-    tests/allocator_tests.cpp
-    tests/instrumentation_tests.cpp
-    tests/tensor_tests.cpp
-    tests/matmul_tests.cpp
-    tests/benchmark_tests.cpp
-    tests/backend_tests.cpp
-    tests/probe_tests.cpp
+    tests/core/allocator_test.cpp
+    tests/core/instrumentation_test.cpp
+    tests/core/tensor_test.cpp
+    tests/cpu/matmul_test.cpp
+    tests/metal/matmul_test.cpp
+    tests/metal/probes_test.cpp
+    tests/bench/stats_test.cpp
+    tests/bench/environment_test.cpp
+    tests/bench/runner_test.cpp
+    tests/bench/result_writer_test.cpp
   )
   target_link_libraries(computeedge_tests PRIVATE computeedge computeedge_bench GTest::gtest_main)
   target_compile_options(computeedge_tests PRIVATE -Wall -Wextra)
@@ -185,7 +190,7 @@ if(CE_BUILD_TESTS)
 
   # Layering checks (plan §3.2): core links with no Apple frameworks, and public
   # headers expose no Objective-C.
-  add_executable(core_only_check tests/core_only_check.cpp)
+  add_executable(core_only_check tests/layering/core_only_check.cpp)
   target_link_libraries(core_only_check PRIVATE computeedge_core)
   add_test(NAME layering.core_links_without_frameworks COMMAND core_only_check)
   add_test(NAME data.results_unchanged

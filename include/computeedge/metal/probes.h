@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "computeedge/metal.h"
+#include "computeedge/metal/matmul.h"
 
 namespace computeedge::metal::probe {
 

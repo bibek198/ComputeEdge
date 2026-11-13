@@ -1,6 +1,6 @@
 // Argument validation shared by all matmul backends (CPU, Metal).
 
-#include "computeedge/ops.h"
+#include "computeedge/core/validate.h"
 
 namespace computeedge {
 

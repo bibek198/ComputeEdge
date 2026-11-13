@@ -3,8 +3,8 @@
 #include <cstdint>
 #include <cstring>
 
-#include "computeedge/allocator.h"
-#include "computeedge/tensor.h"
+#include "computeedge/core/allocator.h"
+#include "computeedge/core/tensor.h"
 
 using namespace computeedge;
 

@@ -3,7 +3,7 @@
 // Internal CPU kernels. Callers (src/cpu/matmul.cpp) have already validated shapes
 // and guarantee `out` is a contiguous [M,N] tensor.
 
-#include "computeedge/tensor.h"
+#include "computeedge/core/tensor.h"
 
 namespace computeedge::detail {
 

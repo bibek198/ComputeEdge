@@ -1,4 +1,4 @@
-#include "computeedge/tensor.h"
+#include "computeedge/core/tensor.h"
 
 #include <algorithm>
 #include <cstring>

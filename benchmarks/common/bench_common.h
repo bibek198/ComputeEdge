@@ -14,10 +14,13 @@
 #include <string>
 #include <vector>
 
-#include "computeedge/benchmark.h"
-#include "computeedge/instrumentation.h"
-#include "computeedge/metal.h"
-#include "computeedge/metal_probes.h"
+#include "computeedge/bench/environment.h"
+#include "computeedge/bench/result_writer.h"
+#include "computeedge/bench/runner.h"
+#include "computeedge/bench/trace.h"
+#include "computeedge/core/instrumentation.h"
+#include "computeedge/metal/matmul.h"
+#include "computeedge/metal/probes.h"
 
 namespace ce_bench {
 

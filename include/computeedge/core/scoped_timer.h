@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "computeedge/instrumentation.h"
+#include "computeedge/core/instrumentation.h"
 
 namespace computeedge {
 

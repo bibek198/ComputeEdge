@@ -1,11 +1,11 @@
-#include "computeedge/instrumentation.h"
+#include "computeedge/core/instrumentation.h"
 
 #include <time.h>
 
 #include <fstream>
 #include <ostream>
 
-#include "computeedge/error.h"
+#include "computeedge/core/error.h"
 
 namespace computeedge {
 

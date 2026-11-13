@@ -3,7 +3,7 @@
 #include <sstream>
 #include <vector>
 
-#include "computeedge/tensor.h"
+#include "computeedge/core/tensor.h"
 
 using namespace computeedge;
 

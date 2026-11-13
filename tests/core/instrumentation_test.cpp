@@ -7,10 +7,10 @@
 #include <thread>
 #include <vector>
 
-#include "computeedge/allocator.h"
-#include "computeedge/instrumentation.h"
-#include "computeedge/ops.h"
-#include "computeedge/scoped_timer.h"
+#include "computeedge/core/allocator.h"
+#include "computeedge/core/instrumentation.h"
+#include "computeedge/core/scoped_timer.h"
+#include "computeedge/cpu/matmul.h"
 
 using namespace computeedge;
 

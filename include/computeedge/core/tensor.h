@@ -7,8 +7,8 @@
 #include <memory>
 #include <vector>
 
-#include "computeedge/allocator.h"
-#include "computeedge/error.h"
+#include "computeedge/core/allocator.h"
+#include "computeedge/core/error.h"
 
 namespace computeedge {
 

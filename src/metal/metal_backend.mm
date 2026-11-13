@@ -12,11 +12,12 @@
 #include <cstring>
 #include <string>
 
-#include "computeedge/error.h"
-#include "computeedge/instrumentation.h"
+#include "computeedge/core/error.h"
+#include "computeedge/core/instrumentation.h"
+#include "computeedge/core/validate.h"
+#include "computeedge/cpu/matmul.h"
 #include "computeedge/kernel_sources.h"  // generated
-#include "computeedge/metal.h"
-#include "computeedge/ops.h"
+#include "computeedge/metal/matmul.h"
 
 namespace computeedge::metal {
 

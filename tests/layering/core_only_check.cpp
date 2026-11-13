@@ -1,10 +1,11 @@
 // Links against computeedge_core only. If core ever depends on an Apple
 // framework or a backend, this target fails to link.
 
-#include "computeedge/allocator.h"
-#include "computeedge/instrumentation.h"
-#include "computeedge/ops.h"
-#include "computeedge/tensor.h"
+#include "computeedge/core/allocator.h"
+#include "computeedge/core/instrumentation.h"
+#include "computeedge/core/tensor.h"
+#include "computeedge/core/validate.h"
+#include "computeedge/cpu/matmul.h"
 
 int main() {
   using namespace computeedge;

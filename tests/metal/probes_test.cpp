@@ -11,9 +11,9 @@
 #include <cstring>
 #include <vector>
 
-#include "computeedge/error.h"
-#include "computeedge/instrumentation.h"
-#include "computeedge/metal_probes.h"
+#include "computeedge/core/error.h"
+#include "computeedge/core/instrumentation.h"
+#include "computeedge/metal/probes.h"
 
 using namespace computeedge;
 namespace mtl = computeedge::metal;

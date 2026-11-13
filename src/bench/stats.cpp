@@ -3,8 +3,8 @@
 #include <numeric>
 #include <random>
 
-#include "computeedge/benchmark.h"
-#include "computeedge/error.h"
+#include "computeedge/bench/stats.h"
+#include "computeedge/core/error.h"
 
 namespace computeedge::bench {
 

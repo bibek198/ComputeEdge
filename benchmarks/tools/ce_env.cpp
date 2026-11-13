@@ -7,7 +7,7 @@
 #include <cstring>
 #include <iostream>
 
-#include "computeedge/benchmark.h"
+#include "computeedge/bench/environment.h"
 
 int main(int argc, char** argv) {
   namespace cb = computeedge::bench;

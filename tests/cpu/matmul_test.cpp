@@ -4,7 +4,7 @@
 #include <random>
 #include <vector>
 
-#include "computeedge/ops.h"
+#include "computeedge/cpu/matmul.h"
 
 using namespace computeedge;
 

@@ -12,7 +12,7 @@
 #include <sstream>
 #include <thread>
 
-#include "computeedge/benchmark.h"
+#include "computeedge/bench/environment.h"
 
 #ifndef CE_GIT_SHA
 #define CE_GIT_SHA "unknown"

@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <string>
 
-#include "computeedge/tensor.h"
+#include "computeedge/core/tensor.h"
 
 namespace computeedge::metal {
 

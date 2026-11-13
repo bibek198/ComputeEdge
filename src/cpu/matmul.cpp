@@ -1,8 +1,9 @@
 // matmul entry points: validation, instrumentation and implementation selection.
 
-#include "computeedge/instrumentation.h"
-#include "computeedge/ops.h"
-#include "computeedge/scoped_timer.h"
+#include "computeedge/cpu/matmul.h"
+#include "computeedge/core/instrumentation.h"
+#include "computeedge/core/scoped_timer.h"
+#include "computeedge/core/validate.h"
 #include "kernels.h"
 
 namespace computeedge {

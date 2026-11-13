@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "computeedge/computeedge.h"
-#include "computeedge/metal.h"
+#include "computeedge/metal/matmul.h"
 
 using namespace computeedge;
 namespace mtl = computeedge::metal;

@@ -9,9 +9,11 @@
 #include <iostream>
 #include <string>
 
-#include "computeedge/benchmark.h"
-#include "computeedge/instrumentation.h"
-#include "computeedge/scoped_timer.h"
+#include "computeedge/bench/environment.h"
+#include "computeedge/bench/result_writer.h"
+#include "computeedge/bench/runner.h"
+#include "computeedge/core/instrumentation.h"
+#include "computeedge/core/scoped_timer.h"
 
 using namespace computeedge;
 namespace cb = computeedge::bench;

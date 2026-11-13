@@ -1,4 +1,4 @@
-#include "computeedge/allocator.h"
+#include "computeedge/core/allocator.h"
 
 #include <unistd.h>
 
@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <new>
 
-#include "computeedge/instrumentation.h"
+#include "computeedge/core/instrumentation.h"
 
 namespace computeedge {
 

@@ -19,7 +19,10 @@
 #include <string>
 #include <vector>
 
-#include "computeedge/benchmark.h"
+#include "computeedge/bench/environment.h"
+#include "computeedge/bench/result_writer.h"
+#include "computeedge/bench/runner.h"
+#include "computeedge/bench/trace.h"
 #include "computeedge/computeedge.h"
 
 using namespace computeedge;
