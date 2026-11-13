@@ -5,7 +5,7 @@ Apple Silicon's unified memory.
 
 - **Platform:** Apple Silicon (MacBook Air M4)
 - **Stack:** C++20, Objective-C++, Apple Metal, Accelerate
-- **Status:** M1–M3 done (tensor core, instrumentation, Accelerate baseline, benchmark harness, Metal backend); M4 (baselines vs MLX) next
+- **Status:** Phase 1 (M1–M4) done: tensor core, instrumentation, Accelerate and Metal backends, benchmark harness, baselines vs MPS and MLX. Phase 2 (M5: dispatch/sync/storage-mode characterization) next
 
 ## Quick start
 
@@ -26,7 +26,7 @@ src/core/              tensor, 16 KB-aligned host allocator, event log, validati
 src/cpu/               matmul: Accelerate cblas_sgemm (baseline), naive (reference)  → computeedge_cpu
 src/metal/             Metal backend + runtime-compiled kernels                       → computeedge_metal
 src/benchmark/         harness: runner, statistics, environment recorder              → computeedge_bench
-benchmarks/            baseline/ and overhead/ benchmarks, committed results/
+benchmarks/            baseline/, overhead/, mlx/ benchmarks; analysis/; run_baselines.sh; committed results/
 tests/                 GoogleTest suites + layering checks
 docs/, research/       plan & architecture, getting started, related work
 build/                 build output (git-ignored): build/release, build/debug

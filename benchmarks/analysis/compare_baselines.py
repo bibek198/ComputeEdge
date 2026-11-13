@@ -92,12 +92,13 @@ def fmt_us(v: float) -> str:
 
 def write_table(data: dict, sizes: list[int], out: Path) -> str:
     labels = [s[0] for s in SERIES if s[0] in data]
-    lines = ["| n | " + " | ".join(labels) + " | fastest |", "|---:|" + "---:|" * len(labels) + "---|"]
+    lines = ["| n | " + " | ".join(labels) + " | fastest (ties: overlapping 95% CIs) |",
+             "|---:|" + "---:|" * len(labels) + "---|"]
     with open(out / "comparison.csv", "w", newline="") as f:
         w = csv.writer(f, lineterminator="\n")
         w.writerow(["n", "series", "median_us", "ci95_lo_us", "ci95_hi_us", "gflops", "thermal", "run"])
         for n in sizes:
-            cells, best = [], None
+            cells = []
             for lab in labels:
                 d = data[lab].get(n)
                 if d is None:
@@ -106,9 +107,11 @@ def write_table(data: dict, sizes: list[int], out: Path) -> str:
                 w.writerow([n, lab, d["median_us"], d["ci_lo_us"], d["ci_hi_us"], d["gflops"], d["thermal"], d["run"]])
                 unit = "µs" if d["median_us"] < 1000 else ""
                 cells.append(f"{fmt_us(d['median_us'])}{' ' + unit if unit else ''} ({d['gflops']:,.0f})")
-                if best is None or d["median_us"] < best[1]:
-                    best = (lab, d["median_us"])
-            lines.append(f"| {n} | " + " | ".join(cells) + f" | {best[0] if best else '—'} |")
+            present = [(lab, data[lab][n]) for lab in labels if n in data[lab]]
+            best = min(present, key=lambda x: x[1]["median_us"])
+            tied = [lab for lab, d in present if d["ci_lo_us"] <= best[1]["ci_hi_us"]]
+            fastest = " ≈ ".join(f"**{lab}**" if lab == best[0] else lab for lab in tied)
+            lines.append(f"| {n} | " + " | ".join(cells) + f" | {fastest} |")
     return "\n".join(lines)
 
 
@@ -132,7 +135,6 @@ def plot(data: dict, sizes: list[int], metric: str, ylabel: str, title: str, pat
     style_axes(ax, ylabel)
     if logy:
         ax.set_yscale("log")
-    ends = []
     for label, _, _, colour, marker, ls in SERIES:
         pts = data.get(label)
         if not pts:
@@ -145,24 +147,17 @@ def plot(data: dict, sizes: list[int], metric: str, ylabel: str, title: str, pat
             lo = [pts[n]["ci_lo_us"] for n in xs]
             hi = [pts[n]["ci_hi_us"] for n in xs]
             ax.vlines(xs, lo, hi, color=colour, linewidth=1, zorder=2)
-        ends.append((ys[-1], label))
     ax.set_xticks(sizes)
     ax.set_xticklabels([str(s) for s in sizes])
-    ax.set_xlim(sizes[0] / 1.3, sizes[-1] * 2.6)
-
-    # Direct labels at the right end, nudged apart so they never overlap.
-    ends.sort()
-    placed = []
-    for y, label in ends:
-        if placed:
-            prev = placed[-1]
-            gap = 1.18 if logy else (ax.get_ylim()[1] - ax.get_ylim()[0]) * 0.055
-            y = max(y, prev * gap) if logy else max(y, prev + gap)
-        placed.append(y)
-        ax.annotate(label, (sizes[-1], y), xytext=(10, 0), textcoords="offset points", va="center",
-                    fontsize=8.5, color=TEXT)
-    ax.legend(loc="upper left", frameon=False, fontsize=8.5, labelcolor=TEXT)
-    ax.set_title(title, loc="left", color=TEXT, fontsize=12, pad=10)
+    ax.set_xlim(sizes[0] / 1.25, sizes[-1] * 1.25)
+    if not logy:
+        ax.set_ylim(bottom=0)
+    # Five series: identity comes from the legend + distinct markers (+ line style:
+    # solid = CPU, dashed = GPU); exact values are in comparison.md / .csv.
+    ax.legend(loc="upper left", frameon=False, fontsize=8.5, labelcolor=TEXT, handlelength=3)
+    ax.set_title(title, loc="left", color=TEXT, fontsize=12, pad=22)
+    ax.text(0, 1.015, "Solid = CPU, dashed = GPU. Median of 30 synchronous calls; whiskers = 95% CI.",
+            transform=ax.transAxes, color=TEXT_2, fontsize=8.5)
     fig.tight_layout()
     fig.savefig(path, facecolor=SURFACE)
     plt.close(fig)

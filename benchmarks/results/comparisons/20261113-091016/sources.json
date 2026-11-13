@@ -1,0 +1,44 @@
+{
+  "matmul_mlx": {
+    "run": "benchmarks/results/20261113-090942_f956ff557ced",
+    "git_sha": "f956ff557ced",
+    "thermal_state": "nominal",
+    "power_source": "AC Power"
+  },
+  "matmul_metal": {
+    "run": "benchmarks/results/20261113-090931_f956ff557ced",
+    "git_sha": "f956ff557ced",
+    "thermal_state": "nominal",
+    "power_source": "AC Power"
+  },
+  "matmul_metal_cold": {
+    "run": "benchmarks/results/20261113-090931_f956ff557ced",
+    "git_sha": "f956ff557ced",
+    "thermal_state": "nominal",
+    "power_source": "AC Power"
+  },
+  "matmul": {
+    "run": "benchmarks/results/20261113-090824_f956ff557ced",
+    "git_sha": "f956ff557ced",
+    "thermal_state": "nominal",
+    "power_source": "AC Power"
+  },
+  "now_ns": {
+    "run": "benchmarks/results/20261113-082412_da43e8736cf7",
+    "git_sha": "da43e8736cf7",
+    "thermal_state": "nominal",
+    "power_source": "AC Power"
+  },
+  "scoped_timer": {
+    "run": "benchmarks/results/20261113-082412_da43e8736cf7",
+    "git_sha": "da43e8736cf7",
+    "thermal_state": "nominal",
+    "power_source": "AC Power"
+  },
+  "emit": {
+    "run": "benchmarks/results/20261113-082412_da43e8736cf7",
+    "git_sha": "da43e8736cf7",
+    "thermal_state": "nominal",
+    "power_source": "AC Power"
+  }
+}

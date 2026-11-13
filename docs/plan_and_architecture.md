@@ -9,7 +9,7 @@
 | Languages | C++20 (core), Objective-C++ (Metal glue only), Metal Shading Language |
 | Libraries | Apple Metal, Accelerate (baseline + reference), GoogleTest |
 | Build | CMake + Ninja |
-| Status | M1–M3 complete; M4 (baselines vs MLX) next |
+| Status | M1–M4 complete (Phase 1 done); M5 (dispatch, sync, storage-mode characterization) next |
 
 ---
 
@@ -296,7 +296,10 @@ The cost tables come from Track A/B/D measurements, interpolated in log-size. Th
 - Power: always on the adapter, with Low Power Mode off; the battery case is reported separately if at all.
 - Thermal: cool down to `nominal` between runs (fanless). Every sample is tagged with thermal state.
 - Fixed random seeds and identical inputs across backends. Results validated against Accelerate (FP32, rel. tol 1e-4).
-- MLX comparison: same shapes/dtype; `mx.eval` boundaries documented; CPU and GPU streams both tested.
+- MLX comparison: same shapes and dtype; one measured call = `mx.eval(mx.matmul(a, b, stream=…))` from Python (graph build, output allocation, dispatch, sync and interpreter overhead), on both CPU and GPU streams. MLX's version is pinned in `benchmarks/requirements.txt`. Inputs come from the same distribution (U[−1, 1], fixed seeds) but are not bit-identical to the C++ inputs; FP32 GEMM timing does not depend on the values. MLX results are validated against a float64 NumPy reference.
+- Tuned-kernel reference: MPS `MPSMatrixMultiplication` runs through the same ComputeEdge call path as our tiled kernel, so overhead claims do not depend on the quality of our own kernel.
+- "Fastest" comparisons treat overlapping 95% CIs as ties.
+- Session-to-session variation is real: Accelerate at 1024² measured 1.27 ms and 1.13 ms in two sessions a day apart, about 11%, which is larger than the within-session CI. Claims in the paper need repeated sessions (M9), not one run.
 - Energy (`powermetrics`, sudo) is secondary and reported only if repeatability is acceptable.
 
 ### 7.3 Pipeline

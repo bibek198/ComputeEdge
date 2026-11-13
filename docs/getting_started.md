@@ -67,6 +67,21 @@ committed. The git SHA is captured at configure time, so this keeps results tagg
 | `build/release/benchmarks/cpu_matmul` | Accelerate vs naive SGEMM, compute-only and including output allocation |
 | `build/release/benchmarks/metal_matmul` | Metal SGEMM per storage mode (NoCopy / Shared / Private), with per-phase breakdown and cold start |
 | `build/release/benchmarks/event_log_overhead` | Cost of `emit()` and `ScopedTimer` with the log disabled and enabled |
+| `benchmarks/mlx/mlx_matmul.py` | MLX matmul on the CPU and GPU streams, using the same protocol and output format |
+| `benchmarks/analysis/compare_baselines.py` | Comparison table and figures from the newest clean results |
+
+The Metal benchmark's `--kernels tiled16,mps` option runs our kernel and Apple's MPS GEMM through the same code path.
+
+### Running the full baseline set (M4)
+
+```sh
+python3 -m venv .venv && .venv/bin/pip install -r benchmarks/requirements.txt   # once
+benchmarks/run_baselines.sh
+```
+
+The script rebuilds the release preset (which refreshes the git SHA), runs the CPU, Metal and MLX benchmarks with
+cooldown, and writes `benchmarks/results/comparisons/<timestamp>/` containing `comparison.md`, `comparison.csv`,
+`latency.png`, `throughput.png` and `sources.json`. Commit first so results are not tagged `-dirty`.
 
 Common flags are `--sizes`, `--reps`, `--warmup`, `--min-warmup-ms`, `--cooldown` (wait for thermal state
 `nominal`), `--out DIR` and `--no-write`. Each binary's source file header lists all of its flags.
