@@ -10,7 +10,7 @@ AllowShortIfStatementsOnASingleLine: WithoutElse
 AllowShortLoopsOnASingleLine: true
 BreakStringLiterals: false
 IncludeBlocks: Preserve
-SortIncludes: Never
+SortIncludes: CaseSensitive
 ---
 Language: ObjC
 BasedOnStyle: Google
@@ -23,5 +23,5 @@ AllowShortIfStatementsOnASingleLine: WithoutElse
 AllowShortLoopsOnASingleLine: true
 BreakStringLiterals: false
 IncludeBlocks: Preserve
-SortIncludes: Never
+SortIncludes: CaseSensitive
 ObjCBlockIndentWidth: 2

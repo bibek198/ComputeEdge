@@ -1,9 +1,9 @@
 // Environment recording (Objective-C++): hardware, OS, power and thermal state.
 
 #import <Foundation/Foundation.h>
-#import <Metal/Metal.h>
-#include <IOKit/ps/IOPowerSources.h>
 #include <IOKit/ps/IOPSKeys.h>
+#include <IOKit/ps/IOPowerSources.h>
+#import <Metal/Metal.h>
 #include <sys/sysctl.h>
 
 #include <chrono>
