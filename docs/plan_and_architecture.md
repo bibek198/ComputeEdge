@@ -290,7 +290,7 @@ The cost tables come from Track A/B/D measurements, interpolated in log-size. Th
 
 ### 7.2 Protocol
 - Warm-up ≥ 10 iterations **and** ≥ 200 ms (small ops otherwise run before clocks reach steady state; a 128² SGEMM measured 4–5× slower with a count-only warm-up); ≥ 30 measured repetitions; report **median, IQR, and 95% bootstrap CI**.
-- Shader compilation is excluded from steady-state numbers and reported separately as cold start (`matmul_metal_cold`: ~29 ms compile on first measurement).
+- Shader compilation is excluded from steady-state numbers and reported separately as cold start (`matmul_metal_cold`). Compile time depends on the OS shader cache, which persists across processes: we measured ~29 ms the first time and ~1 ms once cached. Cold-start numbers must state which case they are, and a true cold start needs the cache cleared.
 - GPU pre-warm: 1 s of continuous dispatches per process before any GPU measurement. Without it, whichever configuration runs first measured ~1.7× slower at 128² (an ordering artefact, not a property of the configuration).
 - GPU end-to-end numbers always include synchronization.
 - Power: always on the adapter, with Low Power Mode off; the battery case is reported separately if at all.
