@@ -9,7 +9,7 @@
 | Languages | C++20 (core), Objective-C++ (Metal glue only), Metal Shading Language |
 | Libraries | Apple Metal, Accelerate (baseline + reference), GoogleTest |
 | Build | CMake + Ninja |
-| Status | M1–M2 complete; M3 next |
+| Status | M1–M3 complete; M4 (baselines vs MLX) next |
 
 ---
 
@@ -92,8 +92,9 @@ flowchart TD
 ```
 
 ### 3.2 Dependency rules
-- `core/` depends on nothing else in ComputeEdge and has no Apple frameworks. It is portable C++20.
-- Objective-C++ lives **only** in `src/metal/`. Headers in `include/` expose no Objective-C types, using opaque handles instead.
+- `core/` depends on nothing else in ComputeEdge and links no Apple frameworks (it uses the Darwin clock only). Enforced by the `layering.core_links_without_frameworks` test, which links a binary against `computeedge_core` alone.
+- Objective-C++ lives only in `src/metal/` and in the benchmark environment recorder (`src/benchmark/env_recorder.mm`). Headers in `include/` expose no Objective-C types (enforced by `layering.no_objc_in_public_headers`).
+- CMake targets mirror the layers: `computeedge_core`, `computeedge_cpu` (Accelerate), `computeedge_metal` (Metal), `computeedge_bench`, plus the convenience target `computeedge`.
 - Backends depend on `core/`. `runtime/` depends on backend *interfaces* (`backend.h`), not on implementations.
 - Instrumentation is a leaf: everything may call it, and it calls nothing.
 
@@ -208,17 +209,25 @@ sequenceDiagram
     M-->>L: Begin(sync)
     GPU-->>M: completed / shared event signaled
     M-->>L: End(sync)    ← wait cost
-    M-->>L: GPUStart/GPUEnd, kernelStart/kernelEnd  ← device-side time
+    M-->>L: GPUStart/GPUEnd ← GPU execution · kernelStart/kernelEnd ← CPU-side driver scheduling
     M-->>API: C
     API-->>App: C
 ```
 
-Timeline decomposition used throughout the paper:
+Timeline decomposition used throughout the paper (fields of `metal::Timing`):
 
 ```
-end_to_end = t_alloc + t_encode + t_commit + (t_queue + t_gpu_kernel) + t_wake/sync + t_post
-             └─ CPU clock (CLOCK_UPTIME_RAW) ─┘   └─ MTLCommandBuffer GPU timestamps ─┘
+end_to_end = buffer + copy_in + encode + commit + queue + gpu + wake + copy_out
+             queue = GPUStartTime − commit returned      (signed; can be ≤ 0)
+             gpu   = GPUEndTime − GPUStartTime            (GPU execution, includes blits in Private mode)
+             wake  = waitUntilCompleted returned − GPUEndTime
 ```
+
+All of these share one timebase. Metal's `GPUStartTime`/`GPUEndTime` are host-time seconds, and converting them to ns
+lands on the same clock as `CLOCK_UPTIME_RAW`. A test checks this: GPU start and end must fall between the CPU
+timestamps before and after the call. Caution: `MTLCommandBuffer.kernelStartTime`/`kernelEndTime` are **not**
+compute-kernel times. They are the CPU-side interval during which the OS kernel and driver scheduled the command
+buffer, and are reported as `sched`.
 
 ### 5.2 Crossover-based dispatcher (Track D, M8)
 
@@ -254,9 +263,9 @@ The cost tables come from Track A/B/D measurements, interpolated in log-size. Th
 | `exec_id` | u64 | groups the events of one operation |
 | `bytes` | u64 | where applicable |
 | `backend` | enum | None, CPU, Metal |
-| `label` | str-id | interned short label |
+| `label` | str | short label; must have static storage duration (string literal) |
 
-- Disabled logging costs one relaxed atomic load per call. Overhead with logging enabled is measured and reported.
+- Disabled logging costs one relaxed atomic load per call. Overhead is measured by `benchmarks/overhead/event_log.cpp`. First measurement on M4: `emit` ≈ 1 ns disabled and ≈ 15 ns enabled; `ScopedTimer` ≈ 15 ns disabled and ≈ 45 ns enabled. That is negligible next to GPU dispatch (hundreds of µs), but not next to the smallest CPU ops, so timing runs keep logging off.
 - `ScopedTimer` is RAII: it writes into a sink and/or emits Begin/End.
 - **Env Recorder** runs once per benchmark run and records chip, model, macOS build, power source, thermal state, compiler, flags, git SHA and timestamp.
 
@@ -281,7 +290,8 @@ The cost tables come from Track A/B/D measurements, interpolated in log-size. Th
 
 ### 7.2 Protocol
 - Warm-up ≥ 10 iterations **and** ≥ 200 ms (small ops otherwise run before clocks reach steady state; a 128² SGEMM measured 4–5× slower with a count-only warm-up); ≥ 30 measured repetitions; report **median, IQR, and 95% bootstrap CI**.
-- Shader compilation is excluded from steady-state numbers and reported separately as cold start.
+- Shader compilation is excluded from steady-state numbers and reported separately as cold start (`matmul_metal_cold`: ~29 ms compile on first measurement).
+- GPU pre-warm: 1 s of continuous dispatches per process before any GPU measurement. Without it, whichever configuration runs first measured ~1.7× slower at 128² (an ordering artefact, not a property of the configuration).
 - GPU end-to-end numbers always include synchronization.
 - Power: always on the adapter, with Low Power Mode off; the battery case is reported separately if at all.
 - Thermal: cool down to `nominal` between runs (fanless). Every sample is tagged with thermal state.
@@ -340,13 +350,13 @@ before building M7–M8. If the dispatch costs turn out negligible, pivot Track 
 
 ```text
 include/computeedge/  tensor.h allocator.h instrumentation.h scoped_timer.h operation.h backend.h
-src/core/             tensor.cpp allocator.cpp instrumentation.cpp
+src/core/             tensor.cpp allocator.cpp instrumentation.cpp validate.cpp
 src/cpu/              matmul_naive.cpp matmul_accelerate.cpp
-src/metal/            metal_backend.mm buffer_manager.mm kernels/matmul.metal
+src/metal/            metal_backend.mm buffer_manager.mm (M7) kernels/matmul.metal kernel_sources.h.in
 src/runtime/          execution_dispatcher.cpp
-src/benchmark/        benchmark.cpp env_recorder.mm
-tests/                tensor_ allocator_ instrumentation_ matmul_ backend_tests.cpp
-benchmarks/           dispatch/ synchronization/ storage_modes/ cache/ crossover/ thermal/ mlx/ results/
+src/benchmark/        benchmark.cpp stats.cpp env_recorder.mm
+tests/                tensor_ allocator_ instrumentation_ matmul_ benchmark_ backend_tests.cpp, core_only_check.cpp
+benchmarks/           baseline/ overhead/ dispatch/ synchronization/ storage_modes/ cache/ crossover/ thermal/ mlx/ results/
 research/             related_work.md research_questions.md experimental_methodology.md paper/
 examples/             matrix_multiplication.cpp
 docs/                 plan_and_architecture.md getting_started.md
