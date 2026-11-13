@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
   std::cout << "ComputeEdge Tensor Engine\n\n"
             << "Operation: Matrix Multiplication\n\n"
             << "Result:\n";
-  C.print();
+  std::cout << C;
 
   const AllocStats s = default_allocator().stats();
   std::cout << "\nBackend: CPU (Accelerate)\n"

@@ -126,6 +126,15 @@ TEST(Tensor, Print2D) {
   EXPECT_EQ(os.str(), "19 22\n43 50\n");
 }
 
+TEST(Tensor, ToStringAndStreamMatchPrint) {
+  Tensor t({2, 2}, {1, 2, 3, 4});
+  std::ostringstream printed, streamed;
+  t.print(printed);
+  streamed << t;
+  EXPECT_EQ(t.to_string(), printed.str());
+  EXPECT_EQ(streamed.str(), printed.str());
+}
+
 TEST(Tensor, UndefinedTensor) {
   Tensor t;
   EXPECT_FALSE(t.defined());

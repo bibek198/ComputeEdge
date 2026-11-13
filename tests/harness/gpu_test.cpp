@@ -50,6 +50,8 @@ TEST(HarnessGpu, MatmulTimingKeys) {
 
 TEST(HarnessGpu, PrewarmWithZeroDurationRunsNothing) {
   if (!mtl::available()) GTEST_SKIP() << "Metal not available";
-  h::prewarm(h::PrewarmWorkload::GpuStreamWritePrivate64MiB, 0);
-  h::prewarm(h::PrewarmWorkload::MetalMatmulShared256, 0);
+  h::Reporter silent;
+  h::prewarm(h::PrewarmWorkload::GpuStreamWritePrivate64MiB, 0, silent);
+  h::prewarm(h::PrewarmWorkload::MetalMatmulShared256, 0, silent);
+  EXPECT_TRUE(silent.results().empty());
 }

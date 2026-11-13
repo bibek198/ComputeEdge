@@ -110,6 +110,7 @@ add_library(computeedge_bench STATIC
   src/bench/runner.cpp
   src/bench/stats.cpp
   src/bench/trace.cpp
+  src/bench/windows.cpp
 )
 target_link_libraries(computeedge_bench PUBLIC computeedge_core
   "-framework Foundation" "-framework IOKit" "-framework Metal")
@@ -153,25 +154,34 @@ endif()
 # Benchmarks
 # ---------------------------------------------------------------------------
 if(CE_BUILD_BENCHMARKS)
-  function(ce_benchmark name source)
-    add_executable(${name} ${source})
+  # ce_benchmark(<name> <dir> <libs...>): <dir>/main.cpp plus, when present,
+  # <dir>/options.cpp (CLI) and <dir>/experiments.cpp (measurement logic).
+  function(ce_benchmark name dir)
+    set(sources ${dir}/main.cpp)
+    foreach(part options experiments)
+      if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${part}.cpp)
+        list(APPEND sources ${dir}/${part}.cpp)
+      endif()
+    endforeach()
+    add_executable(${name} ${sources})
+    target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/${dir})
     target_link_libraries(${name} PRIVATE ${ARGN})   # each binary lists exactly what it links
     target_compile_options(${name} PRIVATE ${CE_WARNINGS})
     set_target_properties(${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/benchmarks)
   endfunction()
 
-  ce_benchmark(cpu_matmul benchmarks/cpu_matmul/main.cpp computeedge_bench_harness computeedge_cpu)
-  ce_benchmark(metal_matmul benchmarks/metal_matmul/main.cpp computeedge_bench_harness_gpu computeedge_cpu)
-  ce_benchmark(event_log_overhead benchmarks/event_log_overhead/main.cpp computeedge_bench_harness)
-  ce_benchmark(ce_env tools/ce_env/main.cpp computeedge_bench)
+  ce_benchmark(cpu_matmul benchmarks/cpu_matmul computeedge_bench_harness computeedge_cpu)
+  ce_benchmark(metal_matmul benchmarks/metal_matmul computeedge_bench_harness_gpu computeedge_cpu)
+  ce_benchmark(event_log_overhead benchmarks/event_log_overhead computeedge_bench_harness)
+  ce_benchmark(ce_env tools/ce_env computeedge_bench)
   # M5 characterization (Tracks A and B)
-  ce_benchmark(dispatch_overhead benchmarks/dispatch_overhead/main.cpp computeedge_bench_harness_gpu)
-  ce_benchmark(sync_methods benchmarks/sync_methods/main.cpp computeedge_bench_harness_gpu)
-  ce_benchmark(storage_modes benchmarks/storage_modes/main.cpp computeedge_bench_harness_gpu)
+  ce_benchmark(dispatch_overhead benchmarks/dispatch_overhead computeedge_bench_harness_gpu)
+  ce_benchmark(sync_methods benchmarks/sync_methods computeedge_bench_harness_gpu)
+  ce_benchmark(storage_modes benchmarks/storage_modes computeedge_bench_harness_gpu)
   # M6: cache interference and thermal drift
-  ce_benchmark(cache_interference benchmarks/cache_interference/main.cpp computeedge_bench_harness_gpu computeedge_cpu)
-  ce_benchmark(thermal_drift benchmarks/thermal_drift/main.cpp computeedge_bench_harness_gpu computeedge_cpu)
-  ce_benchmark(followups benchmarks/followups/main.cpp computeedge_bench_harness_gpu)
+  ce_benchmark(cache_interference benchmarks/cache_interference computeedge_bench_harness_gpu computeedge_cpu)
+  ce_benchmark(thermal_drift benchmarks/thermal_drift computeedge_bench_harness_gpu computeedge_cpu)
+  ce_benchmark(followups benchmarks/followups computeedge_bench_harness_gpu)
 endif()
 
 # ---------------------------------------------------------------------------
@@ -200,9 +210,21 @@ if(CE_BUILD_TESTS)
     tests/bench/environment_test.cpp
     tests/bench/runner_test.cpp
     tests/bench/result_writer_test.cpp
+    tests/bench/windows_test.cpp
     tests/harness/cli_test.cpp
     tests/harness/gpu_test.cpp
     tests/harness/memory_and_correctness_test.cpp
+    tests/benchmarks/options_test.cpp
+    # Each binary's real option parser, so its CLI contract is unit-tested.
+    benchmarks/cache_interference/options.cpp
+    benchmarks/cpu_matmul/options.cpp
+    benchmarks/dispatch_overhead/options.cpp
+    benchmarks/event_log_overhead/options.cpp
+    benchmarks/followups/options.cpp
+    benchmarks/metal_matmul/options.cpp
+    benchmarks/storage_modes/options.cpp
+    benchmarks/sync_methods/options.cpp
+    benchmarks/thermal_drift/options.cpp
   )
   target_link_libraries(computeedge_tests PRIVATE computeedge computeedge_bench_harness_gpu
   GTest::gtest_main)

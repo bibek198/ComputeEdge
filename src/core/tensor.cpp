@@ -2,8 +2,8 @@
 
 #include <algorithm>
 #include <cstring>
-#include <iostream>
 #include <limits>
+#include <ostream>
 #include <sstream>
 #include <utility>
 
@@ -202,6 +202,15 @@ void Tensor::print(std::ostream& out) const {
   out << '\n';
 }
 
-void Tensor::print() const { print(std::cout); }
+std::string Tensor::to_string() const {
+  std::ostringstream out;
+  print(out);
+  return out.str();
+}
+
+std::ostream& operator<<(std::ostream& out, const Tensor& t) {
+  t.print(out);
+  return out;
+}
 
 }  // namespace computeedge

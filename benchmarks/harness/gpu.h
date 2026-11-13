@@ -6,6 +6,7 @@
 
 #include "computeedge/bench/runner.h"
 #include "computeedge/metal/matmul.h"
+#include "harness/results.h"
 
 namespace computeedge::bench::harness {
 
@@ -23,8 +24,8 @@ enum class PrewarmWorkload {
 std::string describe(PrewarmWorkload workload);
 
 // Runs `workload` continuously for `ms` milliseconds (results excluded) and
-// prints how many iterations ran.
-void prewarm(PrewarmWorkload workload, double ms);
+// reports how many iterations ran.
+void prewarm(PrewarmWorkload workload, double ms, Reporter& out);
 
 // Phase metrics of a probe call (empty dispatch, sync, storage, cache, followups).
 void record_probe_timing(Metrics& m, const metal::Timing& t);

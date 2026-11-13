@@ -5,6 +5,7 @@
 #include <initializer_list>
 #include <iosfwd>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "computeedge/core/allocator.h"
@@ -89,7 +90,8 @@ class Tensor {
   std::vector<float> to_vector() const;
 
   void print(std::ostream& out) const;
-  void print() const;
+  // The same text as print(), as a string.
+  std::string to_string() const;
 
  private:
   Tensor(std::shared_ptr<Storage> storage, Shape shape, Strides strides, size_t offset);
@@ -101,5 +103,8 @@ class Tensor {
   Strides strides_;
   size_t offset_ = 0;
 };
+
+// Writes t.print(out) to the stream.
+std::ostream& operator<<(std::ostream& out, const Tensor& t);
 
 }  // namespace computeedge

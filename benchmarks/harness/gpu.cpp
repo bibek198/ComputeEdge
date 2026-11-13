@@ -2,7 +2,7 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include <iostream>
+#include <sstream>
 
 #include "computeedge/bench/trace.h"
 #include "computeedge/core/instrumentation.h"
@@ -28,7 +28,7 @@ std::string describe(PrewarmWorkload workload) {
   return "unknown";
 }
 
-void prewarm(PrewarmWorkload workload, double ms) {
+void prewarm(PrewarmWorkload workload, double ms, Reporter& out) {
   trace("prewarm workload=" + describe(workload) + " ms=" + std::to_string(ms));
   switch (workload) {
     case PrewarmWorkload::GpuStreamWritePrivate64MiB: {
@@ -40,7 +40,9 @@ void prewarm(PrewarmWorkload workload, double ms) {
         probe::gpu_stream(probe::Stream::Write, buf);
         ++calls;
       }
-      std::cout << "GPU pre-warm: " << calls << " x 64 MiB writes over " << ms << " ms\n\n";
+      std::ostringstream note;
+      note << "GPU pre-warm: " << calls << " x 64 MiB writes over " << ms << " ms\n\n";
+      out.note(note.str());
       return;
     }
     case PrewarmWorkload::MetalMatmulShared256: {
@@ -52,7 +54,9 @@ void prewarm(PrewarmWorkload workload, double ms) {
         metal::matmul_into(A, B, C, {metal::StorageMode::Shared});
         ++calls;
       }
-      std::cout << "GPU pre-warm: " << calls << " dispatches over " << ms << " ms\n\n";
+      std::ostringstream note;
+      note << "GPU pre-warm: " << calls << " dispatches over " << ms << " ms\n\n";
+      out.note(note.str());
       return;
     }
   }

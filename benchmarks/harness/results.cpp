@@ -7,10 +7,14 @@
 
 namespace computeedge::bench::harness {
 
-void Collector::add(Result r) {
-  std::cout << format_result(r) << std::endl;
+void Reporter::result(Result r) {
+  on_result(r);
   results_.push_back(std::move(r));
 }
+
+void ConsoleReporter::on_result(const Result& r) { std::cout << format_result(r) << std::endl; }
+
+void ConsoleReporter::on_note(const std::string& text) { std::cout << text << std::flush; }
 
 std::string write_results(const std::string& out, bool write, const Environment& env,
                           const std::vector<Result>& results) {
