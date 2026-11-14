@@ -1,0 +1,30 @@
+name: Research Finding / Methodology Discussion
+description: Discuss microarchitectural observations, claim evaluations, or measurement methodology.
+title: "[Research]: "
+labels: ["research"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to propose or discuss experimental findings, hardware observations, or measurement methodology on Apple Silicon.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Research Topic / Claim Reference
+      description: State the relevant claim (e.g. C1–C17) or observed microarchitectural behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: observation
+    attributes:
+      label: Observed Phenomenon
+      description: Detailed description of the behavior, data trends, or hardware interaction observed.
+    validations:
+      required: true
+  - type: textarea
+    id: methodology
+    attributes:
+      label: Experimental Conditions
+      description: Power status (AC Power), thermal load, warm-up iterations, and reproducibility notes.
+    validations:
+      required: true

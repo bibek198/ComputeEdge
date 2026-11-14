@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software or its characterization methodology, please cite it as below."
+title: "Where Does the Time Go? Characterizing CPU--GPU Execution Costs on a Fanless Apple M4"
+authors:
+  - family-names: "Chaudhary"
+    given-names: "Bibek"
+    email: "bibek198c@gmail.com"
+version: "0.1.0"
+date-released: 2026-11-14
+license: "MIT"
+repository-code: "https://github.com/bibek/ComputeEdge"
+keywords:
+  - "Apple Silicon"
+  - "Metal"
+  - "Accelerate"
+  - "unified memory"
+  - "microarchitecture"
+  - "GPU characterization"
+  - "systems research"
