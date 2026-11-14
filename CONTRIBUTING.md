@@ -23,7 +23,7 @@ brew install cmake ninja clang-format shellcheck
 # Python environment for analysis & tooling
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e . -r benchmarks/requirements.txt pytest hypothesis ruff==0.8.4
+pip install -e . -r benchmarks/adapters/mlx/requirements.txt pytest hypothesis ruff==0.8.4
 ```
 
 ---
@@ -39,7 +39,7 @@ cmake --preset release && cmake --build --preset release && ctest --preset relea
 # Debug build with AddressSanitizer and UndefinedBehaviorSanitizer
 cmake --preset debug && cmake --build --preset debug && ctest --preset debug --output-on-failure
 
-# Python analysis test suite (21 pytest tests)
+# Python analysis test suite (22 pytest tests)
 pytest
 
 # Linters (clang-format, ruff, shellcheck)

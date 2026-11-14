@@ -4,7 +4,7 @@
 #   scripts/run_baselines.sh [extra args passed to every benchmark, e.g. --sizes 128,1024]
 #
 # Requirements: AC power, a committed working tree (so results carry a clean git SHA),
-# and the Python environment: python3 -m venv .venv && .venv/bin/pip install -r benchmarks/requirements.txt
+# and the Python environment: python3 -m venv .venv && .venv/bin/pip install -e . -r benchmarks/adapters/mlx/requirements.txt
 set -euo pipefail
 cd "$(dirname "$0")/.."
 

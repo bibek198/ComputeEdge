@@ -84,7 +84,7 @@ The Metal benchmark's `--kernels tiled16,mps` option runs our kernel and Apple's
 ### Running the full baseline set (M4)
 
 ```sh
-python3 -m venv .venv && .venv/bin/pip install -e . -r benchmarks/requirements.txt   # once
+python3 -m venv .venv && .venv/bin/pip install -e . -r benchmarks/adapters/mlx/requirements.txt   # once
 scripts/run_baselines.sh
 ```
 

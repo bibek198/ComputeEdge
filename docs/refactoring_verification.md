@@ -258,3 +258,9 @@ cmake --preset debug   && cmake --build --preset debug   && ctest --preset debug
 | 7 | 207 tests in release and debug (ASan/UBSan); all header checks compile; equivalence gate passes | PASS |
 | 8 | Session specification configs/session.toml, script hardening (no eval, state machine, traps, manifest, chmod a-w) | PASS |
 | 9 | Documentation (README, getting_started, ADRs 0001-0005), CI expansion (python-test), full equivalence gate | PASS |
+| A | Repository governance & standards (CITATION.cff, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, templates) | PASS |
+| B | Modular CMake infrastructure (cmake/*.cmake, header checks, presets, release/debug builds, 207 tests) | PASS |
+| C | Python analysis package relocation (analysis/src, analysis/tests, session state filtering, 22 tests) | PASS |
+| D | Benchmark reorganization (common harness, domain workloads, preserved target paths, equivalence gate) | PASS |
+| E | Tests, research & data organization (tests/{unit,integration,architecture}, research/, confirmation data) | PASS |
+| F | CI workflows & documentation finalization (status-check preservation, runner capability, equivalence audit) | PASS |

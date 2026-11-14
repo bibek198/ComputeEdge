@@ -38,12 +38,12 @@ if [[ -n "$(git status --porcelain)" && $allow_dirty -eq 0 ]]; then
   exit 1
 fi
 pmset -g batt | head -1 | grep -q "AC Power" || echo "warning: not on AC power" >&2
-[[ -x .venv/bin/python ]] || { echo "error: .venv missing (python3 -m venv .venv && .venv/bin/pip install -r benchmarks/requirements.txt)" >&2; exit 1; }
+[[ -x .venv/bin/python ]] || { echo "error: .venv missing (python3 -m venv .venv && .venv/bin/pip install -e . -r benchmarks/adapters/mlx/requirements.txt)" >&2; exit 1; }
 
 cmake --preset release >/dev/null   # refreshes the recorded git SHA
 cmake --build --preset release >/dev/null
 
-sessions_dir=data/sessions
+sessions_dir=data/sessions/confirmation
 mkdir -p "$sessions_dir"
 index=$(find "$sessions_dir" -mindepth 1 -maxdepth 1 -type d -name '*_s[0-9]*_*' | wc -l | tr -d ' ')   # confirmation sessions only (not orig)
 session="$(date +%Y%m%d-%H%M%S)_s${index}_$(git rev-parse --short=12 HEAD)"

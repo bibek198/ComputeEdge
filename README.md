@@ -16,7 +16,7 @@ An instrumented C++20 tensor engine and characterization framework used to measu
 brew install cmake ninja clang-format shellcheck
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e . -r benchmarks/requirements.txt pytest hypothesis ruff==0.8.4
+pip install -e . -r benchmarks/adapters/mlx/requirements.txt pytest hypothesis ruff==0.8.4
 ```
 
 ### Build & Run Tests
@@ -28,7 +28,7 @@ cmake --preset release && cmake --build --preset release && ctest --preset relea
 # Debug build with ASan + UBSan
 cmake --preset debug && cmake --build --preset debug && ctest --preset debug --output-on-failure
 
-# Python analysis test suite (21 pytest & Hypothesis property tests)
+# Python analysis test suite (22 pytest & Hypothesis property tests)
 pytest
 
 # Code style and linters (clang-format, ruff, shellcheck)
@@ -57,6 +57,13 @@ ce-figures
 ## Repository Layout
 
 ```text
+cmake/                       Modular CMake infrastructure
+  ComputeEdgeOptions.cmake   Build toggles (warnings, sanitizers, MLX adapter, benchmarks, tests)
+  CompilerWarnings.cmake     Compiler warning flags for Clang / AppleClang
+  Dependencies.cmake         External dependencies (Accelerate, GoogleTest via FetchContent)
+  Metal.cmake                Metal SDK detection, MSL compiler, metallib generation
+  Packaging.cmake            CPack / packaging configuration
+  Sanitizers.cmake           ASan / UBSan configuration
 include/computeedge/         Modular public C++ headers (clean C++20, zero Objective-C)
   core/                      Host allocator (16 KB page-aligned), EventLog, Tensor primitives
   cpu/                       Accelerate BLAS wrapper and naive reference GEMM
@@ -68,29 +75,32 @@ src/                         Implementation sources
   metal/                     Metal backend runtime and low-level GPU probe dispatch
   bench/                     Benchmark framework, result writer, and thermal windowing
 benchmarks/                  Decoupled benchmark suite (options, experiments, main)
-  harness/                   Shared harness: CLI parsing, console reporting, GPU helpers, run_main wrapper
-  cpu_matmul/                CPU Accelerate vs naive SGEMM
-  metal_matmul/              Metal SGEMM (MPSMatrixMultiplication vs Tiled16 across storage modes)
-  mlx_matmul/                MLX GEMM reference baseline (CPU and GPU streams)
-  dispatch_overhead/         Fixed cost of GPU submission with empty kernels (Track A1/A2)
-  sync_methods/              GPU synchronization methods and idle latency penalties (Track A3/A4)
-  storage_modes/             Buffer allocation, residency, and streaming bandwidth (Track B1–B4)
-  cache_interference/        CPU-GPU System Level Cache (SLC) contention and eviction (RQ3)
-  thermal_drift/             Sustained thermal drift and crossover under continuous load (RQ4)
-  followups/                 Targeted experiments for wake latency and write bandwidth
-python/                      computeedge_analysis package
-  computeedge_analysis/      Typed records, io, stats, units, style, claims C1–C17, reports, figures, CLI
+  common/harness/            Shared harness: CLI parsing, console reporting, GPU helpers, run_main wrapper
+  workloads/                 Independent experimental workloads
+    gemm/                    cpu_matmul, metal_matmul
+    overhead/                dispatch_overhead, sync_methods
+    memory/                  storage_modes, followups
+    interference/            cache_interference
+    thermal/                 thermal_drift
+  adapters/mlx/              MLX GEMM comparison baseline (runner script & requirements)
+analysis/                    Python analysis subsystem (computeedge_analysis package)
+  src/computeedge_analysis/  Typed records, io, stats, units, style, claims C1–C17, reports, figures, CLI
+  tests/                     Pytest unit and Hypothesis property tests
 configs/                     Session specifications and benchmark parameters (session.toml)
 data/                        Raw experimental evidence and manifests
   sessions/orig/             Original baseline research sessions (137 files, permanently immutable)
-  sessions/                  Confirmation benchmark sessions
+  sessions/confirmation/     Confirmation benchmark sessions
   derived/                   Derived milestone reports and comparative analyses
   scratch/                   Default output directory for ad-hoc benchmark runs (git-ignored)
-tests/                       Comprehensive test suites
-  core/, cpu/, metal/        Unit tests for tensor engine and Metal runtime
-  bench/, benchmarks/        Harness tests, CLI option contracts, and options death tests
-  harness/                   run_main entry-point wrapper error handling and exit code tests
-  python/                    Pytest unit and Hypothesis property tests for analysis package
+tests/                       Structured C++ test suites
+  unit/                      Unit tests (core, cpu, metal, bench, harness)
+  integration/benchmarks/    Integration and CLI option contract tests
+  architecture/              Architecture and link hygiene enforcement (core_only_check)
+research/                    Research documentation and hypothesis registry
+  hypotheses/                Pre-registered claims C1–C17 criteria and registration records
+  findings/                  Microarchitectural characterization findings on Apple Silicon
+  related_work/              Context and literature comparison
+  limitations/               Threats to validity and microarchitectural constraints
 docs/                        Documentation, architecture, and verification
   adr/                       Architecture Decision Records (ADRs 0001–0005)
   plan_and_architecture.md   System goals, methodology, and architectural roadmap
@@ -130,5 +140,7 @@ To verify complete equivalence of raw data hashes, output schema, execution trac
 - [Architecture Decision Records](docs/adr/README.md): Detailed rationale for architectural choices.
 - [Project Plan & Architecture](docs/plan_and_architecture.md): Scientific goals, methodology, and research questions.
 - [Refactoring Verification Log](docs/refactoring_verification.md): Phase-by-phase verification gate audit trail.
-- [Research Findings](research/findings.md): Characterization findings on Apple Silicon unified memory.
-- [Related Work](research/related_work.md): Context and literature comparison.
+- [Research Hypotheses](research/hypotheses/README.md): Pre-registered claims C1–C17 and criteria.
+- [Research Findings](research/findings/README.md): Characterization findings on Apple Silicon unified memory.
+- [Related Work](research/related_work/README.md): Context and literature comparison.
+- [Threats to Validity & Limitations](research/limitations/README.md): Experimental validity and hardware boundaries.
