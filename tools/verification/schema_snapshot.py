@@ -67,6 +67,7 @@ def snapshot(run_dirs: list[Path]) -> dict:
 
 
 def main() -> int:
+    """Entry point for schema snapshot capture."""
     if len(sys.argv) < 3:
         print(__doc__, file=sys.stderr)
         return 2

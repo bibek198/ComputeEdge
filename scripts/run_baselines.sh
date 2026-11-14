@@ -22,4 +22,4 @@ cmake --build --preset release >/dev/null
 ./build/release/benchmarks/cpu_matmul --cooldown --impls accelerate "$@"
 ./build/release/benchmarks/metal_matmul --cooldown "$@"
 .venv/bin/python benchmarks/mlx_matmul/mlx_matmul.py --cooldown "$@"
-.venv/bin/python benchmarks/analysis/compare_baselines.py
+PYTHONPATH=python .venv/bin/python -m computeedge_analysis.cli report baseline

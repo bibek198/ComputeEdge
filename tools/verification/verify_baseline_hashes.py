@@ -42,6 +42,7 @@ def sha256(path: Path) -> str:
 
 
 def main() -> int:
+    """Verifies all entries in BASELINE.sha256 against repo contents."""
     if len(sys.argv) != 3:
         print(__doc__, file=sys.stderr)
         return 2

@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "computeedge-analysis"
+version = "0.1.0"
+description = "Analysis pipeline, claims verification, and reporting for ComputeEdge"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24",
+    "matplotlib>=3.7",
+]
+
+[project.scripts]
+ce-claims = "computeedge_analysis.cli:claims_main"
+ce-report = "computeedge_analysis.cli:report_main"
+ce-figures = "computeedge_analysis.cli:figures_main"
+
+[tool.setuptools.packages.find]
+where = ["python"]
+
+[tool.pytest.ini_options]
+pythonpath = ["python"]
+testpaths = ["tests/python"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "D", "B", "UP"]
+ignore = ["D203", "D213"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D"]
+"benchmarks/**" = ["D", "N803", "N806"]
+"tools/**" = ["D"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"

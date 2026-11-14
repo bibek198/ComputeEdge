@@ -29,7 +29,6 @@ import ctypes
 import ctypes.util
 import datetime as dt
 import json
-import os
 import platform
 import subprocess
 import sys
@@ -160,7 +159,7 @@ def write_results(root: Path, env: dict, results: list[dict]) -> Path:
         w = csv.writer(f, lineterminator="\n")
         w.writerow(["benchmark", *keys, "rep", "inner_iterations", "ns_per_call", "thermal"])
         for r in results:
-            for rep, (ns, th) in enumerate(zip(r["samples"], r["thermal"])):
+            for rep, (ns, th) in enumerate(zip(r["samples"], r["thermal"], strict=False)):
                 w.writerow([r["name"], *[r["params"].get(k, "") for k in keys], rep, r["inner"], ns, th])
     with open(out / "summary.csv", "w", newline="") as f:
         w = csv.writer(f, lineterminator="\n")

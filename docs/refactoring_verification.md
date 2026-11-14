@@ -143,6 +143,31 @@ cmake --preset debug   && cmake --build --preset debug   && ctest --preset debug
   | Renamed helpers | 30 | `sync_from`→`parse_sync`, `kind_from`→`parse_kind`, `HostPages`/`HostMem`→`HostMemory`, `.ptr`→`.data()`, `timed`→`timed_ns`; all keep their behaviour |
   | Thermal windowing | 12 | Moved to `window_results`; equivalence tested |
 
+## Python analysis package (Phase 5)
+
+- **Package architecture.** Analysis scripts were refactored into the installable package `computeedge_analysis` under
+  `python/` with `pyproject.toml`:
+  - `paths`: repository paths and data roots.
+  - `records`: frozen typed dataclass records (`SummaryRow`, `MetricSummaryRow`, `MetricSample`, `TimeseriesRow`).
+  - `errors`: unified `DataError`.
+  - `io`: modularized read-only access (`runs`, `sessions`, `exclusions`) with typed records and cached readers.
+  - `stats`: `slowdown_pct`, `slowdown_ci` (percentile-bootstrap 95% CI), `linear_slope`.
+  - `units`: `size_bytes`, `fmt_compact`.
+  - `style`: shared light-mode dataviz palette, styling and axis formatting.
+  - `claims`: claim registry (`registry.py`), pre-registered definitions C1–C17 (`definitions.py`), and multi-session evaluation (`evaluate.py`).
+  - `reports`: milestone reports (`baseline.py`, `characterization.py`, `interaction.py`).
+  - `figures`: paper figure generation (`paper.py`).
+  - `cli`: entry points (`ce-claims`, `ce-report`, `ce-figures`).
+- **Research integrity invariants.**
+  - All pre-registered claims C1–C17 criteria and evaluation logic are byte-for-byte equivalent.
+  - Claim verdicts and values match `docs/verification/baseline/claims.json` identically.
+  - LaTeX macro output matches `docs/verification/baseline/numbers.normalized.tex` identically under normalization.
+  - Raw evidence in `data/` remains completely unmodified (137 baseline hashes verified).
+- **Tooling & testing.**
+  - Pytest test suite added in `tests/python/` with 20 unit and Hypothesis property tests (units, stats, records, io, claims, reports, figures).
+  - Ruff findings reduced from 144 baseline findings to 0 blocking errors across the entire codebase (`ruff check .` clean).
+  - `tools/lint.sh` and equivalence checks pass with the package layout.
+
 ## Gate results
 
 | Phase | Gate | Result |
@@ -165,3 +190,10 @@ cmake --preset debug   && cmake --build --preset debug   && ctest --preset debug
 | 4 | Moves-only audit: 549 lines checked, 59 differences all accounted for | PASS |
 | 4 | Library no longer writes to stdout (`grep std::cout src include`: none) | PASS |
 | 4 | Equivalence gate | PASS |
+| 5 | Package layout `computeedge_analysis` in place with typed records, io, stats, units, style, claims, reports, figures, CLI | PASS |
+| 5 | Claim verdicts (C1–C17) and values match baseline claims.json identically | PASS |
+| 5 | LaTeX macro output matches baseline numbers.normalized.tex identically | PASS |
+| 5 | 20 pytest and Hypothesis tests pass in `tests/python/` | PASS |
+| 5 | Ruff findings across entire codebase reduced to 0 (`ruff check .` clean) | PASS |
+| 5 | Paper build succeeds with new analysis pipeline (`paper/build.sh`) | PASS |
+| 5 | Raw data integrity intact (137/137 baseline hashes verified) | PASS |

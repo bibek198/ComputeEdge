@@ -127,4 +127,4 @@ cat > "$out/session.json" <<JSON
 }
 JSON
 echo "session written to $out"
-.venv/bin/python benchmarks/analysis/confirm_claims.py
+PYTHONPATH=python .venv/bin/python -m computeedge_analysis.cli claims
