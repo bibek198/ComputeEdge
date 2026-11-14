@@ -59,6 +59,11 @@ def run_claims(allow_dirty: bool = False, out_dir: Path | None = None, data_dir:
                 results[c.id][s.name] = c.fn(s)
             except Missing:
                 results[c.id][s.name] = None
+            except Exception as e:
+                import sys
+
+                print(f"warning: error evaluating claim {c.id} on session {s.name}: {e}", file=sys.stderr)
+                results[c.id][s.name] = None
 
     out = out_dir or paths.DERIVED / "reports" / f"confirm-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}"
     out.mkdir(parents=True, exist_ok=out_dir is not None)

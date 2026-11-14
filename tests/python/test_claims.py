@@ -45,3 +45,24 @@ def test_run_claims_matches_baseline(tmp_path: Path):
                         assert abs(gen_sdata["values"][val_key] - val) < 1e-6
                     else:
                         assert gen_sdata["values"][val_key] == val
+
+
+def test_claim_failure_isolation(tmp_path: Path, monkeypatch):
+    # Simulate a claim function raising an unexpected error
+    original_fn = CLAIMS[0].fn
+    try:
+        def crashing_fn(s):
+            raise RuntimeError("simulated claim evaluation crash")
+
+        monkeypatch.setattr(CLAIMS[0], "fn", crashing_fn)
+        out_dir = tmp_path / "claims_isolated"
+        numbers_file = tmp_path / "numbers_isolated.tex"
+        # Must not raise an exception; evaluates remaining claims
+        ret = run_claims(allow_dirty=False, out_dir=out_dir, numbers_path=numbers_file)
+        assert ret == 0
+        claims_data = json.loads((out_dir / "claims.json").read_text())
+        assert claims_data["C1"]["verdict"] == "no data"
+        # Other claims are still evaluated
+        assert claims_data["C2"]["verdict"] == "confirmed (2/2)"
+    finally:
+        CLAIMS[0].fn = original_fn
