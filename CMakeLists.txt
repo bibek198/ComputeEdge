@@ -18,11 +18,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
-if(CE_SANITIZE)
-  add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=undefined)
-  add_link_options(-fsanitize=address,undefined)
-endif()
-
 # Git revision recorded in benchmark output (captured at configure time; re-run
 # cmake after committing to refresh it).
 execute_process(
@@ -49,12 +44,26 @@ if(CE_WARNINGS_AS_ERRORS)
   list(APPEND CE_WARNINGS -Werror)
 endif()
 
+# Target-specific compile options (no global add_compile_options).
+# Automatically provides ARC flags for Objective-C++ translation units.
+add_library(computeedge_compile_options INTERFACE)
+target_compile_features(computeedge_compile_options INTERFACE cxx_std_20)
+target_compile_options(computeedge_compile_options INTERFACE
+  ${CE_WARNINGS}
+  $<$<COMPILE_LANGUAGE:OBJCXX>:-fobjc-arc>
+)
+if(CE_SANITIZE)
+  target_compile_options(computeedge_compile_options INTERFACE
+    -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=undefined)
+  target_link_options(computeedge_compile_options INTERFACE -fsanitize=address,undefined)
+endif()
+
 # Library layout (docs/plan_and_architecture.md §3.2):
-#   computeedge_core   tensor, allocator, instrumentation; portable C++, no Apple frameworks
-#   computeedge_cpu    CPU backend (Accelerate)              -> core
-#   computeedge_metal  Metal backend (Objective-C++)         -> core
-#   computeedge_bench  benchmark harness + env recorder      -> core
-#   computeedge        convenience target linking core + cpu + metal
+#   computeedge::core   tensor, allocator, instrumentation; portable C++, no Apple frameworks
+#   computeedge::cpu    CPU backend (Accelerate)              -> core
+#   computeedge::metal  Metal backend (Objective-C++)         -> core
+#   computeedge::bench  benchmark harness + env recorder      -> core
+#   computeedge         convenience target linking core + cpu + metal
 
 # ---------------------------------------------------------------------------
 # Core
@@ -66,7 +75,8 @@ add_library(computeedge_core STATIC
   src/core/validate.cpp
 )
 target_include_directories(computeedge_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_compile_options(computeedge_core PRIVATE ${CE_WARNINGS})
+target_link_libraries(computeedge_core PRIVATE computeedge_compile_options)
+add_library(computeedge::core ALIAS computeedge_core)
 
 # ---------------------------------------------------------------------------
 # CPU backend
@@ -76,8 +86,8 @@ add_library(computeedge_cpu STATIC
   src/cpu/matmul_naive.cpp
   src/cpu/matmul_accelerate.cpp
 )
-target_link_libraries(computeedge_cpu PUBLIC computeedge_core "-framework Accelerate")
-target_compile_options(computeedge_cpu PRIVATE ${CE_WARNINGS})
+target_link_libraries(computeedge_cpu PUBLIC computeedge::core "-framework Accelerate" PRIVATE computeedge_compile_options)
+add_library(computeedge::cpu ALIAS computeedge_cpu)
 
 # ---------------------------------------------------------------------------
 # Metal backend. Kernels are compiled at runtime (newLibraryWithSource:), so
@@ -92,13 +102,14 @@ file(READ src/metal/kernels/probes.metal CE_MSL_PROBES)
 configure_file(src/metal/kernel_sources.h.in ${CMAKE_BINARY_DIR}/generated/computeedge/kernel_sources.h @ONLY)
 
 add_library(computeedge_metal STATIC src/metal/metal_backend.mm src/metal/probes.mm)
-target_link_libraries(computeedge_metal PUBLIC computeedge_core
-  "-framework Metal" "-framework MetalPerformanceShaders" "-framework Foundation")
+target_link_libraries(computeedge_metal PUBLIC computeedge::core
+  "-framework Metal" "-framework MetalPerformanceShaders" "-framework Foundation"
+  PRIVATE computeedge_compile_options)
 target_include_directories(computeedge_metal PRIVATE ${CMAKE_BINARY_DIR}/generated)
-target_compile_options(computeedge_metal PRIVATE ${CE_WARNINGS} -fobjc-arc)
+add_library(computeedge::metal ALIAS computeedge_metal)
 
 add_library(computeedge INTERFACE)
-target_link_libraries(computeedge INTERFACE computeedge_core computeedge_cpu computeedge_metal)
+target_link_libraries(computeedge INTERFACE computeedge::core computeedge::cpu computeedge::metal)
 add_library(computeedge::computeedge ALIAS computeedge)
 
 # ---------------------------------------------------------------------------
@@ -112,15 +123,15 @@ add_library(computeedge_bench STATIC
   src/bench/trace.cpp
   src/bench/windows.cpp
 )
-target_link_libraries(computeedge_bench PUBLIC computeedge_core
-  "-framework Foundation" "-framework IOKit" "-framework Metal")
-target_compile_options(computeedge_bench PRIVATE ${CE_WARNINGS})
-set_source_files_properties(src/bench/environment.mm PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
+target_link_libraries(computeedge_bench PUBLIC computeedge::core
+  "-framework Foundation" "-framework IOKit" "-framework Metal"
+  PRIVATE computeedge_compile_options)
 target_compile_definitions(computeedge_bench PRIVATE
   CE_GIT_SHA="${CE_GIT_SHA}"
   CE_BUILD_TYPE="${CMAKE_BUILD_TYPE}"
   CE_CXX_FLAGS="${CE_CXX_FLAGS}"
   CE_SANITIZE_ENABLED=$<BOOL:${CE_SANITIZE}>)
+add_library(computeedge::bench ALIAS computeedge_bench)
 
 # ---------------------------------------------------------------------------
 # Benchmark harness: code shared by the benchmark binaries (benchmarks/harness/).
@@ -134,19 +145,19 @@ add_library(computeedge_bench_harness STATIC
   benchmarks/harness/results.cpp
 )
 target_include_directories(computeedge_bench_harness PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/benchmarks)
-target_link_libraries(computeedge_bench_harness PUBLIC computeedge_bench computeedge_core)
-target_compile_options(computeedge_bench_harness PRIVATE ${CE_WARNINGS})
+target_link_libraries(computeedge_bench_harness PUBLIC computeedge::bench computeedge::core PRIVATE computeedge_compile_options)
+add_library(computeedge::harness ALIAS computeedge_bench_harness)
 
 add_library(computeedge_bench_harness_gpu STATIC benchmarks/harness/gpu.cpp)
-target_link_libraries(computeedge_bench_harness_gpu PUBLIC computeedge_bench_harness computeedge_metal)
-target_compile_options(computeedge_bench_harness_gpu PRIVATE ${CE_WARNINGS})
+target_link_libraries(computeedge_bench_harness_gpu PUBLIC computeedge::harness computeedge::metal PRIVATE computeedge_compile_options)
+add_library(computeedge::harness_gpu ALIAS computeedge_bench_harness_gpu)
 
 # ---------------------------------------------------------------------------
 # Examples
 # ---------------------------------------------------------------------------
 if(CE_BUILD_EXAMPLES)
   add_executable(matrix_multiplication examples/matrix_multiplication.cpp)
-  target_link_libraries(matrix_multiplication PRIVATE computeedge)
+  target_link_libraries(matrix_multiplication PRIVATE computeedge::computeedge computeedge_compile_options)
   set_target_properties(matrix_multiplication PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/examples)
 endif()
 
@@ -165,23 +176,22 @@ if(CE_BUILD_BENCHMARKS)
     endforeach()
     add_executable(${name} ${sources})
     target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/${dir})
-    target_link_libraries(${name} PRIVATE ${ARGN})   # each binary lists exactly what it links
-    target_compile_options(${name} PRIVATE ${CE_WARNINGS})
+    target_link_libraries(${name} PRIVATE ${ARGN} computeedge_compile_options)   # each binary lists exactly what it links
     set_target_properties(${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/benchmarks)
   endfunction()
 
-  ce_benchmark(cpu_matmul benchmarks/cpu_matmul computeedge_bench_harness computeedge_cpu)
-  ce_benchmark(metal_matmul benchmarks/metal_matmul computeedge_bench_harness_gpu computeedge_cpu)
-  ce_benchmark(event_log_overhead benchmarks/event_log_overhead computeedge_bench_harness)
-  ce_benchmark(ce_env tools/ce_env computeedge_bench)
+  ce_benchmark(cpu_matmul benchmarks/cpu_matmul computeedge::harness computeedge::cpu)
+  ce_benchmark(metal_matmul benchmarks/metal_matmul computeedge::harness_gpu computeedge::cpu)
+  ce_benchmark(event_log_overhead benchmarks/event_log_overhead computeedge::harness)
+  ce_benchmark(ce_env tools/ce_env computeedge::bench)
   # M5 characterization (Tracks A and B)
-  ce_benchmark(dispatch_overhead benchmarks/dispatch_overhead computeedge_bench_harness_gpu)
-  ce_benchmark(sync_methods benchmarks/sync_methods computeedge_bench_harness_gpu)
-  ce_benchmark(storage_modes benchmarks/storage_modes computeedge_bench_harness_gpu)
+  ce_benchmark(dispatch_overhead benchmarks/dispatch_overhead computeedge::harness_gpu)
+  ce_benchmark(sync_methods benchmarks/sync_methods computeedge::harness_gpu)
+  ce_benchmark(storage_modes benchmarks/storage_modes computeedge::harness_gpu)
   # M6: cache interference and thermal drift
-  ce_benchmark(cache_interference benchmarks/cache_interference computeedge_bench_harness_gpu computeedge_cpu)
-  ce_benchmark(thermal_drift benchmarks/thermal_drift computeedge_bench_harness_gpu computeedge_cpu)
-  ce_benchmark(followups benchmarks/followups computeedge_bench_harness_gpu)
+  ce_benchmark(cache_interference benchmarks/cache_interference computeedge::harness_gpu computeedge::cpu)
+  ce_benchmark(thermal_drift benchmarks/thermal_drift computeedge::harness_gpu computeedge::cpu)
+  ce_benchmark(followups benchmarks/followups computeedge::harness_gpu)
 endif()
 
 # ---------------------------------------------------------------------------
@@ -227,17 +237,30 @@ if(CE_BUILD_TESTS)
     benchmarks/sync_methods/options.cpp
     benchmarks/thermal_drift/options.cpp
   )
-  target_link_libraries(computeedge_tests PRIVATE computeedge computeedge_bench_harness_gpu
-  GTest::gtest_main)
-  target_compile_options(computeedge_tests PRIVATE -Wall -Wextra)
+  target_link_libraries(computeedge_tests PRIVATE computeedge::computeedge computeedge::harness_gpu
+    GTest::gtest_main computeedge_compile_options)
 
   include(GoogleTest)
   gtest_discover_tests(computeedge_tests)
 
+  # Self-contained headers test: ensure each public header compiles by itself
+  file(GLOB_RECURSE CE_ALL_PUBLIC_HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
+  set(CE_HEADER_CHECK_SRCS "")
+  foreach(hdr ${CE_ALL_PUBLIC_HEADERS})
+    file(RELATIVE_PATH rel "${CMAKE_CURRENT_SOURCE_DIR}/include" ${hdr})
+    string(REGEX REPLACE "[^a-zA-Z0-9]" "_" safe "${rel}")
+    set(src "${CMAKE_CURRENT_BINARY_DIR}/header_checks/${safe}.cpp")
+    file(GENERATE OUTPUT ${src} CONTENT "#include \"${rel}\"\nint main_${safe}() { return 0; }\n")
+    list(APPEND CE_HEADER_CHECK_SRCS ${src})
+  endforeach()
+  add_library(computeedge_header_checks OBJECT ${CE_HEADER_CHECK_SRCS})
+  target_include_directories(computeedge_header_checks PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+  target_link_libraries(computeedge_header_checks PRIVATE computeedge::computeedge computeedge::bench computeedge_compile_options)
+
   # Layering checks (plan §3.2): core links with no Apple frameworks, and public
   # headers expose no Objective-C.
   add_executable(core_only_check tests/layering/core_only_check.cpp)
-  target_link_libraries(core_only_check PRIVATE computeedge_core)
+  target_link_libraries(core_only_check PRIVATE computeedge::core computeedge_compile_options)
   add_test(NAME layering.core_links_without_frameworks COMMAND core_only_check)
   add_test(NAME data.results_unchanged
     COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/scripts/results_manifest.sh" check)
