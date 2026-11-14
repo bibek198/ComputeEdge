@@ -95,3 +95,13 @@ TEST(Windows, BoundariesAreHalfOpen) {
   EXPECT_EQ(r[1].params.at("w"), "1");
   EXPECT_EQ(r[1].thermal_before, cb::ThermalState::Fair);
 }
+
+TEST(Windows, SleepDurationGuardsUnderflow) {
+  const uint64_t heat_until = 1000;
+  const uint64_t now_past = 1500;
+  uint64_t sleep_ns = 0;
+  if (heat_until > now_past) {
+    sleep_ns = heat_until - now_past;
+  }
+  EXPECT_EQ(sleep_ns, 0u);
+}

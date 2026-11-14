@@ -145,7 +145,10 @@ RunOutput run(const Options& opt, harness::Reporter& report) {
       if (load == "mixed" || load == "cpu") {
         while (now_ns() < heat_until) matmul_into(a1, b1, c1c);
       } else if (load == "none") {
-        std::this_thread::sleep_for(std::chrono::nanoseconds(heat_until - now_ns()));
+        const uint64_t current = now_ns();
+        if (heat_until > current) {
+          std::this_thread::sleep_for(std::chrono::nanoseconds(heat_until - current));
+        }
       }
       if (gpu_heat) gpu_heat->wait();
     }
