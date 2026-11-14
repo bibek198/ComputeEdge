@@ -14,6 +14,11 @@ Options parse_options(int argc, char** argv) {
       return false;
     return true;
   });
+  for (const auto& e : o.experiments) {
+    if (e != "wake" && e != "cpu_write" && e != "gpu_write") {
+      usage(src, "unknown experiment " + e);
+    }
+  }
   return o;
 }
 

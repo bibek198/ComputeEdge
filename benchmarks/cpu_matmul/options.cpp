@@ -27,6 +27,12 @@ Options parse_options(int argc, char** argv) {
                                            }
                                            return true;
                                          });
+  for (const auto& impl : o.impls) impl_from(impl);
+  for (const auto& mode : o.modes) {
+    if (mode != "kernel" && mode != "e2e") {
+      usage(src, "unknown mode " + mode);
+    }
+  }
   return o;
 }
 

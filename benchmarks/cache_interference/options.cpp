@@ -18,6 +18,11 @@ Options parse_options(int argc, char** argv) {
       return false;
     return true;
   });
+  for (const auto& p : o.passes) {
+    if (p != "read" && p != "slc" && p != "sgemm") {
+      usage(src, "unknown pass " + p);
+    }
+  }
   return o;
 }
 

@@ -168,4 +168,25 @@ TEST(BenchmarkOptionsDeathTest, ValidationStillRunsBeforeMeasurement) {
   Argv bad_load({"--load", "both"});
   EXPECT_EXIT(b::thermal_drift::parse_options(bad_load.argc(), bad_load.argv()), ::testing::ExitedWithCode(2),
               "unknown --load both");
+  Argv bad_impl({"--impls", "cublas"});
+  EXPECT_EXIT(b::cpu_matmul::parse_options(bad_impl.argc(), bad_impl.argv()), ::testing::ExitedWithCode(2),
+              "unknown impl cublas");
+  Argv bad_mode({"--modes", "fancy"});
+  EXPECT_EXIT(b::cpu_matmul::parse_options(bad_mode.argc(), bad_mode.argv()), ::testing::ExitedWithCode(2),
+              "unknown mode fancy");
+  Argv bad_storage({"--storage", "managed"});
+  EXPECT_EXIT(b::metal_matmul::parse_options(bad_storage.argc(), bad_storage.argv()), ::testing::ExitedWithCode(2),
+              "unknown storage mode managed");
+  Argv bad_kernel({"--kernels", "custom"});
+  EXPECT_EXIT(b::metal_matmul::parse_options(bad_kernel.argc(), bad_kernel.argv()), ::testing::ExitedWithCode(2),
+              "unknown kernel custom");
+  Argv bad_disp_exp({"--experiments", "bogus"});
+  EXPECT_EXIT(b::dispatch_overhead::parse_options(bad_disp_exp.argc(), bad_disp_exp.argv()),
+              ::testing::ExitedWithCode(2), "unknown experiment bogus");
+  Argv bad_pass({"--passes", "invalid"});
+  EXPECT_EXIT(b::cache_interference::parse_options(bad_pass.argc(), bad_pass.argv()), ::testing::ExitedWithCode(2),
+              "unknown pass invalid");
+  Argv bad_foll_exp({"--experiments", "unknown_exp"});
+  EXPECT_EXIT(b::followups::parse_options(bad_foll_exp.argc(), bad_foll_exp.argv()), ::testing::ExitedWithCode(2),
+              "unknown experiment unknown_exp");
 }

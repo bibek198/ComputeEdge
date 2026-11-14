@@ -30,6 +30,11 @@ Options parse_options(int argc, char** argv) {
       return false;
     return true;
   });
+  for (const auto& e : o.experiments) {
+    if (e != "cold" && e != "dispatches" && e != "encoders" && e != "cmdbufs") {
+      usage(src, "unknown experiment " + e);
+    }
+  }
   return o;
 }
 

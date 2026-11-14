@@ -29,6 +29,8 @@ Options parse_options(int argc, char** argv) {
     }
     return true;
   });
+  for (const auto& s : o.storage) storage_from(s);
+  for (const auto& k : o.kernels) kernel_from(k);
   return o;
 }
 
