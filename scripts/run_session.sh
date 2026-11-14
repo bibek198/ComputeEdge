@@ -139,7 +139,9 @@ run_benchmark_step() {
       $B/metal_matmul --cooldown --kernels mps --storage "$(ord nocopy,shared)" --sizes "$(ord 128,512,1024,2048,4096)" --out "$out" > "$log" 2>&1
       ;;
     mlx_matmul)
-      .venv/bin/python benchmarks/mlx_matmul/mlx_matmul.py --cooldown --sizes "$(ord 128,512,1024,2048,4096)" --out "$out" > "$log" 2>&1
+      mlx_script="benchmarks/adapters/mlx/mlx_matmul.py"
+      [[ -f "$mlx_script" ]] || mlx_script="benchmarks/mlx_matmul/mlx_matmul.py"
+      .venv/bin/python "$mlx_script" --cooldown --sizes "$(ord 128,512,1024,2048,4096)" --out "$out" > "$log" 2>&1
       ;;
     dispatch)
       $B/dispatch_overhead --cooldown --dispatches "$(ord 1,4,16,64,256,1024)" --encoders "$(ord 1,4,16,64,256)" --cmdbufs "$(ord 1,2,4,8,16,32,64)" --out "$out" > "$log" 2>&1

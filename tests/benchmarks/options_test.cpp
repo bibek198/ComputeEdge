@@ -8,15 +8,15 @@
 #include <string>
 #include <vector>
 
-#include "cache_interference/options.h"
-#include "cpu_matmul/options.h"
-#include "dispatch_overhead/options.h"
-#include "event_log_overhead/options.h"
-#include "followups/options.h"
-#include "metal_matmul/options.h"
-#include "storage_modes/options.h"
-#include "sync_methods/options.h"
-#include "thermal_drift/options.h"
+#include "workloads/cache_interference/options.h"
+#include "workloads/dispatch/options.h"
+#include "workloads/followups/options.h"
+#include "workloads/instrumentation/options.h"
+#include "workloads/matmul/cpu/options.h"
+#include "workloads/matmul/metal/options.h"
+#include "workloads/memory/options.h"
+#include "workloads/synchronization/options.h"
+#include "workloads/thermal/options.h"
 
 namespace b = computeedge::bench;
 using Strings = std::vector<std::string>;
