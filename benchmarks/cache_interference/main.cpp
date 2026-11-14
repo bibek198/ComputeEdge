@@ -28,28 +28,32 @@
 //   cache_interference [--working-sets 1M,4M,12M,64M] [--gpu-sizes 16M,64M,256M] [--passes read,slc,sgemm]
 //                      + common flags (benchmarks/harness/cli.h)
 
+#include <pthread.h>
+#include <sys/qos.h>
+
 #include "computeedge/bench/environment.h"
 #include "experiments.h"
 #include "harness/console.h"
 #include "harness/gpu.h"
 #include "harness/results.h"
+#include "harness/run_main.h"
 #include "options.h"
-
-#include <pthread.h>
-#include <sys/qos.h>
 
 namespace harness = computeedge::bench::harness;
 using namespace computeedge::bench::cache_interference;
 
 int main(int argc, char** argv) {
-  const Options opt = parse_options(argc, argv);
-  // Prefer the performance cores for the measuring thread.
-  pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
-  harness::require_metal();
-  const computeedge::bench::Environment env =
-      harness::banner("ComputeEdge M6 / RQ3: CPU-GPU cache interference", harness::BannerStyle::WithGpu);
+  Options opt;
+  computeedge::bench::Environment env;
   harness::ConsoleReporter report;
-  if (const int status = run(opt, report); status != 0) return status;
-  harness::write_results(opt.out, opt.write, env, report.results());
-  return 0;
+  return harness::run_main(&opt, &env, &report, [&] {
+    opt = parse_options(argc, argv);
+    // Prefer the performance cores for the measuring thread.
+    pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
+    harness::require_metal();
+    env = harness::banner("ComputeEdge M6 / RQ3: CPU-GPU cache interference", harness::BannerStyle::WithGpu);
+    if (const int status = run(opt, report); status != 0) return status;
+    harness::write_results(opt.out, opt.write, env, report.results());
+    return 0;
+  });
 }

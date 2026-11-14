@@ -14,17 +14,21 @@
 #include "experiments.h"
 #include "harness/console.h"
 #include "harness/results.h"
+#include "harness/run_main.h"
 #include "options.h"
 
 namespace harness = computeedge::bench::harness;
 using namespace computeedge::bench::cpu_matmul;
 
 int main(int argc, char** argv) {
-  const Options opt = parse_options(argc, argv);
-  const computeedge::bench::Environment env =
-      harness::banner("ComputeEdge CPU matmul benchmark", harness::BannerStyle::CpuOnly);
+  Options opt;
+  computeedge::bench::Environment env;
   harness::ConsoleReporter report;
-  if (const int status = run(opt, report); status != 0) return status;
-  harness::write_results(opt.out, opt.write, env, report.results());
-  return 0;
+  return harness::run_main(&opt, &env, &report, [&] {
+    opt = parse_options(argc, argv);
+    env = harness::banner("ComputeEdge CPU matmul benchmark", harness::BannerStyle::CpuOnly);
+    if (const int status = run(opt, report); status != 0) return status;
+    harness::write_results(opt.out, opt.write, env, report.results());
+    return 0;
+  });
 }

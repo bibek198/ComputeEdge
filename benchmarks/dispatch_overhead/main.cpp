@@ -19,18 +19,22 @@
 #include "harness/console.h"
 #include "harness/gpu.h"
 #include "harness/results.h"
+#include "harness/run_main.h"
 #include "options.h"
 
 namespace harness = computeedge::bench::harness;
 using namespace computeedge::bench::dispatch_overhead;
 
 int main(int argc, char** argv) {
-  const Options opt = parse_options(argc, argv);
-  harness::require_metal();
-  const computeedge::bench::Environment env =
-      harness::banner("ComputeEdge M5 / Track A: dispatch overhead (empty kernels)", harness::BannerStyle::WithGpu);
+  Options opt;
+  computeedge::bench::Environment env;
   harness::ConsoleReporter report;
-  if (const int status = run(opt, report); status != 0) return status;
-  harness::write_results(opt.out, opt.write, env, report.results());
-  return 0;
+  return harness::run_main(&opt, &env, &report, [&] {
+    opt = parse_options(argc, argv);
+    harness::require_metal();
+    env = harness::banner("ComputeEdge M5 / Track A: dispatch overhead", harness::BannerStyle::WithGpu);
+    if (const int status = run(opt, report); status != 0) return status;
+    harness::write_results(opt.out, opt.write, env, report.results());
+    return 0;
+  });
 }

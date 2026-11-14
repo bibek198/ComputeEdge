@@ -214,6 +214,7 @@ if(CE_BUILD_TESTS)
     tests/harness/cli_test.cpp
     tests/harness/gpu_test.cpp
     tests/harness/memory_and_correctness_test.cpp
+    tests/harness/run_main_test.cpp
     tests/benchmarks/options_test.cpp
     # Each binary's real option parser, so its CLI contract is unit-tested.
     benchmarks/cache_interference/options.cpp
