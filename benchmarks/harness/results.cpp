@@ -17,12 +17,17 @@ void ConsoleReporter::on_result(const Result& r) { std::cout << format_result(r)
 void ConsoleReporter::on_note(const std::string& text) { std::cout << text << std::flush; }
 
 std::string write_results(const std::string& out, bool write, const Environment& env,
-                          const std::vector<Result>& results) {
-  if (!write) return "";
+                          const std::vector<Result>& results, bool partial) {
+  if (!write || results.empty()) return "";
   ResultWriter writer(out, env);
+  if (partial) writer.mark_partial(true);
   for (const auto& r : results) writer.add(r);
   writer.flush();
-  std::cout << "\nResults written to " << writer.directory() << '\n';
+  if (partial) {
+    std::cout << "\nPartial results written to " << writer.directory() << " (partial)\n";
+  } else {
+    std::cout << "\nResults written to " << writer.directory() << '\n';
+  }
   return writer.directory();
 }
 

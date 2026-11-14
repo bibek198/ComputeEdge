@@ -51,7 +51,9 @@ ResultWriter::ResultWriter(const std::string& root, const Environment& env) : en
   std::filesystem::path base = std::filesystem::path(root) / (local_stamp() + "_" + sha);
   std::filesystem::path dir = base;
   for (int i = 1; std::filesystem::exists(dir); ++i) dir = base.string() + "_" + std::to_string(i);
-  std::filesystem::create_directories(dir);
+  std::error_code ec;
+  std::filesystem::create_directories(dir, ec);
+  if (ec) throw Error("ResultWriter: cannot create directory " + dir.string() + ": " + ec.message());
   dir_ = dir.string();
 }
 
@@ -68,6 +70,7 @@ void ResultWriter::flush() const {
   const std::vector<std::string> keys = param_keys(results_);
   {
     std::ofstream f(dir / "samples.csv");
+    if (!f) throw Error("ResultWriter: cannot write samples.csv in " + dir_);
     f << "benchmark";
     for (const auto& k : keys) f << ',' << csv_field(k);
     f << ",rep,inner_iterations,ns_per_call,thermal\n";
@@ -82,6 +85,7 @@ void ResultWriter::flush() const {
   }
   {
     std::ofstream f(dir / "summary.csv");
+    if (!f) throw Error("ResultWriter: cannot write summary.csv in " + dir_);
     f << "benchmark";
     for (const auto& k : keys) f << ',' << csv_field(k);
     f << ",n_samples,inner_iterations,median_ns,p25_ns,p75_ns,iqr_ns,ci95_lo_ns,ci95_hi_ns,mean_ns,stddev_ns,min_ns,max_ns,"
@@ -96,6 +100,11 @@ void ResultWriter::flush() const {
     }
   }
   write_metrics(dir, results_, keys);
+  if (partial_) {
+    std::ofstream f(dir / "PARTIAL");
+    if (!f) throw Error("ResultWriter: cannot write PARTIAL marker in " + dir_);
+    f << "partial\n";
+  }
 }
 
 namespace {
@@ -107,10 +116,12 @@ void write_metrics(const std::filesystem::path& dir, const std::vector<Result>& 
   if (!any) return;
 
   std::ofstream f(dir / "metrics.csv");
+  if (!f) throw Error("ResultWriter: cannot write metrics.csv in " + dir.string());
   f << "benchmark";
   for (const auto& k : keys) f << ',' << csv_field(k);
   f << ",rep,metric,value\n";
   std::ofstream g(dir / "metrics_summary.csv");
+  if (!g) throw Error("ResultWriter: cannot write metrics_summary.csv in " + dir.string());
   g << "benchmark";
   for (const auto& k : keys) g << ',' << csv_field(k);
   g << ",metric,n_samples,median,p25,p75,iqr,ci95_lo,ci95_hi,mean,min,max\n";

@@ -45,6 +45,6 @@ class ConsoleReporter : public Reporter {
 // Writes all results to a new run directory under `out` (when `write` is true)
 // and prints its path. Returns the directory, or "" if nothing was written.
 std::string write_results(const std::string& out, bool write, const Environment& env,
-                          const std::vector<Result>& results);
+                          const std::vector<Result>& results, bool partial = false);
 
 }  // namespace computeedge::bench::harness

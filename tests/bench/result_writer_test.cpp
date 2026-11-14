@@ -103,3 +103,33 @@ TEST(Writer, WritesMetricsFiles) {
   EXPECT_NE(read_file(dir / "env.json").find("\"compiler_flags\""), std::string::npos);
   std::filesystem::remove_all(root);
 }
+
+TEST(Writer, FlushesPartialMarkerWhenMarkedPartial) {
+  const auto root = std::filesystem::temp_directory_path() / ("ce_bench_partial_" + std::to_string(::getpid()));
+  std::filesystem::remove_all(root);
+  cb::Config cfg;
+  cfg.warmup = 0;
+  cfg.min_warmup_ns = 0;
+  cfg.repetitions = 1;
+  cb::ResultWriter w(root.string(), cb::record_environment());
+  w.add(cb::run("op", {}, cfg, [] {}));
+  w.mark_partial(true);
+  EXPECT_TRUE(w.is_partial());
+  w.flush();
+  const std::filesystem::path dir(w.directory());
+  ASSERT_TRUE(std::filesystem::exists(dir / "PARTIAL"));
+  EXPECT_EQ(read_file(dir / "PARTIAL"), "partial\n");
+  std::filesystem::remove_all(root);
+}
+
+TEST(Writer, ThrowsErrorWhenDirectoryCannotBeCreated) {
+  // Use a regular file as a parent path component so directory creation fails
+  const auto temp_file = std::filesystem::temp_directory_path() / ("ce_file_not_dir_" + std::to_string(::getpid()));
+  {
+    std::ofstream f(temp_file);
+    f << "blocking";
+  }
+  const auto invalid_root = temp_file / "sub";
+  EXPECT_THROW(cb::ResultWriter w(invalid_root.string(), cb::record_environment()), computeedge::Error);
+  std::filesystem::remove(temp_file);
+}

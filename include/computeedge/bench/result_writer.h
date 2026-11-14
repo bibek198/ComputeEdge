@@ -17,12 +17,15 @@ class ResultWriter {
   ResultWriter(const std::string& root, const Environment& env);
   void add(const Result& result);
   void flush() const;
+  void mark_partial(bool partial = true) { partial_ = partial; }
+  bool is_partial() const { return partial_; }
   const std::string& directory() const { return dir_; }
 
  private:
   std::string dir_;
   Environment env_;
   std::vector<Result> results_;
+  bool partial_ = false;
 };
 
 // One-line human-readable summary for console output.
