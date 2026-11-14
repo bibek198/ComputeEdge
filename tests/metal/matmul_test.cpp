@@ -215,3 +215,12 @@ TEST_F(MetalTest, ValidatesArguments) {
   Tensor sq({3, 3});
   EXPECT_THROW(mtl::matmul_into(sq, sq, sq), Error);
 }
+
+TEST(MetalBackend, DeviceInfoSafeWhenMetalUnavailable) {
+  const mtl::DeviceInfo info = mtl::device_info();
+  if (!mtl::available()) {
+    EXPECT_TRUE(info.name.empty());
+  } else {
+    EXPECT_FALSE(info.name.empty());
+  }
+}

@@ -39,7 +39,11 @@ Context& context() {
 }
 
 std::string ns_error(NSError* error) {
-  return error ? std::string([[error localizedDescription] UTF8String]) : std::string("unknown error");
+  if (!error) return "unknown error";
+  NSString* desc = [error localizedDescription];
+  if (!desc) return "unknown error (no description)";
+  const char* utf8 = [desc UTF8String];
+  return utf8 ? std::string(utf8) : std::string("unknown error (non-utf8 description)");
 }
 
 namespace {
@@ -140,6 +144,7 @@ MPSMatrixMultiplication* mps_kernel(size_t M, size_t N, size_t K) {
                                                                      resultRows:M
                                                                   resultColumns:N
                                                                 interiorColumns:K];
+  if (!mm) throw Error("metal::matmul: failed to create MPSMatrixMultiplication kernel");
   ctx.mps_kernels.emplace(key, mm);
   return mm;
 }
@@ -149,7 +154,10 @@ MPSMatrix* mps_matrix(id<MTLBuffer> buffer, NSUInteger offset, size_t rows, size
                                                                     columns:cols
                                                                    rowBytes:cols * sizeof(float)
                                                                    dataType:MPSDataTypeFloat32];
-  return [[MPSMatrix alloc] initWithBuffer:buffer offset:offset descriptor:desc];
+  if (!desc) throw Error("metal::matmul: failed to create MPSMatrixDescriptor");
+  MPSMatrix* mat = [[MPSMatrix alloc] initWithBuffer:buffer offset:offset descriptor:desc];
+  if (!mat) throw Error("metal::matmul: failed to create MPSMatrix");
+  return mat;
 }
 
 }  // namespace
@@ -178,7 +186,10 @@ DeviceInfo device_info() {
   Context& ctx = context();
   if (!ctx.device) return info;
   @autoreleasepool {
-    info.name = [[ctx.device name] UTF8String];
+    if (NSString* name = [ctx.device name]) {
+      const char* utf8 = [name UTF8String];
+      if (utf8) info.name = utf8;
+    }
     info.has_unified_memory = [ctx.device hasUnifiedMemory];
     info.recommended_max_working_set_bytes = [ctx.device recommendedMaxWorkingSetSize];
     info.max_buffer_length = [ctx.device maxBufferLength];
@@ -294,7 +305,7 @@ void matmul_into(const Tensor& a, const Tensor& b, Tensor& out, const MatmulOpti
       if (!host_b) host_b = host_c;
     }
 
-    if (!gpu_a || !gpu_b || !gpu_c) {
+    if (!gpu_a || !gpu_b || !gpu_c || (options.storage == StorageMode::Private && (!host_a || !host_b || !host_c))) {
       failure = "metal::matmul: buffer creation failed";
     } else {
       // ---- copy in -----------------------------------------------------------

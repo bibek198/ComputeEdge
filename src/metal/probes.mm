@@ -148,13 +148,21 @@ Timing run_single(Sync sync, EncodeFn&& encode) {
     Context& ctx = context();
     const uint64_t start = now_ns();
     id<MTLCommandBuffer> cb = [ctx.queue commandBuffer];
-    id<MTLComputeCommandEncoder> enc = [cb computeCommandEncoder];
-    encode(enc);
-    [enc endEncoding];
-    const SyncState s = prepare_sync(cb, sync);
-    t.encode_ns = now_ns() - start;
-    failure = submit_and_sync({cb}, s, t);
-    t.total_ns = t.wait_end_ns - start;
+    if (!cb) {
+      failure = "probe: failed to create command buffer";
+    } else {
+      id<MTLComputeCommandEncoder> enc = [cb computeCommandEncoder];
+      if (!enc) {
+        failure = "probe: failed to create compute command encoder";
+      } else {
+        encode(enc);
+        [enc endEncoding];
+        const SyncState s = prepare_sync(cb, sync);
+        t.encode_ns = now_ns() - start;
+        failure = submit_and_sync({cb}, s, t);
+        t.total_ns = t.wait_end_ns - start;
+      }
+    }
   }
   if (!failure.empty()) throw Error(failure);
   return t;
@@ -217,20 +225,31 @@ Timing empty_dispatch(const DispatchConfig& config) {
     cbs.reserve(config.command_buffers);
     for (uint32_t c = 0; c < config.command_buffers; ++c) {
       id<MTLCommandBuffer> cb = [ctx.queue commandBuffer];
+      if (!cb) {
+        failure = "probe::empty_dispatch: failed to create command buffer";
+        break;
+      }
       for (uint32_t e = 0; e < config.encoders_per_buffer; ++e) {
         id<MTLComputeCommandEncoder> enc = [cb computeCommandEncoder];
+        if (!enc) {
+          failure = "probe::empty_dispatch: failed to create compute command encoder";
+          break;
+        }
         [enc setComputePipelineState:pso];
         for (uint32_t d = 0; d < config.dispatches_per_encoder; ++d) {
           [enc dispatchThreads:one threadsPerThreadgroup:one];
         }
         [enc endEncoding];
       }
+      if (!failure.empty()) break;
       cbs.push_back(cb);
     }
-    const SyncState s = prepare_sync(cbs.back(), config.sync);
-    t.encode_ns = now_ns() - start;
-    failure = submit_and_sync(cbs, s, t);
-    t.total_ns = t.wait_end_ns - start;
+    if (failure.empty()) {
+      const SyncState s = prepare_sync(cbs.back(), config.sync);
+      t.encode_ns = now_ns() - start;
+      failure = submit_and_sync(cbs, s, t);
+      t.total_ns = t.wait_end_ns - start;
+    }
   }
   if (!failure.empty()) throw Error(failure);
   return t;
@@ -411,7 +430,9 @@ Submission gpu_stream_async(Stream stream, const Buffer& a, const Buffer* b, uin
   @autoreleasepool {
     const uint64_t start = now_ns();
     id<MTLCommandBuffer> cb = [context().queue commandBuffer];
+    if (!cb) throw Error("probe::gpu_stream_async: failed to create command buffer");
     id<MTLComputeCommandEncoder> enc = [cb computeCommandEncoder];
+    if (!enc) throw Error("probe::gpu_stream_async: failed to create compute command encoder");
     encode(enc);
     [enc endEncoding];
     sub.timing_.encode_ns = now_ns() - start;

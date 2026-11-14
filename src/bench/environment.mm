@@ -145,7 +145,11 @@ Environment record_environment() {
   }
   @autoreleasepool {
     if (id<MTLDevice> device = MTLCreateSystemDefaultDevice()) {
-      env.gpu_name = [[device name] UTF8String];
+      if (NSString* name = [device name]) {
+        if (const char* utf8 = [name UTF8String]) {
+          env.gpu_name = utf8;
+        }
+      }
       env.gpu_recommended_working_set = [device recommendedMaxWorkingSetSize];
     }
   }
