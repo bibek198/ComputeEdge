@@ -201,6 +201,28 @@ cmake --preset debug   && cmake --build --preset debug   && ctest --preset debug
   - Cleaned up shell scripting constructs (0 shellcheck findings across all scripts).
 - **Equivalence gate.** All baseline raw data hashes (137/137), schema, execution traces, claims verdicts, and normalized numbers.tex match identically (`062cdfb`).
 
+## Documentation, CI and final verification (Phase 9)
+
+- **Project Documentation & Guides.**
+  - Overhauled `README.md` to reflect the completed modular architecture, modern CMake targets, build instructions, test execution, benchmark harness, and `computeedge_analysis` CLI.
+  - Updated `docs/getting_started.md` to reference modular headers (`include/computeedge/metal/probes.h`) and modern CLI commands (`ce-report`, `ce-claims`, `ce-figures`).
+- **Architecture Decision Records (ADRs).** Authored and indexed five ADRs in `docs/adr/`:
+  - `ADR 0001`: Raw Experimental Evidence Immutability and Manifest Verification.
+  - `ADR 0002`: Modular CMake Target Hierarchy and Header Layering.
+  - `ADR 0003`: Benchmark Presentation vs. Measurement Separation.
+  - `ADR 0004`: Python Analysis Package Architecture and Pre-Registered Claims.
+  - `ADR 0005`: Harness Error Handling, Early CLI Validation, and Timeout Safeguards.
+- **Continuous Integration Expansion.**
+  - Updated `.github/workflows/ci.yml` with a dedicated `python-test` job running `pytest` and property tests under Hypothesis, complementing matrix preset builds (`release`, `debug` with ASan/UBSan), data integrity verification, and linting.
+- **Final Verification & Parity.**
+  - 207 C++ tests passing in Release and Debug (ASan + UBSan) presets with zero warnings.
+  - 21 pytest tests passing in `tests/python/`.
+  - Zero lint findings across formatting, ruff, and shellcheck (`tools/lint.sh`).
+  - All 137 baseline raw data hashes (`docs/verification/baseline/BASELINE.sha256`) verified byte-identical.
+  - Output schemas and execution traces byte-identical to pre-refactor baselines.
+  - Pre-registered claims C1–C17 verdicts, values, and normalized `numbers.tex` verified byte-identical.
+  - Refactoring plan completed to 100% across all phases (Phases 0–9).
+
 ## Gate results
 
 | Phase | Gate | Result |
@@ -235,3 +257,4 @@ cmake --preset debug   && cmake --build --preset debug   && ctest --preset debug
 | 7 | CMake modularity (target-specific compile options, aliases, automatic ARC, header self-containment checks) and Metal runtime ownership | PASS |
 | 7 | 207 tests in release and debug (ASan/UBSan); all header checks compile; equivalence gate passes | PASS |
 | 8 | Session specification configs/session.toml, script hardening (no eval, state machine, traps, manifest, chmod a-w) | PASS |
+| 9 | Documentation (README, getting_started, ADRs 0001-0005), CI expansion (python-test), full equivalence gate | PASS |
