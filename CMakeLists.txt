@@ -158,22 +158,22 @@ if(CE_BUILD_TESTS)
 
   enable_testing()
   add_executable(computeedge_tests
-    tests/core/allocator_test.cpp
-    tests/core/instrumentation_test.cpp
-    tests/core/tensor_test.cpp
-    tests/cpu/matmul_test.cpp
-    tests/metal/matmul_test.cpp
-    tests/metal/probes_test.cpp
-    tests/bench/stats_test.cpp
-    tests/bench/environment_test.cpp
-    tests/bench/runner_test.cpp
-    tests/bench/result_writer_test.cpp
-    tests/bench/windows_test.cpp
-    tests/harness/cli_test.cpp
-    tests/harness/gpu_test.cpp
-    tests/harness/memory_and_correctness_test.cpp
-    tests/harness/run_main_test.cpp
-    tests/benchmarks/options_test.cpp
+    tests/unit/core/allocator_test.cpp
+    tests/unit/core/instrumentation_test.cpp
+    tests/unit/core/tensor_test.cpp
+    tests/unit/cpu/matmul_test.cpp
+    tests/unit/metal/matmul_test.cpp
+    tests/unit/metal/probes_test.cpp
+    tests/unit/bench/stats_test.cpp
+    tests/unit/bench/environment_test.cpp
+    tests/unit/bench/runner_test.cpp
+    tests/unit/bench/result_writer_test.cpp
+    tests/unit/bench/windows_test.cpp
+    tests/unit/harness/cli_test.cpp
+    tests/unit/harness/gpu_test.cpp
+    tests/unit/harness/memory_and_correctness_test.cpp
+    tests/unit/harness/run_main_test.cpp
+    tests/integration/benchmarks/options_test.cpp
     # Each binary's real option parser, so its CLI contract is unit-tested.
     benchmarks/workloads/cache_interference/options.cpp
     benchmarks/workloads/matmul/cpu/options.cpp
@@ -196,7 +196,7 @@ if(CE_BUILD_TESTS)
 
   # Layering checks (plan §3.2): core links with no Apple frameworks, and public
   # headers expose no Objective-C.
-  add_executable(core_only_check tests/layering/core_only_check.cpp)
+  add_executable(core_only_check tests/architecture/core_only_check.cpp)
   target_link_libraries(core_only_check PRIVATE computeedge::core computeedge_compile_options)
   add_test(NAME layering.core_links_without_frameworks COMMAND core_only_check)
   add_test(NAME data.results_unchanged

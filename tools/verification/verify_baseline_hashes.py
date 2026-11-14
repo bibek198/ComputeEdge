@@ -20,7 +20,8 @@ from pathlib import Path
 DATA_ROOTS = [
     "benchmarks/results/{rel}",          # pre-refactor layout
     "data/sessions/orig/{rel}",          # refactored layout: original runs
-    "data/sessions/{rel_sessions}",      # refactored layout: confirmation sessions
+    "data/sessions/confirmation/{rel_sessions}", # refactored layout: confirmation sessions
+    "data/sessions/{rel_sessions}",      # confirmation sessions legacy root
     "data/derived/{rel}",                # refactored layout: reports / comparisons
     "data/{rel}",                        # refactored layout: top-level files (exclusions.json)
 ]

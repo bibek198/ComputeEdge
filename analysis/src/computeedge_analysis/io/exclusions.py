@@ -30,6 +30,15 @@ def excluded_runs(data_dir: Path | None = None) -> set[Path]:
         return set()
     try:
         entries = json.loads(path.read_text())["excluded_runs"]
-        return {(data / e["run"]).resolve() for e in entries}
+        out = set()
+        for e in entries:
+            rel = Path(e["run"])
+            p1 = (data / rel).resolve()
+            out.add(p1)
+            # Confirmation sessions may be located directly under data/sessions or data/sessions/confirmation
+            if len(rel.parts) >= 2 and rel.parts[0] == "sessions" and rel.parts[1] != "confirmation":
+                p2 = (data / "sessions" / "confirmation" / Path(*rel.parts[1:])).resolve()
+                out.add(p2)
+        return out
     except (OSError, ValueError, KeyError, TypeError) as e:
         raise DataError(f"cannot read {path}: {e}") from e
