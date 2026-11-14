@@ -9,56 +9,18 @@ set(CMAKE_OBJCXX_STANDARD_REQUIRED ON)
 set(CMAKE_OBJCXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-option(CE_BUILD_TESTS "Build unit tests" ON)
-option(CE_BUILD_EXAMPLES "Build examples" ON)
-option(CE_BUILD_BENCHMARKS "Build benchmarks" ON)
-option(CE_SANITIZE "Build with AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
+# ---------------------------------------------------------------------------
+# Modular CMake configuration modules
+# ---------------------------------------------------------------------------
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(ComputeEdgeOptions)
+include(CompilerWarnings)
+include(Sanitizers)
+include(Dependencies)
+include(Metal)
+include(Packaging)
 
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
-endif()
-
-# Git revision recorded in benchmark output (captured at configure time; re-run
-# cmake after committing to refresh it).
-execute_process(
-  COMMAND git describe --always --dirty --abbrev=12
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  OUTPUT_VARIABLE CE_GIT_SHA
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-  ERROR_QUIET)
-if(NOT CE_GIT_SHA)
-  set(CE_GIT_SHA "unknown")
-endif()
-
-string(TOUPPER "${CMAKE_BUILD_TYPE}" CE_BUILD_TYPE_UPPER)
-string(STRIP "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${CE_BUILD_TYPE_UPPER}}" CE_CXX_FLAGS)
-if(CE_SANITIZE)
-  string(APPEND CE_CXX_FLAGS " -fsanitize=address,undefined")
-endif()
-
-set(CE_WARNINGS -Wall -Wextra -Wpedantic -Wshadow)
-# CI turns warnings into errors for ComputeEdge's own targets only; third-party
-# code (googletest via FetchContent) never receives these flags.
-option(CE_WARNINGS_AS_ERRORS "Treat warnings in ComputeEdge targets as errors" OFF)
-if(CE_WARNINGS_AS_ERRORS)
-  list(APPEND CE_WARNINGS -Werror)
-endif()
-
-# Target-specific compile options (no global add_compile_options).
-# Automatically provides ARC flags for Objective-C++ translation units.
-add_library(computeedge_compile_options INTERFACE)
-target_compile_features(computeedge_compile_options INTERFACE cxx_std_20)
-target_compile_options(computeedge_compile_options INTERFACE
-  ${CE_WARNINGS}
-  $<$<COMPILE_LANGUAGE:OBJCXX>:-fobjc-arc>
-)
-if(CE_SANITIZE)
-  target_compile_options(computeedge_compile_options INTERFACE
-    -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=undefined)
-  target_link_options(computeedge_compile_options INTERFACE -fsanitize=address,undefined)
-endif()
-
-# Library layout (docs/plan_and_architecture.md §3.2):
+# Library layout:
 #   computeedge::core   tensor, allocator, instrumentation; portable C++, no Apple frameworks
 #   computeedge::cpu    CPU backend (Accelerate)              -> core
 #   computeedge::metal  Metal backend (Objective-C++)         -> core
@@ -90,17 +52,8 @@ target_link_libraries(computeedge_cpu PUBLIC computeedge::core "-framework Accel
 add_library(computeedge::cpu ALIAS computeedge_cpu)
 
 # ---------------------------------------------------------------------------
-# Metal backend. Kernels are compiled at runtime (newLibraryWithSource:), so
-# no offline Metal toolchain is needed; the .metal sources are embedded here.
+# Metal backend
 # ---------------------------------------------------------------------------
-set(CE_METAL_KERNELS
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/metal/kernels/matmul.metal
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/metal/kernels/probes.metal)
-set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CE_METAL_KERNELS})
-file(READ src/metal/kernels/matmul.metal CE_MSL_MATMUL)
-file(READ src/metal/kernels/probes.metal CE_MSL_PROBES)
-configure_file(src/metal/kernel_sources.h.in ${CMAKE_BINARY_DIR}/generated/computeedge/kernel_sources.h @ONLY)
-
 add_library(computeedge_metal STATIC src/metal/metal_backend.mm src/metal/probes.mm)
 target_link_libraries(computeedge_metal PUBLIC computeedge::core
   "-framework Metal" "-framework MetalPerformanceShaders" "-framework Foundation"
@@ -113,7 +66,7 @@ target_link_libraries(computeedge INTERFACE computeedge::core computeedge::cpu c
 add_library(computeedge::computeedge ALIAS computeedge)
 
 # ---------------------------------------------------------------------------
-# Benchmark harness (Foundation / IOKit / Metal for environment recording)
+# Benchmark framework (Foundation / IOKit / Metal for environment recording)
 # ---------------------------------------------------------------------------
 add_library(computeedge_bench STATIC
   src/bench/environment.mm
@@ -198,15 +151,7 @@ endif()
 # Tests
 # ---------------------------------------------------------------------------
 if(CE_BUILD_TESTS)
-  include(FetchContent)
-  FetchContent_Declare(
-    googletest
-    URL https://github.com/google/googletest/archive/refs/tags/v1.15.2.tar.gz
-    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-  )
-  set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
-  set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
-  FetchContent_MakeAvailable(googletest)
+  ce_setup_googletest()
 
   enable_testing()
   add_executable(computeedge_tests
@@ -243,19 +188,8 @@ if(CE_BUILD_TESTS)
   include(GoogleTest)
   gtest_discover_tests(computeedge_tests)
 
-  # Self-contained headers test: ensure each public header compiles by itself
-  file(GLOB_RECURSE CE_ALL_PUBLIC_HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
-  set(CE_HEADER_CHECK_SRCS "")
-  foreach(hdr ${CE_ALL_PUBLIC_HEADERS})
-    file(RELATIVE_PATH rel "${CMAKE_CURRENT_SOURCE_DIR}/include" ${hdr})
-    string(REGEX REPLACE "[^a-zA-Z0-9]" "_" safe "${rel}")
-    set(src "${CMAKE_CURRENT_BINARY_DIR}/header_checks/${safe}.cpp")
-    file(GENERATE OUTPUT ${src} CONTENT "#include \"${rel}\"\nint main_${safe}() { return 0; }\n")
-    list(APPEND CE_HEADER_CHECK_SRCS ${src})
-  endforeach()
-  add_library(computeedge_header_checks OBJECT ${CE_HEADER_CHECK_SRCS})
-  target_include_directories(computeedge_header_checks PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-  target_link_libraries(computeedge_header_checks PRIVATE computeedge::computeedge computeedge::bench computeedge_compile_options)
+  # Automated public header self-containment checks
+  ce_setup_header_checks()
 
   # Layering checks (plan §3.2): core links with no Apple frameworks, and public
   # headers expose no Objective-C.

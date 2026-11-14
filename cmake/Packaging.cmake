@@ -1,0 +1,16 @@
+# Header self-containment check target and verification macros
+
+macro(ce_setup_header_checks)
+  file(GLOB_RECURSE CE_ALL_PUBLIC_HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
+  set(CE_HEADER_CHECK_SRCS "")
+  foreach(hdr ${CE_ALL_PUBLIC_HEADERS})
+    file(RELATIVE_PATH rel "${CMAKE_CURRENT_SOURCE_DIR}/include" ${hdr})
+    string(REGEX REPLACE "[^a-zA-Z0-9]" "_" safe "${rel}")
+    set(src "${CMAKE_CURRENT_BINARY_DIR}/header_checks/${safe}.cpp")
+    file(GENERATE OUTPUT ${src} CONTENT "#include \"${rel}\"\nint main_${safe}() { return 0; }\n")
+    list(APPEND CE_HEADER_CHECK_SRCS ${src})
+  endforeach()
+  add_library(computeedge_header_checks OBJECT ${CE_HEADER_CHECK_SRCS})
+  target_include_directories(computeedge_header_checks PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+  target_link_libraries(computeedge_header_checks PRIVATE computeedge::computeedge computeedge::bench computeedge_compile_options)
+endmacro()
