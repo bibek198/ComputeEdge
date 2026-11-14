@@ -91,6 +91,8 @@ def is_run(path: Path) -> bool:
 def orig_runs(data_dir: Path | None = None) -> list[Path]:
     """The original runs (`<data>/sessions/orig/`), newest first."""
     orig = (data_dir or paths.DATA) / "sessions" / "orig"
+    if not orig.is_dir():
+        return []
     return sorted((p for p in orig.iterdir() if is_run(p)), reverse=True)
 
 

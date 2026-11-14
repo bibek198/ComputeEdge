@@ -19,11 +19,11 @@ ce-report = "computeedge_analysis.cli:report_main"
 ce-figures = "computeedge_analysis.cli:figures_main"
 
 [tool.setuptools.packages.find]
-where = ["python"]
+where = ["analysis/src"]
 
 [tool.pytest.ini_options]
-pythonpath = ["python"]
-testpaths = ["tests/python"]
+pythonpath = ["analysis/src"]
+testpaths = ["analysis/tests"]
 
 [tool.ruff]
 line-length = 120
@@ -34,6 +34,7 @@ select = ["E", "F", "W", "I", "N", "D", "B", "UP"]
 ignore = ["D203", "D213"]
 
 [tool.ruff.lint.per-file-ignores]
+"analysis/tests/**" = ["D"]
 "tests/**" = ["D"]
 "benchmarks/**" = ["D", "N803", "N806"]
 "tools/**" = ["D"]

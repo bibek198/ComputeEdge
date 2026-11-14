@@ -199,4 +199,4 @@ write_session_json
 find "$out" -type f -exec chmod a-w {} +
 
 echo "session written to $out"
-PYTHONPATH=python .venv/bin/python -m computeedge_analysis.cli claims
+PYTHONPATH=analysis/src .venv/bin/python -m computeedge_analysis.cli claims

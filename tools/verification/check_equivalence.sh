@@ -61,6 +61,10 @@ if [[ -f "$wt/benchmarks/analysis/confirm_claims.py" ]]; then           # pre-Ph
   reports="$wt/data/derived/reports"; [[ -d "$reports" ]] || reports="$wt/benchmarks/results/reports"
   claims_json="$(find "$reports" -maxdepth 1 -type d -name 'confirm-*' | sort | tail -1)/claims.json"
   numbers="$wt/paper/generated/numbers.tex"
+elif [[ -d "$wt/analysis/src/computeedge_analysis" ]]; then   # modular analysis layout
+  (cd "$wt" && PYTHONPATH="$wt/analysis/src" "$py" -m computeedge_analysis.cli claims --out "$work/claims" >/dev/null)
+  claims_json="$work/claims/claims.json"
+  numbers="$wt/paper/generated/numbers.tex"
 elif [[ -f "$wt/python/pyproject.toml" || -d "$wt/python/computeedge_analysis" ]]; then   # package layout
   (cd "$wt" && PYTHONPATH="$wt/python" "$py" -m computeedge_analysis.cli claims --out "$work/claims" >/dev/null)
   claims_json="$work/claims/claims.json"

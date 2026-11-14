@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
+REPO = Path(__file__).resolve().parents[3]
 DATA = REPO / "data"
 SESSIONS = DATA / "sessions"
 ORIG = SESSIONS / "orig"  # the original M4-M6 runs, a frozen session

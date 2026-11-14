@@ -82,6 +82,33 @@ class Session:
         return list(timeseries_rows(run)), self.summary("thermal_drift").params["load"]
 
 
+def is_clean_completed_session(d: Path) -> bool:
+    """Returns True if the session completed cleanly without partial or failed markers.
+
+    A session is clean and eligible for claim evaluation if:
+    1. It does not contain a PARTIAL marker file.
+    2. If session.json is present, state is not 'partial' or 'failed', and status
+       does not indicate failure or abort.
+    """
+    if (d / "PARTIAL").exists():
+        return False
+    session_json = d / "session.json"
+    if session_json.exists():
+        try:
+            import json
+
+            meta = json.loads(session_json.read_text())
+            state = str(meta.get("state", "")).lower()
+            status = str(meta.get("status", "")).lower()
+            if state in ("partial", "failed"):
+                return False
+            if "failed" in status or "aborted" in status:
+                return False
+        except Exception:
+            return False
+    return True
+
+
 def load_sessions(allow_dirty: bool = False, data_dir: Path | None = None) -> list[Session]:
     """The original session followed by every confirmation session, in name order, excluded runs left out.
 
@@ -92,15 +119,27 @@ def load_sessions(allow_dirty: bool = False, data_dir: Path | None = None) -> li
     excluded = excluded_runs(data)
 
     def clean(p: Path) -> bool:
+        if (p / "PARTIAL").exists():
+            return False
         return (allow_dirty or not p.name.endswith("-dirty")) and p.resolve() not in excluded
 
     sessions = [Session("orig", [r for r in orig_runs(data) if clean(r)])]
     root = data / "sessions"
     if root.exists():
-        for d in sorted(p for p in root.iterdir() if p.is_dir() and p.name != "orig"):
+        for d in sorted(p for p in root.iterdir() if p.is_dir() and p.name not in ("orig", "confirmation")):
+            if not is_clean_completed_session(d):
+                continue
             runs = [r for r in d.iterdir() if is_run(r) and clean(r)]
             if runs:
                 sessions.append(Session(d.name, runs))
+        conf_root = root / "confirmation"
+        if conf_root.is_dir():
+            for d in sorted(p for p in conf_root.iterdir() if p.is_dir()):
+                if not is_clean_completed_session(d):
+                    continue
+                runs = [r for r in d.iterdir() if is_run(r) and clean(r)]
+                if runs:
+                    sessions.append(Session(d.name, runs))
     return sessions
 
 

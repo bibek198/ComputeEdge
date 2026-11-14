@@ -17,8 +17,8 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-PYTHONPATH=python .venv/bin/python -m computeedge_analysis.cli claims >/dev/null
-PYTHONPATH=python .venv/bin/python -m computeedge_analysis.cli figures --session "$session"
+PYTHONPATH=analysis/src .venv/bin/python -m computeedge_analysis.cli claims >/dev/null
+PYTHONPATH=analysis/src .venv/bin/python -m computeedge_analysis.cli figures --session "$session"
 cd paper
 if [[ $final -eq 1 ]]; then
   sed 's/^\\newif\\ifdraft\\drafttrue/\\newif\\ifdraft\\draftfalse/' main.tex > main-final.tex
