@@ -168,6 +168,17 @@ cmake --preset debug   && cmake --build --preset debug   && ctest --preset debug
   - Ruff findings reduced from 144 baseline findings to 0 blocking errors across the entire codebase (`ruff check .` clean).
   - `tools/lint.sh` and equivalence checks pass with the package layout.
 
+## Error handling and validation (Phase 6)
+
+- **Thermal drift sleep underflow fix.** `benchmarks/thermal_drift/experiments.cpp` guarded against sleep underflow when cycle work exceeds the specified interval. Unit test `Windows.SleepDurationGuardsUnderflow` added in `tests/bench/windows_test.cpp` (`0020064`).
+- **Bounded timeouts in synchronization.** `kSyncTimeoutNs = 10'000'000'000` (10 s) bounded `SpinStatus` and `CompletionHandler` in `src/metal/probes.mm` to prevent infinite hangs. Test `ProbeSyncTimeout.ConstantIsTenSeconds` added in `tests/metal/probes_test.cpp` (`a0d5eac`).
+- **Metal object and UTF8String guards.** `src/metal/metal_backend.mm`, `src/metal/probes.mm`, and `src/bench/environment.mm` guard Objective-C `UTF8String` conversions against null and check Metal command buffers, command encoders, and buffers against `nil` before dereference. Test `MetalBackend.DeviceInfoSafeWhenMetalUnavailable` added in `tests/metal/matmul_test.cpp` (`a923d41`).
+- **ResultWriter error checking and partial results.** All `std::ofstream` operations checked for write errors; `mark_partial()` flushes partial results with `PARTIAL` marker file on failure. Tests `Writer.FlushesPartialMarkerWhenMarkedPartial` and `Writer.ThrowsErrorWhenDirectoryCannotBeCreated` added in `tests/bench/result_writer_test.cpp` (`a219a7b`).
+- **CLI options validation before measurement.** Added early validation for `cpu_matmul` (impls, modes), `metal_matmul` (storage, kernels), `dispatch_overhead` (experiments), `cache_interference` (passes), and `followups` (experiments). Death tests checking exit code 2 added in `tests/benchmarks/options_test.cpp` (`94cc73b`).
+- **run_main entry-point wrapper.** Implemented `benchmarks/harness/run_main.h` catching `UsageError` (exit code 2), `InvalidRunError` (exit code 3), `computeedge::Error` and `std::exception` (exit code 1), flushing partial results on failure. Adopted in all 9 benchmark binaries. Unit tests added in `tests/harness/run_main_test.cpp` (`85ed740`).
+- **Python claim failure isolation.** `evaluate.py` catches per-claim exceptions during evaluation to avoid aborting multi-session reports. Unit test added in `tests/python/test_claims.py` (`d392189`).
+- **Equivalence gate.** 207 tests pass in Release and Debug (ASan/UBSan); 21 pytest tests pass; all baseline raw data hashes (137/137), schema, execution traces, claim verdicts and normalized numbers.tex match identically.
+
 ## Gate results
 
 | Phase | Gate | Result |
@@ -197,3 +208,5 @@ cmake --preset debug   && cmake --build --preset debug   && ctest --preset debug
 | 5 | Ruff findings across entire codebase reduced to 0 (`ruff check .` clean) | PASS |
 | 5 | Paper build succeeds with new analysis pipeline (`paper/build.sh`) | PASS |
 | 5 | Raw data integrity intact (137/137 baseline hashes verified) | PASS |
+| 6 | Thermal drift underflow, sync timeouts, Metal nil checks, ResultWriter error handling, CLI validation, run_main wrapper, claim isolation | PASS |
+| 6 | 207 tests in release and debug (ASan/UBSan); 21 pytest tests; ruff clean; equivalence gate passes | PASS |
