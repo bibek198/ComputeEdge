@@ -179,6 +179,16 @@ cmake --preset debug   && cmake --build --preset debug   && ctest --preset debug
 - **Python claim failure isolation.** `evaluate.py` catches per-claim exceptions during evaluation to avoid aborting multi-session reports. Unit test added in `tests/python/test_claims.py` (`d392189`).
 - **Equivalence gate.** 207 tests pass in Release and Debug (ASan/UBSan); 21 pytest tests pass; all baseline raw data hashes (137/137), schema, execution traces, claim verdicts and normalized numbers.tex match identically.
 
+## CMake modularity and Metal runtime ownership (Phase 7)
+
+- **Target-specific compile options.** Removed global `add_compile_options()` and `add_link_options()`. Introduced `computeedge_compile_options` interface target providing target-scoped flags (`${CE_WARNINGS}`, sanitizers when enabled).
+- **Target aliases.** Modern CMake aliases defined: `computeedge::core`, `computeedge::cpu`, `computeedge::metal`, `computeedge::bench`, `computeedge::harness`, `computeedge::harness_gpu`, and `computeedge::computeedge`.
+- **Automatic ARC.** Replaced ad-hoc manual `-fobjc-arc` compiler flags with automatic `$<$<COMPILE_LANGUAGE:OBJCXX>:-fobjc-arc>` in compile options for all Objective-C++ translation units.
+- **Strict link hygiene.** Benchmark binaries link only what they use; `cpu_matmul` links `computeedge::harness` and `computeedge::cpu` without any Metal dependency.
+- **Header self-containment checks.** Automated generation and compilation of isolated translation units for every public header in `include/` via the `computeedge_header_checks` target, verifying independent compilation.
+- **Metal runtime ownership.** RAII ownership semantics preserved for `Buffer` and `Submission`, raw pointers wrapped with `@autoreleasepool` boundaries, and no raw pointer leaks or double releases.
+- **Equivalence gate.** 207 tests pass in Release and Debug (ASan/UBSan); all baseline hashes, schema, traces, claims and numbers.tex match identically (`5ad5083`).
+
 ## Gate results
 
 | Phase | Gate | Result |
@@ -210,3 +220,5 @@ cmake --preset debug   && cmake --build --preset debug   && ctest --preset debug
 | 5 | Raw data integrity intact (137/137 baseline hashes verified) | PASS |
 | 6 | Thermal drift underflow, sync timeouts, Metal nil checks, ResultWriter error handling, CLI validation, run_main wrapper, claim isolation | PASS |
 | 6 | 207 tests in release and debug (ASan/UBSan); 21 pytest tests; ruff clean; equivalence gate passes | PASS |
+| 7 | CMake modularity (target-specific compile options, aliases, automatic ARC, header self-containment checks) and Metal runtime ownership | PASS |
+| 7 | 207 tests in release and debug (ASan/UBSan); all header checks compile; equivalence gate passes | PASS |
