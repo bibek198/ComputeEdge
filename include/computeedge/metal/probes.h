@@ -15,6 +15,9 @@
 
 namespace computeedge::metal::probe {
 
+// Documented timeout for all GPU synchronization mechanisms (10 seconds).
+constexpr uint64_t kSyncTimeoutNs = 10'000'000'000;
+
 // How the CPU learns that the GPU finished (Track A).
 enum class Sync : uint8_t {
   WaitUntilCompleted,  // [MTLCommandBuffer waitUntilCompleted] (what matmul uses)

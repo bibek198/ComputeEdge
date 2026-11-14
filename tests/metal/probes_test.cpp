@@ -21,6 +21,8 @@ namespace probe = computeedge::metal::probe;
 
 namespace {
 
+TEST(ProbeSyncTimeout, ConstantIsTenSeconds) { EXPECT_EQ(probe::kSyncTimeoutNs, 10'000'000'000ull); }
+
 class ProbeTest : public ::testing::Test {
  protected:
   void SetUp() override {

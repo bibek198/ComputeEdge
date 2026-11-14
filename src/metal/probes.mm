@@ -30,7 +30,6 @@ using detail::to_ns;
 // newCommandQueue allows 64 command buffers in flight; asking for more before
 // committing any would block forever in -commandBuffer.
 constexpr uint32_t kMaxCommandBuffers = 64;
-constexpr uint64_t kSpinTimeoutNs = 10'000'000'000;  // a failed command buffer never signals
 
 void require_available() {
   if (!available()) throw Error("Metal is not available on this system");
@@ -94,12 +93,20 @@ std::string submit_and_sync(const std::vector<id<MTLCommandBuffer>>& cbs, const 
   switch (s.sync) {
     case Sync::WaitUntilCompleted: [last waitUntilCompleted]; break;
     case Sync::EventWait:
-      if (![ctx.event waitUntilSignaledValue:s.value timeoutMS:10000]) failure = "probe: event wait timed out";
+      if (![ctx.event waitUntilSignaledValue:s.value timeoutMS:(kSyncTimeoutNs / 1'000'000)]) {
+        failure = "probe: event wait timed out";
+      }
       break;
-    case Sync::CompletionHandler: dispatch_semaphore_wait(s.sem, DISPATCH_TIME_FOREVER); break;
+    case Sync::CompletionHandler: {
+      const dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, static_cast<int64_t>(kSyncTimeoutNs));
+      if (dispatch_semaphore_wait(s.sem, timeout) != 0) {
+        failure = "probe: completion handler wait timed out";
+      }
+      break;
+    }
     case Sync::SpinEvent:
       while (ctx.event.signaledValue < s.value) {
-        if (now_ns() - w0 > kSpinTimeoutNs) {
+        if (now_ns() - w0 > kSyncTimeoutNs) {
           failure = "probe: spin on event timed out";
           break;
         }
@@ -107,6 +114,10 @@ std::string submit_and_sync(const std::vector<id<MTLCommandBuffer>>& cbs, const 
       break;
     case Sync::SpinStatus:
       while ([last status] < MTLCommandBufferStatusCompleted) {
+        if (now_ns() - w0 > kSyncTimeoutNs) {
+          failure = "probe: spin on status timed out";
+          break;
+        }
       }
       break;
   }
