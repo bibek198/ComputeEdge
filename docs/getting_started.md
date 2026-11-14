@@ -62,28 +62,29 @@ Each CSV row is `t_ns,type,id,exec_id,bytes,backend,label`, with all timestamps 
 Run benchmarks from a **Release** build, **on AC power**, and **after re-running `cmake --preset release`** once your changes are
 committed. The git SHA is captured at configure time, so this keeps results tagged with the right revision.
 
-| Binary | What it measures |
+| Binary / Tool | What it measures |
 |---|---|
 | `build/release/benchmarks/cpu_matmul` | Accelerate vs naive SGEMM, compute-only and including output allocation |
 | `build/release/benchmarks/metal_matmul` | Metal SGEMM per storage mode (NoCopy / Shared / Private), with per-phase breakdown and cold start |
 | `build/release/benchmarks/event_log_overhead` | Cost of `emit()` and `ScopedTimer` with the log disabled and enabled |
 | `benchmarks/mlx_matmul/mlx_matmul.py` | MLX matmul on the CPU and GPU streams, using the same protocol and output format |
-| `benchmarks/analysis/compare_baselines.py` | Comparison table and figures from the newest clean results |
+| `ce-report baseline` | Comparison table and figures across CPU, Metal, and MLX baselines |
 | `build/release/benchmarks/dispatch_overhead` | M5 Track A: empty-kernel round trips vs dispatches, encoders and command buffers per submission, plus cold start |
 | `build/release/benchmarks/sync_methods` | M5 Track A: five ways to wait for the GPU, and the cost of an idle gap before a submission |
 | `build/release/benchmarks/storage_modes` | M5 Track B: buffer creation, CPU first touch, first GPU use (fresh / rewrap / reused), GPU bandwidth per storage kind |
-| `benchmarks/analysis/m5_report.py` | M5 report (tables and figures) from the newest clean runs; findings are in `research/findings.md` |
+| `ce-report characterization` | M5 characterization report (tables and figures) from clean runs; findings in `research/findings.md` |
 | `build/release/benchmarks/cache_interference` | M6 RQ3: CPU pass slowdown after/during GPU work, against equal-duration controls |
 | `build/release/benchmarks/thermal_drift` | M6 RQ4: 15 min sustained load; CPU and GPU SGEMM over time, crossover drift (`--minutes`, `--load`) |
 | `build/release/benchmarks/followups` | M6: experiments testing the open M5 findings (wake latency, CPU writes, GPU write size) |
-| `benchmarks/analysis/m6_report.py` | M6 report from the newest clean runs |
+| `ce-report interaction` | M6 interaction report from clean runs |
+| `ce-claims` | Evaluates pre-registered claims C1–C17 across sessions and outputs `claims.json` and `numbers.tex` |
 
 The Metal benchmark's `--kernels tiled16,mps` option runs our kernel and Apple's MPS GEMM through the same code path.
 
 ### Running the full baseline set (M4)
 
 ```sh
-python3 -m venv .venv && .venv/bin/pip install -r benchmarks/requirements.txt   # once
+python3 -m venv .venv && .venv/bin/pip install -e . -r benchmarks/requirements.txt   # once
 scripts/run_baselines.sh
 ```
 
@@ -97,14 +98,14 @@ cooldown, and writes `data/derived/comparisons/<timestamp>/` containing `compari
 build/release/benchmarks/dispatch_overhead --cooldown
 build/release/benchmarks/sync_methods --cooldown
 build/release/benchmarks/storage_modes --cooldown        # ~5 min; up to ~3.6 GB of memory at 1 GiB
-.venv/bin/python benchmarks/analysis/m5_report.py         # -> data/derived/reports/m5-<timestamp>/
+ce-report characterization                              # -> data/derived/reports/m5-<timestamp>/
 ```
 
 M6: `cache_interference --cooldown`, `followups --cooldown`, `thermal_drift --minutes 15` (starts by waiting for
-thermal state nominal), then `.venv/bin/python benchmarks/analysis/m6_report.py`. For power and frequency during the
+thermal state nominal), then `ce-report interaction`. For power and frequency during the
 thermal run, start `sudo powermetrics --samplers cpu_power,gpu_power,thermal -i 1000` in another terminal.
 
-The low-level probes behind these benchmarks (`include/computeedge/metal_probes.h`) can also be called directly.
+The low-level probes behind these benchmarks (`include/computeedge/metal/probes.h`) can also be called directly.
 
 Common flags are `--sizes`, `--reps`, `--warmup`, `--min-warmup-ms`, `--cooldown` (wait for thermal state
 `nominal`), `--out DIR` and `--no-write`. Each binary's source file header lists all of its flags.

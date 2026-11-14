@@ -43,3 +43,14 @@ jobs:
           .venv/bin/pip install ruff==0.8.4
       - name: Lint (blocking checks are listed in tools/lint.sh)
         run: tools/lint.sh
+
+  python-test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        run: |
+          python3 -m venv .venv
+          .venv/bin/pip install -e . -r benchmarks/requirements.txt pytest hypothesis
+      - name: Test Python analysis package
+        run: .venv/bin/pytest
