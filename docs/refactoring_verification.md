@@ -189,6 +189,18 @@ cmake --preset debug   && cmake --build --preset debug   && ctest --preset debug
 - **Metal runtime ownership.** RAII ownership semantics preserved for `Buffer` and `Submission`, raw pointers wrapped with `@autoreleasepool` boundaries, and no raw pointer leaks or double releases.
 - **Equivalence gate.** 207 tests pass in Release and Debug (ASan/UBSan); all baseline hashes, schema, traces, claims and numbers.tex match identically (`5ad5083`).
 
+## Configuration, scripts and session management (Phase 8)
+
+- **Session specification.** Created `configs/session.toml` specifying the benchmark session configuration, default parameters, sweeps, warm-up iterations, and repetitions across all 9 benchmarks.
+- **Script hardening.** Hardened `scripts/run_session.sh`:
+  - Eliminated insecure `eval` command execution by structuring execution through a dedicated, validated `run_benchmark_step()` dispatcher.
+  - Implemented explicit session lifecycle state machine (`running` -> `completed` / `partial` / `failed`).
+  - Added robust trap handlers (`EXIT INT TERM`) ensuring session metadata (`session.json`) and status are consistently updated on interrupts or unexpected exits.
+  - Added SHA-256 session manifest generation (`manifest.sha256`) covering all produced files.
+  - Added automated write-protection (`chmod a-w`) across raw session files to safeguard raw experimental evidence against accidental overwriting.
+  - Cleaned up shell scripting constructs (0 shellcheck findings across all scripts).
+- **Equivalence gate.** All baseline raw data hashes (137/137), schema, execution traces, claims verdicts, and normalized numbers.tex match identically (`062cdfb`).
+
 ## Gate results
 
 | Phase | Gate | Result |
@@ -222,3 +234,4 @@ cmake --preset debug   && cmake --build --preset debug   && ctest --preset debug
 | 6 | 207 tests in release and debug (ASan/UBSan); 21 pytest tests; ruff clean; equivalence gate passes | PASS |
 | 7 | CMake modularity (target-specific compile options, aliases, automatic ARC, header self-containment checks) and Metal runtime ownership | PASS |
 | 7 | 207 tests in release and debug (ASan/UBSan); all header checks compile; equivalence gate passes | PASS |
+| 8 | Session specification configs/session.toml, script hardening (no eval, state machine, traps, manifest, chmod a-w) | PASS |
