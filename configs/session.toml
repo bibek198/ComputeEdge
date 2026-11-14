@@ -1,0 +1,97 @@
+# ComputeEdge Benchmark Session Specification
+# Defines parameters, sweeps, and execution defaults across all benchmarks.
+# Used by automation scripts and documented for reproducibility.
+
+[session]
+cooldown = true
+allow_dirty = false
+thermal_load = "mixed"
+thermal_minutes = 15
+
+[benchmarks.cpu_matmul]
+description = "CPU SGEMM crossover baseline (Accelerate vs Naive)"
+impls = ["accelerate", "naive"]
+modes = ["e2e", "kernel"]
+sizes = [128, 512, 1024, 2048, 4096]
+warmup = 10
+min_warmup_ms = 200
+reps = 30
+naive_max = 512
+
+[benchmarks.metal_matmul]
+description = "Metal SGEMM execution (Tiled16 vs MPSMatrixMultiplication)"
+kernels = ["tiled16", "mps"]
+storage = ["nocopy", "shared", "private"]
+sizes = [128, 512, 1024, 2048, 4096]
+warmup = 10
+min_warmup_ms = 200
+prewarm_ms = 1000
+reps = 30
+
+[benchmarks.mlx_matmul]
+description = "MLX GEMM reference baseline (CPU and GPU streams)"
+sizes = [128, 512, 1024, 2048, 4096]
+warmup = 10
+min_warmup_ms = 200
+reps = 30
+
+[benchmarks.dispatch_overhead]
+description = "Track A1/A2: fixed cost of GPU submission with empty kernels"
+dispatches = [1, 4, 16, 64, 256, 1024]
+encoders = [1, 4, 16, 64, 256]
+cmdbufs = [1, 2, 4, 8, 16, 32, 64]
+experiments = ["cold", "dispatches", "encoders", "cmdbufs"]
+warmup = 10
+min_warmup_ms = 200
+prewarm_ms = 1000
+reps = 30
+
+[benchmarks.sync_methods]
+description = "Track A3/A4: GPU synchronization methods and idle penalty"
+methods = ["wait_until_completed", "event_wait", "completion_handler", "spin_event", "spin_status"]
+work = ["empty", "4M", "256M"]
+gaps_ms = [0.0, 0.1, 1.0, 10.0, 100.0]
+experiments = ["methods", "idle"]
+warmup = 10
+min_warmup_ms = 200
+prewarm_ms = 1000
+reps = 30
+
+[benchmarks.storage_modes]
+description = "Track B1/B2/B3/B4: buffer allocation, residency, and streaming bandwidth"
+sizes = ["16K", "256K", "4M", "64M", "256M", "1G"]
+kinds = ["host", "shared", "private", "nocopy", "shared_copy"]
+experiments = ["create", "cpu_touch", "gpu_first", "gpu_bw"]
+warmup = 10
+min_warmup_ms = 200
+prewarm_ms = 1000
+reps = 30
+
+[benchmarks.cache_interference]
+description = "M6 RQ3: CPU-GPU system cache contention and eviction"
+working_sets = ["1M", "4M", "12M", "64M"]
+gpu_sizes = ["16M", "64M", "256M"]
+passes = ["read", "slc", "sgemm"]
+warmup = 10
+min_warmup_ms = 200
+prewarm_ms = 1000
+reps = 30
+
+[benchmarks.followups]
+description = "M6 targeted experiments for open M5 findings (7, 14, 15)"
+experiments = ["wake", "cpu_write", "gpu_write"]
+warmup = 10
+min_warmup_ms = 200
+prewarm_ms = 1000
+reps = 30
+
+[benchmarks.thermal_drift]
+description = "M6 RQ4: sustained execution and thermal drift under load"
+minutes = 15
+load = "mixed"
+interval_ms = 1000
+prewarm_ms = 1000
+
+[benchmarks.event_log_overhead]
+description = "Plan §6: instrumentation and event logging overhead"
+reps = 30

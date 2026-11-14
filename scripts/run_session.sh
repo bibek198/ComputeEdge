@@ -58,15 +58,8 @@ ord() { if [[ $reverse -eq 1 ]]; then echo "$1" | tr ',' '\n' | tail -r | paste 
 B=build/release/benchmarks
 
 methods=$(.venv/bin/python -c "import random; m=['wait_until_completed','event_wait','completion_handler','spin_event','spin_status']; random.Random($index).shuffle(m); print(','.join(m))")
-declare -a names cmds
-names+=(cpu_matmul);   cmds+=("$B/cpu_matmul --cooldown --impls accelerate --modes e2e,kernel --sizes $(ord 128,512,1024,2048,4096) --out $out")
-names+=(metal_matmul); cmds+=("$B/metal_matmul --cooldown --kernels mps --storage $(ord nocopy,shared) --sizes $(ord 128,512,1024,2048,4096) --out $out")
-names+=(mlx_matmul);   cmds+=(".venv/bin/python benchmarks/mlx_matmul/mlx_matmul.py --cooldown --sizes $(ord 128,512,1024,2048,4096) --out $out")
-names+=(dispatch);     cmds+=("$B/dispatch_overhead --cooldown --dispatches $(ord 1,4,16,64,256,1024) --encoders $(ord 1,4,16,64,256) --cmdbufs $(ord 1,2,4,8,16,32,64) --out $out")
-names+=(sync);         cmds+=("$B/sync_methods --cooldown --methods $methods --gaps-ms $(ord 0,0.1,1,10,100) --out $out")
-names+=(storage);      cmds+=("$B/storage_modes --cooldown --experiments create,gpu_first,gpu_bw --sizes $(ord 16K,256K,4M,64M,256M,1G) --out $out")
-names+=(cache);        cmds+=("$B/cache_interference --cooldown --working-sets $(ord 1M,4M,12M,64M) --gpu-sizes $(ord 16M,64M,256M) --out $out")
-names+=(followups);    cmds+=("$B/followups --cooldown --out $out")
+declare -a names
+names=(cpu_matmul metal_matmul mlx_matmul dispatch sync storage cache followups)
 
 order=$(.venv/bin/python -c "import random; o=list(range(${#names[@]})); random.Random(1000+$index).shuffle(o); print(' '.join(map(str,o)))")
 run_order=()
@@ -80,51 +73,130 @@ echo "benchmark,phase,time_local,power,other_cpu_pct" > "$out/conditions.csv"
 power() { pmset -g batt | head -1 | sed -E "s/.*'(.*)'.*/\1/"; }
 other_cpu() { ps -A -o %cpu= | awk '{s += $1} END {printf "%.0f", s}'; }
 note() { echo "$1,$2,$(date +%H:%M:%S),$(power),$(other_cpu)" >> "$out/conditions.csv"; }
-status="complete"
-check_ac() {
-  if [[ "$(power)" != "AC Power" ]]; then
-    echo "error: not on AC power before $1; stopping the session" >&2
-    status="aborted: lost AC power before $1"
-    return 1
-  fi
-}
 
+session_state="running"
+status="running"
 started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-echo "session $session: order ${run_order[*]}; reversed sweeps=$reverse; thermal load=$thermal_load"
-for i in $order; do
-  check_ac "${names[$i]}" || break
-  note "${names[$i]}" start
-  echo "[$(date +%H:%M:%S)] ${names[$i]}"
-  eval "${cmds[$i]}" > "$out/logs/${names[$i]}.log" 2>&1
-  note "${names[$i]}" end
-done
-if [[ "$status" == "complete" ]] && check_ac thermal_drift; then
-  note thermal_drift start
-  echo "[$(date +%H:%M:%S)] thermal_drift ($thermal_minutes min, $thermal_load)"
-  if ! $B/thermal_drift --minutes "$thermal_minutes" --load "$thermal_load" --out "$out" \
-      > "$out/logs/thermal_drift.log" 2>&1; then
-    status="thermal_drift invalid: power source changed during the run"
-    echo "warning: $status" >&2
-  fi
-  note thermal_drift end
-fi
 
-cat > "$out/session.json" <<JSON
+write_session_json() {
+  cat > "$out/session.json" <<JSON
 {
   "session": "$session",
   "index": $index,
   "git_sha": "$(git rev-parse HEAD)",
   "started_utc": "$started",
   "finished_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-  "order": "$(echo "${run_order[*]}")",
+  "order": "${run_order[*]}",
   "reversed_sweeps": $reverse,
   "sync_method_order": "$methods",
   "thermal_load": "$thermal_load",
   "thermal_minutes": $thermal_minutes,
   "status": "$status",
+  "state": "$session_state",
   "uptime": "$(uptime | sed 's/.*up \([^,]*\),.*/\1/')",
   "process_count": $(ps -A | wc -l | tr -d ' ')
 }
 JSON
+}
+
+# Initial state: running
+write_session_json
+
+# Cleanup trap handler for unexpected termination
+cleanup() {
+  local exit_code=$?
+  if [[ $exit_code -ne 0 && "$session_state" == "running" ]]; then
+    session_state="failed"
+    status="failed (exit code $exit_code)"
+    write_session_json || true
+    echo "Session failed with exit code $exit_code" >&2
+  fi
+}
+trap cleanup EXIT INT TERM
+
+check_ac() {
+  if [[ "$(power)" != "AC Power" ]]; then
+    echo "error: not on AC power before $1; stopping the session" >&2
+    session_state="partial"
+    status="aborted: lost AC power before $1"
+    return 1
+  fi
+}
+
+echo "session $session: order ${run_order[*]}; reversed sweeps=$reverse; thermal load=$thermal_load"
+
+run_benchmark_step() {
+  local name="$1"
+  check_ac "$name" || return 1
+  note "$name" start
+  echo "[$(date +%H:%M:%S)] $name"
+  local log="$out/logs/${name}.log"
+  case "$name" in
+    cpu_matmul)
+      $B/cpu_matmul --cooldown --impls accelerate --modes "$(ord e2e,kernel)" --sizes "$(ord 128,512,1024,2048,4096)" --out "$out" > "$log" 2>&1
+      ;;
+    metal_matmul)
+      $B/metal_matmul --cooldown --kernels mps --storage "$(ord nocopy,shared)" --sizes "$(ord 128,512,1024,2048,4096)" --out "$out" > "$log" 2>&1
+      ;;
+    mlx_matmul)
+      .venv/bin/python benchmarks/mlx_matmul/mlx_matmul.py --cooldown --sizes "$(ord 128,512,1024,2048,4096)" --out "$out" > "$log" 2>&1
+      ;;
+    dispatch)
+      $B/dispatch_overhead --cooldown --dispatches "$(ord 1,4,16,64,256,1024)" --encoders "$(ord 1,4,16,64,256)" --cmdbufs "$(ord 1,2,4,8,16,32,64)" --out "$out" > "$log" 2>&1
+      ;;
+    sync)
+      $B/sync_methods --cooldown --methods "$methods" --gaps-ms "$(ord 0,0.1,1,10,100)" --out "$out" > "$log" 2>&1
+      ;;
+    storage)
+      $B/storage_modes --cooldown --experiments create,gpu_first,gpu_bw --sizes "$(ord 16K,256K,4M,64M,256M,1G)" --out "$out" > "$log" 2>&1
+      ;;
+    cache)
+      $B/cache_interference --cooldown --working-sets "$(ord 1M,4M,12M,64M)" --gpu-sizes "$(ord 16M,64M,256M)" --out "$out" > "$log" 2>&1
+      ;;
+    followups)
+      $B/followups --cooldown --out "$out" > "$log" 2>&1
+      ;;
+    *)
+      echo "unknown benchmark step $name" >&2
+      return 1
+      ;;
+  esac
+  note "$name" end
+}
+
+for i in $order; do
+  if ! run_benchmark_step "${names[$i]}"; then
+    session_state="partial"
+    write_session_json
+    break
+  fi
+done
+
+if [[ "$session_state" == "running" ]] && check_ac thermal_drift; then
+  note thermal_drift start
+  echo "[$(date +%H:%M:%S)] thermal_drift ($thermal_minutes min, $thermal_load)"
+  if ! $B/thermal_drift --minutes "$thermal_minutes" --load "$thermal_load" --out "$out" \
+      > "$out/logs/thermal_drift.log" 2>&1; then
+    status="thermal_drift invalid: power source changed during the run"
+    session_state="partial"
+    echo "warning: $status" >&2
+  fi
+  note thermal_drift end
+fi
+
+if [[ "$session_state" == "running" ]]; then
+  session_state="completed"
+  status="complete"
+fi
+
+# Write final session.json metadata
+write_session_json
+
+# Generate SHA-256 manifest of the session
+(cd "$out" && find . -type f ! -name "manifest.sha256" | LC_ALL=C sort | while IFS= read -r f; do shasum -a 256 "$f"; done > manifest.sha256)
+
+# Write-protect raw session data files (keep logs/ dir permissions if needed)
+find "$out" -type f -exec chmod a-w {} +
+
 echo "session written to $out"
 PYTHONPATH=python .venv/bin/python -m computeedge_analysis.cli claims
