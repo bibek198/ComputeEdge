@@ -1,0 +1,19 @@
+benchmark,phase,time_local,power,other_cpu_pct
+dispatch,start,07:21:42,AC Power,118
+dispatch,end,07:21:48,AC Power,30
+cpu_matmul,start,07:21:48,AC Power,37
+cpu_matmul,end,07:21:57,AC Power,43
+sync,start,07:21:57,AC Power,43
+sync,end,07:22:13,AC Power,98
+mlx_matmul,start,07:22:13,AC Power,98
+mlx_matmul,end,07:22:22,AC Power,38
+storage,start,07:22:22,AC Power,39
+storage,end,07:23:05,AC Power,94
+followups,start,07:23:05,AC Power,82
+followups,end,07:23:23,AC Power,43
+metal_matmul,start,07:23:23,AC Power,64
+metal_matmul,end,07:23:32,AC Power,31
+cache,start,07:23:32,AC Power,32
+cache,end,07:24:09,AC Power,53
+thermal_drift,start,07:24:09,AC Power,53
+thermal_drift,end,09:09:03,AC Power,56

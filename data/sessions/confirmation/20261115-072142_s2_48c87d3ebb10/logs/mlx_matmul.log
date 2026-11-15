@@ -1,0 +1,17 @@
+ComputeEdge MLX matmul benchmark
+  Apple M4 (Mac16,12), macOS 26.4.1 (25E253), MLX 0.32.4, Python 3.10.20
+  power: AC Power, thermal: nominal, git 48c87d3ebb10
+GPU pre-warm: 4199 dispatches over 1000 ms
+
+matmul_mlx stream=gpu n=128  median 172.792 us  IQR 18.468 us  CI95 [166.875, 177.333] us  24.3 GFLOP/s  [nominal->nominal, x1]
+matmul_mlx stream=cpu n=128  median 12.708 us  IQR 0.669 us  CI95 [12.599, 13.047] us  330.0 GFLOP/s  [nominal->nominal, x4]
+matmul_mlx stream=gpu n=512  median 371.709 us  IQR 16.563 us  CI95 [364.625, 373.812] us  722.2 GFLOP/s  [nominal->nominal, x1]
+matmul_mlx stream=cpu n=512  median 161.062 us  IQR 4.907 us  CI95 [159.292, 162.417] us  1666.7 GFLOP/s  [nominal->nominal, x1]
+matmul_mlx stream=gpu n=1024  median 1181.334 us  IQR 56.636 us  CI95 [1178.667, 1194.792] us  1817.8 GFLOP/s  [nominal->nominal, x1]
+matmul_mlx stream=cpu n=1024  median 1140.479 us  IQR 4.364 us  CI95 [1139.500, 1142.312] us  1883.0 GFLOP/s  [nominal->nominal, x1]
+matmul_mlx stream=gpu n=2048  median 7270.250 us  IQR 128.448 us  CI95 [7217.396, 7295.583] us  2363.0 GFLOP/s  [nominal->nominal, x1]
+matmul_mlx stream=cpu n=2048  median 9693.375 us  IQR 90.052 us  CI95 [9667.166, 9726.521] us  1772.3 GFLOP/s  [nominal->nominal, x1]
+matmul_mlx stream=gpu n=4096  median 57787.438 us  IQR 1792.937 us  CI95 [56984.750, 58283.334] us  2378.4 GFLOP/s  [nominal->nominal, x1]
+matmul_mlx stream=cpu n=4096  median 75804.480 us  IQR 1046.094 us  CI95 [75703.042, 75864.333] us  1813.1 GFLOP/s  [nominal->nominal, x1]
+
+Results written to data/sessions/confirmation/20261115-072142_s2_48c87d3ebb10/20261115-072222_48c87d3ebb10

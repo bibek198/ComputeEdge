@@ -1,0 +1,408 @@
+ComputeEdge M6 / RQ3: CPU-GPU cache interference
+  Apple M4 / Apple M4 (Mac16,12), macOS 26.4.1 (25E253)
+  power: AC Power, thermal: nominal, build: Release, git 48c87d3ebb10
+
+GPU pre-warm: 1019 x 64 MiB writes over 1000 ms
+
+calibrated at 16M: gpu_write 346.125 us, gpu_tiny x155 325.208 us
+calibrated at 64M: gpu_write 878.375 us, gpu_tiny x743 881.5 us
+calibrated at 256M: gpu_write 3001.67 us, gpu_tiny x3078 3003.33 us
+
+cache_interference g=16M pass=read phase=idle_spin ws=1M  median 9.416 us  IQR 0.229 us  CI95 [9.375, 9.521] us
+    cpu_ns         median      9.209 us  IQR    0.208 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=gpu_tiny ws=1M  median 10.646 us  IQR 0.323 us  CI95 [10.583, 10.792] us
+    cpu_ns         median     10.438 us  IQR    0.208 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=gpu_write ws=1M  median 10.562 us  IQR 0.406 us  CI95 [10.438, 10.688] us
+    cpu_ns         median     10.375 us  IQR    0.396 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=gpu_read ws=1M  median 10.521 us  IQR 0.292 us  CI95 [10.459, 10.666] us
+    cpu_ns         median     10.375 us  IQR    0.281 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=cpu_read ws=1M  median 9.854 us  IQR 0.365 us  CI95 [9.792, 9.917] us
+    cpu_ns         median      9.562 us  IQR    0.302 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=gpu_concurrent ws=1M  median 2548.001 us  IQR 282.416 us  CI95 [2487.874, 2690.896] us
+    cpu_ns         median     25.354 us  IQR    1.093 us
+    overlap        median      0.001 us  IQR    0.000 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=idle_spin ws=1M  median 9.375 us  IQR 0.729 us  CI95 [9.062, 9.459] us
+    cpu_ns         median      9.041 us  IQR    0.657 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=gpu_tiny ws=1M  median 10.646 us  IQR 1.490 us  CI95 [10.542, 11.979] us
+    cpu_ns         median     10.479 us  IQR    1.490 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=gpu_write ws=1M  median 10.791 us  IQR 0.437 us  CI95 [10.709, 10.979] us
+    cpu_ns         median     10.584 us  IQR    0.407 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=gpu_read ws=1M  median 10.375 us  IQR 0.324 us  CI95 [10.354, 10.562] us
+    cpu_ns         median     10.208 us  IQR    0.324 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=cpu_read ws=1M  median 15.604 us  IQR 1.624 us  CI95 [15.312, 16.250] us
+    cpu_ns         median     14.708 us  IQR    0.666 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=gpu_concurrent ws=1M  median 4269.875 us  IQR 322.229 us  CI95 [4152.958, 4338.312] us
+    cpu_ns         median      9.709 us  IQR    2.802 us
+    overlap        median      0.001 us  IQR    0.000 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=idle_spin ws=1M  median 9.688 us  IQR 0.959 us  CI95 [9.458, 10.083] us
+    cpu_ns         median      9.459 us  IQR    0.771 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=gpu_tiny ws=1M  median 11.062 us  IQR 0.740 us  CI95 [10.854, 11.333] us
+    cpu_ns         median     10.750 us  IQR    0.740 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=gpu_write ws=1M  median 10.521 us  IQR 0.406 us  CI95 [10.417, 10.687] us
+    cpu_ns         median     10.291 us  IQR    0.406 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=gpu_read ws=1M  median 10.979 us  IQR 1.458 us  CI95 [10.729, 11.563] us
+    cpu_ns         median     10.709 us  IQR    1.323 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=cpu_read ws=1M  median 17.980 us  IQR 2.324 us  CI95 [17.500, 19.209] us
+    cpu_ns         median     16.166 us  IQR    1.020 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=gpu_concurrent ws=1M  median 5869.667 us  IQR 274.156 us  CI95 [5724.270, 5958.125] us
+    cpu_ns         median     10.938 us  IQR    2.667 us
+    overlap        median      0.001 us  IQR    0.000 us
+     [nominal->nominal, x1]
+cache_interference g=- pass=read phase=idle_short ws=1M  median 9.354 us  IQR 0.990 us  CI95 [9.166, 9.625] us
+    cpu_ns         median      9.146 us  IQR    0.990 us
+     [nominal->nominal, x1]
+cache_interference g=1M pass=read phase=idle_same ws=1M  median 9.333 us  IQR 0.333 us  CI95 [9.250, 9.499] us
+    cpu_ns         median      9.042 us  IQR    0.365 us
+     [nominal->nominal, x1]
+cache_interference g=1M pass=read phase=gpu_tiny_same ws=1M  median 10.646 us  IQR 0.781 us  CI95 [10.084, 10.750] us
+    cpu_ns         median     10.459 us  IQR    0.709 us
+     [nominal->nominal, x1]
+cache_interference g=1M pass=read phase=gpu_same ws=1M  median 14.750 us  IQR 0.084 us  CI95 [14.709, 14.792] us
+    cpu_ns         median     14.542 us  IQR    0.042 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=idle_spin ws=4M  median 38.020 us  IQR 1.281 us  CI95 [37.667, 38.458] us
+    cpu_ns         median     37.666 us  IQR    1.302 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=gpu_tiny ws=4M  median 40.812 us  IQR 2.636 us  CI95 [39.917, 41.771] us
+    cpu_ns         median     40.646 us  IQR    2.604 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=gpu_write ws=4M  median 39.312 us  IQR 2.426 us  CI95 [38.979, 40.416] us
+    cpu_ns         median     39.062 us  IQR    2.353 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=gpu_read ws=4M  median 38.312 us  IQR 2.562 us  CI95 [37.770, 40.188] us
+    cpu_ns         median     38.083 us  IQR    2.479 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=cpu_read ws=4M  median 38.834 us  IQR 2.282 us  CI95 [38.500, 39.834] us
+    cpu_ns         median     38.438 us  IQR    2.291 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=gpu_concurrent ws=4M  median 2237.000 us  IQR 180.865 us  CI95 [2214.750, 2331.313] us
+    cpu_ns         median     99.334 us  IQR   15.989 us
+    overlap        median      0.001 us  IQR    0.000 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=idle_spin ws=4M  median 36.166 us  IQR 3.136 us  CI95 [35.208, 37.396] us
+    cpu_ns         median     35.980 us  IQR    2.875 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=gpu_tiny ws=4M  median 41.230 us  IQR 2.042 us  CI95 [40.354, 41.688] us
+    cpu_ns         median     41.042 us  IQR    2.031 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=gpu_write ws=4M  median 40.355 us  IQR 0.625 us  CI95 [40.250, 40.646] us
+    cpu_ns         median     40.230 us  IQR    0.603 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=gpu_read ws=4M  median 40.271 us  IQR 3.449 us  CI95 [38.624, 40.834] us
+    cpu_ns         median     40.041 us  IQR    3.511 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=cpu_read ws=4M  median 60.084 us  IQR 6.323 us  CI95 [57.876, 62.146] us
+    cpu_ns         median     59.355 us  IQR    5.886 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=gpu_concurrent ws=4M  median 4154.083 us  IQR 272.323 us  CI95 [4087.896, 4288.126] us
+    cpu_ns         median     45.605 us  IQR   12.374 us
+    overlap        median      0.001 us  IQR    0.000 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=idle_spin ws=4M  median 37.958 us  IQR 3.365 us  CI95 [37.291, 39.188] us
+    cpu_ns         median     37.500 us  IQR    3.323 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=gpu_tiny ws=4M  median 41.791 us  IQR 4.239 us  CI95 [40.166, 42.917] us
+    cpu_ns         median     41.541 us  IQR    4.250 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=gpu_write ws=4M  median 41.438 us  IQR 3.240 us  CI95 [40.375, 42.667] us
+    cpu_ns         median     41.250 us  IQR    3.208 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=gpu_read ws=4M  median 43.999 us  IQR 1.760 us  CI95 [43.604, 44.916] us
+    cpu_ns         median     43.709 us  IQR    1.803 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=cpu_read ws=4M  median 64.708 us  IQR 2.823 us  CI95 [63.584, 65.730] us
+    cpu_ns         median     62.500 us  IQR    2.146 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=gpu_concurrent ws=4M  median 5888.542 us  IQR 257.323 us  CI95 [5759.105, 5964.417] us
+    cpu_ns         median     47.771 us  IQR   14.781 us
+    overlap        median      0.001 us  IQR    0.000 us
+     [nominal->nominal, x1]
+cache_interference g=- pass=read phase=idle_short ws=4M  median 37.417 us  IQR 3.385 us  CI95 [34.729, 37.459] us
+    cpu_ns         median     37.145 us  IQR    3.448 us
+     [nominal->nominal, x1]
+cache_interference g=4M pass=read phase=idle_same ws=4M  median 37.500 us  IQR 2.833 us  CI95 [36.499, 37.688] us
+    cpu_ns         median     37.250 us  IQR    2.740 us
+     [nominal->nominal, x1]
+cache_interference g=4M pass=read phase=gpu_tiny_same ws=4M  median 40.334 us  IQR 0.240 us  CI95 [40.250, 40.438] us
+    cpu_ns         median     40.209 us  IQR    0.239 us
+     [nominal->nominal, x1]
+cache_interference g=4M pass=read phase=gpu_same ws=4M  median 60.292 us  IQR 0.125 us  CI95 [60.250, 60.334] us
+    cpu_ns         median     60.167 us  IQR    0.125 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=idle_spin ws=12M  median 117.792 us  IQR 6.135 us  CI95 [115.895, 119.563] us
+    cpu_ns         median    117.250 us  IQR    6.260 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=gpu_tiny ws=12M  median 122.208 us  IQR 3.354 us  CI95 [120.875, 123.541] us
+    cpu_ns         median    121.938 us  IQR    3.188 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=gpu_write ws=12M  median 123.521 us  IQR 5.031 us  CI95 [122.459, 125.562] us
+    cpu_ns         median    123.251 us  IQR    5.115 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=gpu_read ws=12M  median 123.749 us  IQR 5.573 us  CI95 [121.813, 125.896] us
+    cpu_ns         median    123.541 us  IQR    5.437 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=cpu_read ws=12M  median 139.333 us  IQR 5.375 us  CI95 [137.833, 140.875] us
+    cpu_ns         median    138.729 us  IQR    5.395 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=gpu_concurrent ws=12M  median 2247.771 us  IQR 225.355 us  CI95 [2140.167, 2317.896] us
+    cpu_ns         median    291.500 us  IQR   63.916 us
+    overlap        median      0.001 us  IQR    0.000 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=idle_spin ws=12M  median 118.375 us  IQR 5.708 us  CI95 [114.584, 119.479] us
+    cpu_ns         median    116.666 us  IQR    5.791 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=gpu_tiny ws=12M  median 124.979 us  IQR 2.083 us  CI95 [124.583, 125.417] us
+    cpu_ns         median    124.750 us  IQR    2.146 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=gpu_write ws=12M  median 122.938 us  IQR 3.219 us  CI95 [121.896, 124.271] us
+    cpu_ns         median    122.584 us  IQR    3.073 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=gpu_read ws=12M  median 124.520 us  IQR 5.032 us  CI95 [123.500, 126.000] us
+    cpu_ns         median    124.313 us  IQR    5.032 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=cpu_read ws=12M  median 173.520 us  IQR 16.718 us  CI95 [167.104, 179.353] us
+    cpu_ns         median    171.771 us  IQR   15.937 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=gpu_concurrent ws=12M  median 4342.292 us  IQR 166.427 us  CI95 [4275.417, 4390.979] us
+    cpu_ns         median    437.562 us  IQR  128.511 us
+    overlap        median      0.001 us  IQR    0.000 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=idle_spin ws=12M  median 128.062 us  IQR 16.636 us  CI95 [123.688, 135.375] us
+    cpu_ns         median    127.395 us  IQR   15.187 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=gpu_tiny ws=12M  median 126.979 us  IQR 3.281 us  CI95 [126.188, 127.833] us
+    cpu_ns         median    126.584 us  IQR    2.990 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=gpu_write ws=12M  median 124.458 us  IQR 3.978 us  CI95 [123.792, 126.167] us
+    cpu_ns         median    124.291 us  IQR    3.563 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=gpu_read ws=12M  median 131.062 us  IQR 24.042 us  CI95 [127.188, 148.125] us
+    cpu_ns         median    130.395 us  IQR   23.458 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=cpu_read ws=12M  median 188.917 us  IQR 12.271 us  CI95 [186.958, 191.562] us
+    cpu_ns         median    186.792 us  IQR   12.074 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=gpu_concurrent ws=12M  median 5995.688 us  IQR 179.344 us  CI95 [5941.375, 6050.167] us
+    cpu_ns         median    461.979 us  IQR   85.625 us
+    overlap        median      0.001 us  IQR    0.000 us
+     [nominal->nominal, x1]
+cache_interference g=- pass=read phase=idle_short ws=12M  median 119.813 us  IQR 5.500 us  CI95 [117.250, 120.895] us
+    cpu_ns         median    119.479 us  IQR    5.072 us
+     [nominal->nominal, x1]
+cache_interference g=12M pass=read phase=idle_same ws=12M  median 118.166 us  IQR 4.095 us  CI95 [116.834, 119.792] us
+    cpu_ns         median    117.542 us  IQR    3.697 us
+     [nominal->nominal, x1]
+cache_interference g=12M pass=read phase=gpu_tiny_same ws=12M  median 121.729 us  IQR 0.615 us  CI95 [121.501, 121.958] us
+    cpu_ns         median    121.542 us  IQR    0.584 us
+     [nominal->nominal, x1]
+cache_interference g=12M pass=read phase=gpu_same ws=12M  median 176.104 us  IQR 0.979 us  CI95 [175.938, 176.500] us
+    cpu_ns         median    175.980 us  IQR    0.740 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=idle_spin ws=64M  median 948.771 us  IQR 61.250 us  CI95 [936.396, 980.396] us
+    cpu_ns         median    947.042 us  IQR   58.657 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=gpu_tiny ws=64M  median 973.480 us  IQR 62.676 us  CI95 [959.250, 1000.979] us
+    cpu_ns         median    972.375 us  IQR   62.177 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=gpu_write ws=64M  median 1005.792 us  IQR 54.791 us  CI95 [991.562, 1029.292] us
+    cpu_ns         median   1004.854 us  IQR   53.782 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=gpu_read ws=64M  median 954.770 us  IQR 50.792 us  CI95 [947.021, 973.605] us
+    cpu_ns         median    953.480 us  IQR   51.365 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=cpu_read ws=64M  median 960.333 us  IQR 55.802 us  CI95 [947.438, 980.375] us
+    cpu_ns         median    958.855 us  IQR   55.073 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=read phase=gpu_concurrent ws=64M  median 3551.750 us  IQR 98.480 us  CI95 [3499.000, 3573.292] us
+    cpu_ns         median   2591.208 us  IQR   65.562 us
+    overlap        median      0.001 us  IQR    0.000 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=idle_spin ws=64M  median 946.229 us  IQR 10.709 us  CI95 [943.750, 949.375] us
+    cpu_ns         median    944.000 us  IQR   11.188 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=gpu_tiny ws=64M  median 1022.938 us  IQR 109.428 us  CI95 [979.708, 1085.083] us
+    cpu_ns         median   1020.854 us  IQR  107.594 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=gpu_write ws=64M  median 998.104 us  IQR 28.093 us  CI95 [996.583, 1012.645] us
+    cpu_ns         median    996.688 us  IQR   27.625 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=gpu_read ws=64M  median 958.812 us  IQR 57.251 us  CI95 [954.667, 995.312] us
+    cpu_ns         median    957.146 us  IQR   56.126 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=cpu_read ws=64M  median 983.375 us  IQR 40.958 us  CI95 [980.333, 997.375] us
+    cpu_ns         median    981.667 us  IQR   39.437 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=gpu_concurrent ws=64M  median 4923.458 us  IQR 153.594 us  CI95 [4879.604, 4960.604] us
+    cpu_ns         median   3200.021 us  IQR   71.209 us
+    overlap        median      0.001 us  IQR    0.000 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=idle_spin ws=64M  median 984.145 us  IQR 26.293 us  CI95 [972.542, 992.605] us
+    cpu_ns         median    981.292 us  IQR   27.292 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=gpu_tiny ws=64M  median 1014.875 us  IQR 48.532 us  CI95 [1005.771, 1033.833] us
+    cpu_ns         median   1013.312 us  IQR   47.854 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=gpu_write ws=64M  median 1040.417 us  IQR 79.250 us  CI95 [1025.229, 1073.854] us
+    cpu_ns         median   1038.729 us  IQR   79.834 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=gpu_read ws=64M  median 970.375 us  IQR 56.761 us  CI95 [956.667, 990.209] us
+    cpu_ns         median    969.021 us  IQR   56.281 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=cpu_read ws=64M  median 978.750 us  IQR 15.250 us  CI95 [977.167, 985.750] us
+    cpu_ns         median    976.896 us  IQR   15.073 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=read phase=gpu_concurrent ws=64M  median 6794.000 us  IQR 179.604 us  CI95 [6733.125, 6845.562] us
+    cpu_ns         median   3245.584 us  IQR   52.239 us
+    overlap        median      0.001 us  IQR    0.000 us
+     [nominal->nominal, x1]
+cache_interference g=- pass=read phase=idle_short ws=64M  median 943.979 us  IQR 88.709 us  CI95 [937.000, 997.979] us
+    cpu_ns         median    942.354 us  IQR   87.896 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=idle_same ws=64M  median 954.375 us  IQR 59.657 us  CI95 [937.833, 979.104] us
+    cpu_ns         median    952.937 us  IQR   57.656 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=gpu_tiny_same ws=64M  median 986.500 us  IQR 68.093 us  CI95 [968.438, 1003.521] us
+    cpu_ns         median    985.145 us  IQR   66.896 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=read phase=gpu_same ws=64M  median 972.395 us  IQR 7.979 us  CI95 [971.312, 976.355] us
+    cpu_ns         median    971.542 us  IQR    8.469 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=slc phase=idle_spin ws=16M@8K  median 423.875 us  IQR 3.291 us  CI95 [422.688, 425.188] us
+    cpu_ns         median    423.167 us  IQR    3.594 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=slc phase=gpu_tiny ws=16M@8K  median 438.146 us  IQR 13.157 us  CI95 [430.187, 441.916] us
+    cpu_ns         median    437.666 us  IQR   13.073 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=slc phase=gpu_write ws=16M@8K  median 469.500 us  IQR 19.073 us  CI95 [465.875, 474.916] us
+    cpu_ns         median    469.209 us  IQR   18.938 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=slc phase=gpu_read ws=16M@8K  median 459.938 us  IQR 10.938 us  CI95 [457.646, 464.792] us
+    cpu_ns         median    459.625 us  IQR   10.906 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=slc phase=cpu_read ws=16M@8K  median 438.375 us  IQR 29.084 us  CI95 [431.875, 450.458] us
+    cpu_ns         median    437.771 us  IQR   28.938 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=slc phase=gpu_concurrent ws=16M@8K  median 2968.833 us  IQR 582.843 us  CI95 [2781.416, 3127.667] us
+    cpu_ns         median   1510.833 us  IQR  101.749 us
+    overlap        median      0.001 us  IQR    0.000 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=slc phase=idle_spin ws=16M@8K  median 419.292 us  IQR 33.657 us  CI95 [409.791, 430.979] us
+    cpu_ns         median    417.312 us  IQR   33.728 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=slc phase=gpu_tiny ws=16M@8K  median 434.562 us  IQR 13.281 us  CI95 [431.938, 438.333] us
+    cpu_ns         median    434.021 us  IQR   13.083 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=slc phase=gpu_write ws=16M@8K  median 477.354 us  IQR 19.677 us  CI95 [471.083, 481.792] us
+    cpu_ns         median    477.022 us  IQR   19.771 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=slc phase=gpu_read ws=16M@8K  median 467.791 us  IQR 16.875 us  CI95 [466.521, 473.750] us
+    cpu_ns         median    467.521 us  IQR   16.854 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=slc phase=cpu_read ws=16M@8K  median 578.292 us  IQR 28.854 us  CI95 [565.979, 589.020] us
+    cpu_ns         median    576.062 us  IQR   28.770 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=slc phase=gpu_concurrent ws=16M@8K  median 4504.458 us  IQR 168.251 us  CI95 [4435.480, 4564.896] us
+    cpu_ns         median   1574.021 us  IQR   32.739 us
+    overlap        median      0.001 us  IQR    0.000 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=slc phase=idle_spin ws=16M@8K  median 446.584 us  IQR 22.990 us  CI95 [437.146, 453.375] us
+    cpu_ns         median    446.000 us  IQR   23.000 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=slc phase=gpu_tiny ws=16M@8K  median 452.583 us  IQR 17.281 us  CI95 [450.104, 459.250] us
+    cpu_ns         median    452.250 us  IQR   17.250 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=slc phase=gpu_write ws=16M@8K  median 478.791 us  IQR 41.511 us  CI95 [477.021, 503.459] us
+    cpu_ns         median    478.271 us  IQR   41.448 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=slc phase=gpu_read ws=16M@8K  median 465.271 us  IQR 12.990 us  CI95 [461.104, 468.667] us
+    cpu_ns         median    464.771 us  IQR   13.032 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=slc phase=cpu_read ws=16M@8K  median 686.042 us  IQR 18.949 us  CI95 [675.625, 689.646] us
+    cpu_ns         median    684.145 us  IQR   18.437 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=slc phase=gpu_concurrent ws=16M@8K  median 6101.688 us  IQR 254.062 us  CI95 [6058.854, 6216.562] us
+    cpu_ns         median   1602.792 us  IQR   24.417 us
+    overlap        median      0.001 us  IQR    0.000 us
+     [nominal->nominal, x1]
+cache_interference g=- pass=slc phase=idle_short ws=16M@8K  median 432.771 us  IQR 12.156 us  CI95 [431.250, 438.437] us
+    cpu_ns         median    431.854 us  IQR   12.074 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=sgemm phase=idle_spin ws=3M  median 149.000 us  IQR 0.167 us  CI95 [148.958, 149.062] us
+    cpu_ns         median    148.875 us  IQR    0.167 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=sgemm phase=gpu_tiny ws=3M  median 152.083 us  IQR 2.511 us  CI95 [152.000, 152.250] us
+    cpu_ns         median    151.958 us  IQR    2.499 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=sgemm phase=gpu_write ws=3M  median 150.000 us  IQR 2.563 us  CI95 [149.688, 152.083] us
+    cpu_ns         median    149.854 us  IQR    2.563 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=sgemm phase=gpu_read ws=3M  median 152.105 us  IQR 4.125 us  CI95 [149.750, 153.041] us
+    cpu_ns         median    152.000 us  IQR    4.115 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=sgemm phase=cpu_read ws=3M  median 170.000 us  IQR 6.791 us  CI95 [168.062, 170.833] us
+    cpu_ns         median    169.812 us  IQR    6.906 us
+     [nominal->nominal, x1]
+cache_interference g=16M pass=sgemm phase=gpu_concurrent ws=3M  median 2210.292 us  IQR 196.937 us  CI95 [2157.521, 2282.479] us
+    cpu_ns         median    321.771 us  IQR   44.229 us
+    overlap        median      0.001 us  IQR    0.000 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=sgemm phase=idle_spin ws=3M  median 148.645 us  IQR 2.542 us  CI95 [148.562, 150.958] us
+    cpu_ns         median    148.500 us  IQR    2.574 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=sgemm phase=gpu_tiny ws=3M  median 152.605 us  IQR 1.354 us  CI95 [152.188, 153.083] us
+    cpu_ns         median    152.417 us  IQR    1.136 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=sgemm phase=gpu_write ws=3M  median 152.000 us  IQR 1.906 us  CI95 [151.395, 152.125] us
+    cpu_ns         median    151.875 us  IQR    1.927 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=sgemm phase=gpu_read ws=3M  median 151.917 us  IQR 2.397 us  CI95 [150.083, 152.167] us
+    cpu_ns         median    151.792 us  IQR    2.501 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=sgemm phase=cpu_read ws=3M  median 179.395 us  IQR 9.572 us  CI95 [177.604, 181.729] us
+    cpu_ns         median    178.917 us  IQR    9.104 us
+     [nominal->nominal, x1]
+cache_interference g=64M pass=sgemm phase=gpu_concurrent ws=3M  median 4129.792 us  IQR 229.969 us  CI95 [4076.229, 4252.312] us
+    cpu_ns         median    152.167 us  IQR   14.312 us
+    overlap        median      0.001 us  IQR    0.000 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=sgemm phase=idle_spin ws=3M  median 151.188 us  IQR 4.823 us  CI95 [149.292, 151.688] us
+    cpu_ns         median    151.021 us  IQR    4.720 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=sgemm phase=gpu_tiny ws=3M  median 152.333 us  IQR 3.260 us  CI95 [152.042, 153.458] us
+    cpu_ns         median    152.020 us  IQR    2.978 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=sgemm phase=gpu_write ws=3M  median 153.062 us  IQR 1.136 us  CI95 [152.522, 153.333] us
+    cpu_ns         median    152.854 us  IQR    1.094 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=sgemm phase=gpu_read ws=3M  median 152.395 us  IQR 6.333 us  CI95 [151.062, 155.104] us
+    cpu_ns         median    152.209 us  IQR    6.082 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=sgemm phase=cpu_read ws=3M  median 191.855 us  IQR 12.156 us  CI95 [187.333, 196.917] us
+    cpu_ns         median    189.667 us  IQR   11.417 us
+     [nominal->nominal, x1]
+cache_interference g=256M pass=sgemm phase=gpu_concurrent ws=3M  median 5935.667 us  IQR 276.781 us  CI95 [5784.083, 6025.625] us
+    cpu_ns         median    156.625 us  IQR   19.104 us
+    overlap        median      0.001 us  IQR    0.000 us
+     [nominal->nominal, x1]
+cache_interference g=- pass=sgemm phase=idle_short ws=3M  median 148.854 us  IQR 3.156 us  CI95 [148.584, 151.292] us
+    cpu_ns         median    148.562 us  IQR    3.146 us
+     [nominal->nominal, x1]
+
+Results written to data/sessions/confirmation/20261115-072142_s2_48c87d3ebb10/20261115-072409_48c87d3ebb10
