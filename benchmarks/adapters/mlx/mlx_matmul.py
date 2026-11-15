@@ -38,7 +38,7 @@ from pathlib import Path
 import mlx.core as mx
 import numpy as np
 
-REPO = Path(__file__).resolve().parents[2]
+REPO = Path(__file__).resolve().parents[3]
 
 # ---------------------------------------------------------------------------
 # Thermal state via the Objective-C runtime (NSProcessInfo.thermalState), cheap

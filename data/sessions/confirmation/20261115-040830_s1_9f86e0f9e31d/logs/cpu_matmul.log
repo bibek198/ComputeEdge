@@ -1,0 +1,16 @@
+ComputeEdge CPU matmul benchmark
+  Apple M4 (Mac16,12), macOS 26.4.1 (25E253)
+  power: AC Power, thermal: nominal, build: Release, git 9f86e0f9e31d
+
+matmul dtype=f32 impl=accelerate k=4096 m=4096 mode=kernel n=4096  median 73993.603 us  IQR 366.709 us  CI95 [73943.625, 74136.271] us  1857.4 GFLOP/s  [nominal->nominal, x1]
+matmul dtype=f32 impl=accelerate k=4096 m=4096 mode=e2e n=4096  median 74662.208 us  IQR 572.968 us  CI95 [74474.333, 74950.771] us  1840.8 GFLOP/s  [nominal->nominal, x1]
+matmul dtype=f32 impl=accelerate k=2048 m=2048 mode=kernel n=2048  median 9209.750 us  IQR 85.250 us  CI95 [9176.146, 9222.229] us  1865.4 GFLOP/s  [nominal->nominal, x1]
+matmul dtype=f32 impl=accelerate k=2048 m=2048 mode=e2e n=2048  median 9460.312 us  IQR 292.291 us  CI95 [9396.438, 9618.604] us  1816.0 GFLOP/s  [nominal->nominal, x1]
+matmul dtype=f32 impl=accelerate k=1024 m=1024 mode=kernel n=1024  median 1134.958 us  IQR 14.542 us  CI95 [1131.583, 1142.896] us  1892.1 GFLOP/s  [nominal->nominal, x1]
+matmul dtype=f32 impl=accelerate k=1024 m=1024 mode=e2e n=1024  median 1216.854 us  IQR 7.834 us  CI95 [1214.583, 1220.146] us  1764.8 GFLOP/s  [nominal->nominal, x1]
+matmul dtype=f32 impl=accelerate k=512 m=512 mode=kernel n=512  median 151.834 us  IQR 0.042 us  CI95 [151.833, 151.875] us  1768.0 GFLOP/s  [nominal->nominal, x1]
+matmul dtype=f32 impl=accelerate k=512 m=512 mode=e2e n=512  median 157.625 us  IQR 0.490 us  CI95 [157.458, 157.833] us  1703.0 GFLOP/s  [nominal->nominal, x1]
+matmul dtype=f32 impl=accelerate k=128 m=128 mode=kernel n=128  median 2.958 us  IQR 0.175 us  CI95 [2.926, 3.074] us  1417.8 GFLOP/s  [nominal->nominal, x32]
+matmul dtype=f32 impl=accelerate k=128 m=128 mode=e2e n=128  median 4.273 us  IQR 0.019 us  CI95 [4.268, 4.276] us  981.5 GFLOP/s  [nominal->nominal, x16]
+
+Results written to data/sessions/confirmation/20261115-040830_s1_9f86e0f9e31d/20261115-041047_9f86e0f9e31d

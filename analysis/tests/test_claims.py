@@ -17,10 +17,21 @@ def test_claims_count():
 
 
 def test_run_claims_matches_baseline(tmp_path: Path):
+    # Construct a baseline data fixture containing only orig and s0
+    fake_data = tmp_path / "data"
+    fake_sessions = fake_data / "sessions"
+    fake_sessions.mkdir(parents=True)
+    (fake_sessions / "orig").symlink_to((paths.DATA / "sessions" / "orig").resolve())
+    conf = fake_sessions / "confirmation"
+    conf.mkdir()
+    s0_name = "20261113-192541_s0_47a6278756c0"
+    (conf / s0_name).symlink_to((paths.DATA / "sessions" / "confirmation" / s0_name).resolve())
+    (fake_data / "exclusions.json").symlink_to((paths.DATA / "exclusions.json").resolve())
+
     out_dir = tmp_path / "claims_report"
     numbers_file = tmp_path / "numbers.tex"
 
-    ret = run_claims(allow_dirty=False, out_dir=out_dir, numbers_path=numbers_file)
+    ret = run_claims(allow_dirty=False, out_dir=out_dir, data_dir=fake_data, numbers_path=numbers_file)
     assert ret == 0
 
     assert (out_dir / "claims.json").exists()
@@ -63,6 +74,6 @@ def test_claim_failure_isolation(tmp_path: Path, monkeypatch):
         claims_data = json.loads((out_dir / "claims.json").read_text())
         assert claims_data["C1"]["verdict"] == "no data"
         # Other claims are still evaluated
-        assert claims_data["C2"]["verdict"] == "confirmed (2/2)"
+        assert claims_data["C2"]["verdict"].startswith("confirmed")
     finally:
         CLAIMS[0].fn = original_fn

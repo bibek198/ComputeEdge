@@ -163,7 +163,12 @@ run_benchmark_step() {
       return 1
       ;;
   esac
+  local step_rc=$?
   note "$name" end
+  if [[ $step_rc -ne 0 ]]; then
+    echo "error: benchmark step $name failed with exit code $step_rc" >&2
+    return $step_rc
+  fi
 }
 
 for i in $order; do
