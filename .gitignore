@@ -6,14 +6,31 @@ compile_commands.json
 !data/**/*.csv
 .venv/
 __pycache__/
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+*.egg-info/
 
-# Paper build outputs (regenerate with paper/build.sh)
-paper/*.pdf
-paper/*.log
-paper/main-final.tex
-paper/*.blg
-paper/*.bbl
-paper/*.aux
+# ---------------------------------------------------------------------------
+# Unpublished manuscript and paper-preparation material.
+# Kept local until the paper is published; do not push.
+# ce-claims / ce-figures still write paper/generated and paper/figures locally.
+# ---------------------------------------------------------------------------
+paper/
+
+# Internal audit and reconciliation reports
+/R4_*.md
+
+# Paper synthesis: thesis, outline, contribution hierarchy, venue strategy
+research/synthesis/
+
+# Manuscript validation and correction audits
+research/validation/
+
+# Literature reviews, novelty assessments and bibliographies for the paper
+# (the directory README stays public)
+research/related_work/*
+!research/related_work/README.md
 
 # Ad-hoc benchmark runs (default --out); never part of the evidence
 data/scratch/

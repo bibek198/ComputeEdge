@@ -1,9 +1,0 @@
-{
-  "session": "orig",
-  "thermal_load": "mixed",
-  "runs": {
-    "sync_idle": "data/sessions/orig/20261113-173428_e3a09f38b798",
-    "storage_gpu_first": "data/sessions/orig/20261113-174233_6c38cc65595c",
-    "thermal_drift": "data/sessions/orig/20261113-191237_7cf5c55733f2"
-  }
-}
