@@ -1,0 +1,23 @@
+2026-11-15 20:23:50 +0530 
+Assertion status system-wide:
+   BackgroundTask                 0
+   ApplePushServiceTask           0
+   UserIsActive                   0
+   PreventUserIdleDisplaySleep    0
+   SoftwareUpdateTask             0
+   PreventSystemSleep             0
+   ExternalMedia                  0
+   InternalPreventDisplaySleep    1
+   PreventUserIdleSystemSleep     1
+   NetworkClientActive            0
+Listed by owning process:
+   pid 338(powerd): [0x000a9762000197d4] 01:46:38 PreventUserIdleSystemSleep named: "Powerd - Prevent sleep while display is on"  
+   pid 338(powerd): [0x000ab05f00108355] 00:00:01 InternalPreventDisplaySleep named: "com.apple.powermanagement.delayDisplayOff"  
+	Timeout will fire in 299 secs Action=TimeoutActionTurnOff
+Kernel Assertions: 0x104=USB,MAGICWAKE
+   id=908  level=255 0x100=MAGICWAKE creat=  mod= description=en0 owner=IOSkywalkNetworkBSDClient
+   id=2211  level=255 0x4=USB creat= description=com.apple.usb.externaldevice.00100000 owner=USB2.0 Hub
+   id=2213  level=255 0x4=USB creat= description=com.apple.usb.externaldevice.00130000 owner=USB 10/100 LAN
+   id=2215  level=255 0x4=USB creat= description=com.apple.usb.externaldevice.00140000 owner=USB2.0 Hub
+   id=2217  level=255 0x4=USB creat= description=com.apple.usb.externaldevice.00141000 owner=USB Type-C Digital AV Adapter
+   id=2218  level=255 0x4=USB creat= description=com.apple.usb.externaldevice.00143000 owner=USB Optical Mouse

@@ -1,0 +1,100 @@
+2026-11-15 20:07:04 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context11173.preventuseridlesleep" 02:48:03  id:0x0x10000962f [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:04 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context11174.preventuseridledisplaysleep" 02:48:03  id:0x0x500009632 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:04 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context11174.preventuseridlesleep" 02:48:03  id:0x0x100009631 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:04 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context11175.preventuseridledisplaysleep" 02:48:03  id:0x0x500009634 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:04 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context11175.preventuseridlesleep" 02:48:03  id:0x0x100009633 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:04 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context11246.preventuseridledisplaysleep" 01:29:52  id:0x0x5000097ee [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:04 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context11246.preventuseridlesleep" 01:29:52  id:0x0x1000097ed [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:04 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context11291.preventuseridledisplaysleep" 01:11:12  id:0x0x50000996d [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:04 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context11291.preventuseridlesleep" 01:11:12  id:0x0x10000996c [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context9747.preventuseridledisplaysleep" 42:39:05  id:0x0x5000092dc [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context9747.preventuseridlesleep" 42:39:05  id:0x0x1000092db [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context9748.preventuseridledisplaysleep" 42:39:05  id:0x0x5000092de [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context9748.preventuseridlesleep" 42:39:05  id:0x0x1000092dd [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context9749.preventuseridledisplaysleep" 04:55:20  id:0x0x5000092c5 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context9749.preventuseridlesleep" 04:55:20  id:0x0x1000092c4 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context9750.preventuseridledisplaysleep" 42:39:05  id:0x0x5000092e2 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context9750.preventuseridlesleep" 42:39:05  id:0x0x1000092e1 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context9751.preventuseridledisplaysleep" 04:55:20  id:0x0x5000092fb [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context9751.preventuseridlesleep" 04:55:20  id:0x0x1000092fa [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.BuiltInSpeakerDevice.context.preventuseridledisplaysleep" 04:55:20  id:0x0x500009339 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.BuiltInSpeakerDevice.context.preventuseridlesleep" 00:33:46  id:0x0x100009338 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context9753.preventuseridledisplaysleep" 04:55:20  id:0x0x500009283 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context9753.preventuseridlesleep" 04:55:20  id:0x0x100009282 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context11245.preventuseridledisplaysleep" 01:30:43  id:0x0x5000097ec [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context11245.preventuseridlesleep" 01:30:43  id:0x0x1000097eb [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context9765.preventuseridledisplaysleep" 42:38:51  id:0x0x5000092fe [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context9765.preventuseridlesleep" 42:38:51  id:0x0x1000092fd [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context9766.preventuseridledisplaysleep" 42:38:51  id:0x0x500009300 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context9766.preventuseridlesleep" 42:38:51  id:0x0x1000092ff [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context9767.preventuseridledisplaysleep" 04:55:20  id:0x0x5000092c7 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context9767.preventuseridlesleep" 04:55:20  id:0x0x1000092c6 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context9768.preventuseridledisplaysleep" 42:38:51  id:0x0x500009304 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context9768.preventuseridlesleep" 42:38:51  id:0x0x100009303 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context9769.preventuseridledisplaysleep" 04:55:20  id:0x0x500009309 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context9769.preventuseridlesleep" 04:55:20  id:0x0x100009308 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context9770.preventuseridledisplaysleep" 04:55:20  id:0x0x500009333 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context9770.preventuseridlesleep" 04:55:20  id:0x0x100009332 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context9771.preventuseridledisplaysleep" 04:55:20  id:0x0x50000929d [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context9771.preventuseridlesleep" 04:55:20  id:0x0x10000929c [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context11242.preventuseridledisplaysleep" 01:30:43  id:0x0x5000097e6 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context11242.preventuseridlesleep" 01:30:43  id:0x0x1000097e5 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context9756.preventuseridledisplaysleep" 42:39:05  id:0x0x5000092ec [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context9756.preventuseridlesleep" 42:39:05  id:0x0x1000092eb [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context9757.preventuseridledisplaysleep" 42:39:05  id:0x0x5000092ee [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context9757.preventuseridlesleep" 42:39:05  id:0x0x1000092ed [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context9758.preventuseridledisplaysleep" 04:55:20  id:0x0x5000092ef [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context9758.preventuseridlesleep" 04:55:20  id:0x0x1000092ea [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context9759.preventuseridledisplaysleep" 42:39:05  id:0x0x5000092f2 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context9759.preventuseridlesleep" 42:39:05  id:0x0x1000092f1 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context9760.preventuseridledisplaysleep" 04:55:20  id:0x0x500009321 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context9760.preventuseridlesleep" 04:55:20  id:0x0x100009320 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context9761.preventuseridledisplaysleep" 04:55:20  id:0x0x500009347 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context9761.preventuseridlesleep" 04:55:20  id:0x0x100009346 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context9762.preventuseridledisplaysleep" 04:55:20  id:0x0x500009287 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context9762.preventuseridlesleep" 04:55:20  id:0x0x100009286 [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleDisplaySleep "com.apple.audio.context11237.preventuseridledisplaysleep" 01:30:44  id:0x0x5000097dc [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:07:56 +0530 Assertions          	PID 408(coreaudiod) Released PreventUserIdleSystemSleep "com.apple.audio.context11237.preventuseridlesleep" 01:30:44  id:0x0x1000097db [System: PrevIdle DeclUser kDisp]          
+2026-11-15 20:08:47 +0530 Assertions          	PID 3940(caffeinate) Created PreventUserIdleDisplaySleep "caffeinate command-line tool" 00:00:00  id:0x0x500009bf3 [System: PrevIdle PrevDisp DeclUser kDisp]          
+2026-11-15 20:08:47 +0530 Assertions          	PID 3940(caffeinate) Created PreventSystemSleep "caffeinate command-line tool" 00:00:00  id:0x0x700009bf4 [System: PrevIdle PrevDisp PrevSleep DeclUser kCPU kDisp]          
+2026-11-15 20:08:47 +0530 Assertions          	PID 0(kernel_task) Released Kernel Assertion "USB"  id:0x0x0 [System: PrevIdle PrevDisp PrevSleep DeclUser kCPU kDisp]          
+2026-11-15 20:08:47 +0530 Assertions          	PID 0(kernel_task) Released Kernel Assertion "USB"  id:0x0x0 [System: PrevIdle PrevDisp PrevSleep DeclUser kCPU kDisp]          
+2026-11-15 20:08:47 +0530 Assertions          	PID 0(kernel_task) Released Kernel Assertion "USB"  id:0x0x0 [System: PrevIdle PrevDisp PrevSleep DeclUser kCPU kDisp]          
+2026-11-15 20:08:47 +0530 Assertions          	PID 0(kernel_task) Released Kernel Assertion "USB"  id:0x0x0 [System: PrevIdle PrevDisp PrevSleep DeclUser kCPU kDisp]          
+2026-11-15 20:08:47 +0530 Assertions          	PID 0(kernel_task) Released Kernel Assertion "USB"  id:0x0x0 [System: PrevIdle PrevDisp PrevSleep DeclUser kCPU kDisp]          
+2026-11-15 20:09:08 +0530 Assertions          	Summary- [System: PrevIdle PrevDisp PrevSleep DeclUser kCPU kDisp] Using AC(Charge: 80)          
+2026-11-15 20:18:14 +0530 Assertions          	PID 401(WindowServer) TimedOut UserIsActive "com.apple.iohideventsystem.queue.tickle serviceID:10003113e service:AppleMultitouchDevice product:Apple Internal Keyboard / Trackpad eventType:11" 00:10:00  id:0x0x9000096d8 [System: PrevIdle PrevDisp PrevSleep DeclUser kCPU kDisp]          
+2026-11-15 20:21:48 +0530 Assertions          	PID 3940(caffeinate) Summary PreventUserIdleSystemSleep "caffeinate command-line tool" 00:13:01  id:0x0x100009bf2 [System: PrevIdle PrevDisp PrevSleep kCPU kDisp]          
+2026-11-15 20:21:48 +0530 Assertions          	PID 338(powerd) Summary PreventUserIdleSystemSleep "Powerd - Prevent sleep while display is on" 01:44:36  id:0x0x1000097d4 [System: PrevIdle PrevDisp PrevSleep kCPU kDisp]          
+2026-11-15 20:21:48 +0530 Assertions          	PID 3940(caffeinate) Summary PreventUserIdleDisplaySleep "caffeinate command-line tool" 00:13:01  id:0x0x500009bf3 [System: PrevIdle PrevDisp PrevSleep kCPU kDisp]          
+2026-11-15 20:21:48 +0530 Assertions          	PID 3940(caffeinate) Summary PreventSystemSleep "caffeinate command-line tool" 00:13:01  id:0x0x700009bf4 [System: PrevIdle PrevDisp PrevSleep kCPU kDisp]          
+2026-11-15 20:23:49 +0530 Assertions          	PID 3940(caffeinate) ClientDied PreventUserIdleSystemSleep "caffeinate command-line tool" 00:15:02  id:0x0x100009bf2 [System: PrevIdle PrevDisp PrevSleep kCPU kDisp]          
+2026-11-15 20:23:49 +0530 Assertions          	PID 338(powerd) TurnedOn InternalPreventDisplaySleep "com.apple.powermanagement.delayDisplayOff" 00:00:00  id:0x0x1000008355 [System: PrevIdle PrevDisp PrevSleep IntPrevDisp kCPU kDisp]          
+2026-11-15 20:23:49 +0530 Assertions          	PID 3940(caffeinate) ClientDied PreventUserIdleDisplaySleep "caffeinate command-line tool" 00:15:02  id:0x0x500009bf3 [System: PrevIdle PrevSleep IntPrevDisp kCPU kDisp]          
+2026-11-15 20:23:49 +0530 Assertions          	PID 3940(caffeinate) ClientDied PreventSystemSleep "caffeinate command-line tool" 00:15:02  id:0x0x700009bf4 [System: PrevIdle IntPrevDisp kDisp]          
+
+Total Sleep/Wakes since boot:1929
+
+2026-11-15 20:23:50 +0530 : Showing all currently held IOKit power assertions
+Assertion status system-wide:
+   BackgroundTask                 0
+   ApplePushServiceTask           0
+   UserIsActive                   0
+   PreventUserIdleDisplaySleep    0
+   SoftwareUpdateTask             0
+   PreventSystemSleep             0
+   ExternalMedia                  0
+   InternalPreventDisplaySleep    1
+   PreventUserIdleSystemSleep     1
+   NetworkClientActive            0
+Listed by owning process:
+   pid 338(powerd): [0x000a9762000197d4] 01:46:38 PreventUserIdleSystemSleep named: "Powerd - Prevent sleep while display is on"  
+   pid 338(powerd): [0x000ab05f00108355] 00:00:01 InternalPreventDisplaySleep named: "com.apple.powermanagement.delayDisplayOff"  
+	Timeout will fire in 299 secs Action=TimeoutActionTurnOff
+Kernel Assertions: 0x104=USB,MAGICWAKE
+   id=908  level=255 0x100=MAGICWAKE creat=  mod= description=en0 owner=IOSkywalkNetworkBSDClient
+   id=2211  level=255 0x4=USB creat= description=com.apple.usb.externaldevice.00100000 owner=USB2.0 Hub
+   id=2213  level=255 0x4=USB creat= description=com.apple.usb.externaldevice.00130000 owner=USB 10/100 LAN
+   id=2215  level=255 0x4=USB creat= description=com.apple.usb.externaldevice.00140000 owner=USB2.0 Hub
+   id=2217  level=255 0x4=USB creat= description=com.apple.usb.externaldevice.00141000 owner=USB Type-C Digital AV Adapter
+   id=2218  level=255 0x4=USB creat= description=com.apple.usb.externaldevice.00143000 owner=USB Optical Mouse

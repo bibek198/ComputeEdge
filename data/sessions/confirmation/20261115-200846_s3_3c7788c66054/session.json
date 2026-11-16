@@ -1,0 +1,17 @@
+{
+  "session": "20261115-200846_s3_3c7788c66054",
+  "index": 3,
+  "git_sha": "3c7788c660549652b920aa434d3fca819bf5f0ce",
+  "started_utc": "2026-11-15T14:38:47Z",
+  "finished_utc": "2026-11-15T14:53:50Z",
+  "order": "thermal_drift",
+  "reversed_sweeps": 0,
+  "sync_method_order": "none",
+  "thermal_load": "mixed",
+  "thermal_minutes": 15,
+  "power_assertion": "caffeinate -dis",
+  "status": "complete",
+  "state": "completed",
+  "uptime": "21 days",
+  "process_count": 441
+}

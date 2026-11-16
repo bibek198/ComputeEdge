@@ -8,6 +8,14 @@
       "evidence": "pmset -g log, 2026-11-13 19:28-19:43 +0530; logs/thermal_drift.log in the session directory",
       "decided": "2026-11-13",
       "guard_added": "thermal_drift now checks the power source every cycle and stops (exit 3, valid=no_power_changed); run_session.sh stops a session that loses AC power and records conditions.csv"
+    },
+    {
+      "run": "sessions/confirmation/20261115-072142_s2_48c87d3ebb10/20261115-090903_48c87d3ebb10",
+      "benchmark": "thermal_drift",
+      "reason": "Post-inspection decision: The system entered OS Idle Sleep at 07:30:10 (t=362 s active uptime) followed by recurring DarkWake maintenance intervals on AC Power. While the benchmark accumulated 15 minutes of processor uptime (via CLOCK_UPTIME_RAW), total wall-clock time stretched to 104 minutes and 54 seconds. During DarkWake intervals, macOS applied background energy constraints that stretched CPU 2048^2 SGEMM latency by 9x (16 ms to ~180 ms) while reporting thermal state nominal. This violates the experimental requirement of continuous, uninterrupted active compute. Decided after inspecting session telemetry and pmset logs.",
+      "evidence": "pmset -g log showing Idle Sleep at 07:30:10; conditions.csv showing wall-clock span 07:24:09 to 09:09:03; timeseries.csv showing cycle 320 to 322 transition where latency jumped while thermal state dropped from fair to nominal.",
+      "decided": "2026-11-15 (post-inspection telemetry audit)",
+      "guard_added": "Thermal drift runs must be protected by an active power assertion (e.g. caffeinate -dis or IOPMAssertionCreateWithName) to prevent system display sleep and idle sleep."
     }
   ]
 }
