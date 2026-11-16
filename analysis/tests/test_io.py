@@ -63,6 +63,72 @@ def test_exclusions_parsing(tmp_path: Path):
     assert bad_run in excluded_runs(data_dir)
 
 
+def test_exclusions_parsing_confirmation_and_nonexistent(tmp_path: Path):
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    exc_file = data_dir / "exclusions.json"
+    exc_file.write_text(json.dumps({
+        "excluded_runs": [
+            {"run": "sessions/confirmation/s2/run_thermal", "benchmark": "thermal_drift", "reason": "sleep"},
+            {"run": "sessions/nonexistent/path", "benchmark": "benchmark", "reason": "missing"}
+        ]
+    }))
+    runs = excluded_runs(data_dir)
+    assert (data_dir / "sessions" / "confirmation" / "s2" / "run_thermal").resolve() in runs
+    assert (data_dir / "sessions" / "nonexistent" / "path").resolve() in runs
+
+
+def test_exclusions_malformed_raises_data_error(tmp_path: Path):
+    import pytest
+    from computeedge_analysis.errors import DataError
+
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    exc_file = data_dir / "exclusions.json"
+
+    # Malformed JSON
+    exc_file.write_text("{ not json")
+    with pytest.raises(DataError):
+        excluded_runs(data_dir)
+
+    # Missing excluded_runs key
+    exc_file.write_text(json.dumps({"wrong_key": []}))
+    with pytest.raises(DataError):
+        excluded_runs(data_dir)
+
+
+def test_load_sessions_filters_excluded_run_only(tmp_path: Path):
+    data_dir = tmp_path / "data"
+    conf_dir = data_dir / "sessions" / "confirmation" / "20261115_test_sess"
+    conf_dir.mkdir(parents=True)
+    (conf_dir / "session.json").write_text(json.dumps({"state": "completed", "status": "complete"}))
+
+    run1 = conf_dir / "run_keep"
+    run1.mkdir()
+    (run1 / "env.json").write_text(json.dumps({}))
+    (run1 / "summary.csv").write_text("benchmark,median_ns\nkeep_bench,100\n")
+
+    run2 = conf_dir / "run_exclude"
+    run2.mkdir()
+    (run2 / "env.json").write_text(json.dumps({}))
+    (run2 / "summary.csv").write_text("benchmark,median_ns\nexclude_bench,200\n")
+
+    exc_file = data_dir / "exclusions.json"
+    exc_file.write_text(json.dumps({
+        "excluded_runs": [{
+            "run": "sessions/confirmation/20261115_test_sess/run_exclude",
+            "benchmark": "exclude_bench",
+            "reason": "testing",
+        }]
+    }))
+
+    sessions = load_sessions(allow_dirty=False, data_dir=data_dir)
+    test_sess = [s for s in sessions if "20261115_test_sess" in s.name][0]
+    run_names = [r.name for r in test_sess.runs]
+    assert "run_keep" in run_names
+    assert "run_exclude" not in run_names
+
+
 def test_session_state_filtering(tmp_path: Path):
     data_dir = tmp_path / "data"
     sessions_dir = data_dir / "sessions"
